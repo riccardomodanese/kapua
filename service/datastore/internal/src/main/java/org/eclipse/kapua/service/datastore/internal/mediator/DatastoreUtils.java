@@ -13,8 +13,16 @@
 package org.eclipse.kapua.service.datastore.internal.mediator;
 
 import com.google.common.hash.Hashing;
+
+import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
+import org.eclipse.kapua.service.datastore.MessageStoreService;
+import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettingKey;
+import org.eclipse.kapua.service.datastore.internal.setting.DatastoreSettings;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +52,11 @@ import java.util.regex.Pattern;
 public class DatastoreUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatastoreUtils.class);
+    private static final MessageStoreService MESSAGE_STORE_SERVICE = KapuaLocator.getInstance().getService(MessageStoreService.class);
+    private static final String INDEXING_WINDOW_OPTION = "indexingWindow";
+    private static final String INDEXING_WINDOW_OPTION_WEEK = "WEEK";
+    private static final String INDEXING_WINDOW_OPTION_DAY = "DAY";
+    private static final String INDEXING_WINDOW_OPTION_HOUR = "HOUR";
 
     private DatastoreUtils() {
     }
@@ -74,8 +87,18 @@ public class DatastoreUtils {
     public static final String CLIENT_METRIC_TYPE_BOOLEAN_ACRONYM = "bln";
     public static final String CLIENT_METRIC_TYPE_BINARY_ACRONYM = "bin";
 
-    private static final DateTimeFormatter DATA_INDEX_FORMATTER = DateTimeFormatter
+    private static final DateTimeFormatter DATA_INDEX_FORMATTER_WEEK = DateTimeFormatter
             .ofPattern("YYYY-ww")
+            .withLocale(KapuaDateUtils.getLocale())
+            .withResolverStyle(ResolverStyle.STRICT)
+            .withZone(KapuaDateUtils.getTimeZone());
+    private static final DateTimeFormatter DATA_INDEX_FORMATTER_DAY = DateTimeFormatter
+            .ofPattern("YYYY-ww-dd")
+            .withLocale(KapuaDateUtils.getLocale())
+            .withResolverStyle(ResolverStyle.STRICT)
+            .withZone(KapuaDateUtils.getTimeZone());
+    private static final DateTimeFormatter DATA_INDEX_FORMATTER_HOUR = DateTimeFormatter
+            .ofPattern("YYYY-ww-dd-HH")
             .withLocale(KapuaDateUtils.getLocale())
             .withResolverStyle(ResolverStyle.STRICT)
             .withZone(KapuaDateUtils.getTimeZone());
@@ -212,9 +235,14 @@ public class DatastoreUtils {
      * @return
      */
     public static String getDataIndexName(KapuaId scopeId) {
+        final StringBuilder sb = new StringBuilder();
+        final String prefix = DatastoreSettings.getInstance().getString(DatastoreSettingKey.INDEX_PREFIX);
+        if (StringUtils.isNotEmpty(prefix)) {
+            sb.append(prefix).append("-");
+        }
         String indexName = DatastoreUtils.normalizedIndexName(scopeId.toStringId());
-        indexName = String.format("%s-*", indexName);
-        return indexName;
+        sb.append(indexName).append("-*");
+        return sb.toString();
     }
 
     /**
@@ -224,11 +252,35 @@ public class DatastoreUtils {
      * @param timestamp
      * @return
      */
-    public static String getDataIndexName(KapuaId scopeId, long timestamp) {
-        final String actualName = DatastoreUtils.normalizedIndexName(scopeId.toStringId());
-        final StringBuilder sb = new StringBuilder(actualName).append('-');
-        DATA_INDEX_FORMATTER.formatTo(Instant.ofEpochMilli(timestamp).atOffset(ZoneOffset.UTC), sb);
-        return sb.toString();
+    public static String getDataIndexName(KapuaId scopeId, long timestamp) throws KapuaException {
+        try {
+            final StringBuilder sb = new StringBuilder();
+            final String prefix = DatastoreSettings.getInstance().getString(DatastoreSettingKey.INDEX_PREFIX);
+            if (StringUtils.isNotEmpty(prefix)) {
+                sb.append(prefix).append("-");
+            }
+            final String actualName = DatastoreUtils.normalizedIndexName(scopeId.toStringId());
+            sb.append(actualName).append('-');
+            String indexingWindowOption = MESSAGE_STORE_SERVICE.getConfigValues(scopeId).get(INDEXING_WINDOW_OPTION).toString();
+            DateTimeFormatter formatter;
+            switch (indexingWindowOption) {
+                default:
+                case INDEXING_WINDOW_OPTION_WEEK:
+                    formatter = DATA_INDEX_FORMATTER_WEEK;
+                    break;
+                case INDEXING_WINDOW_OPTION_DAY:
+                    formatter = DATA_INDEX_FORMATTER_DAY;
+                    break;
+                case INDEXING_WINDOW_OPTION_HOUR:
+                    formatter = DATA_INDEX_FORMATTER_HOUR;
+                    break;
+            }
+            formatter.formatTo(Instant.ofEpochMilli(timestamp).atOffset(ZoneOffset.UTC), sb);
+            return sb.toString();
+        } catch (KapuaException kaex) {
+            LOG.error("Error fetching MessageStoreService configuration", kaex);
+            throw kaex;
+        }
     }
 
     /**
@@ -239,9 +291,14 @@ public class DatastoreUtils {
      * @since 1.0.0
      */
     public static String getRegistryIndexName(KapuaId scopeId) {
-        String actualName = DatastoreUtils.normalizedIndexName(scopeId.toStringId());
-        actualName = String.format(".%s", actualName);
-        return actualName;
+        final StringBuilder sb = new StringBuilder();
+        final String prefix = DatastoreSettings.getInstance().getString(DatastoreSettingKey.INDEX_PREFIX);
+        if (StringUtils.isNotEmpty(prefix)) {
+            sb.append(prefix).append("-");
+        }
+        String indexName = DatastoreUtils.normalizedIndexName(scopeId.toStringId());
+        sb.append(".").append(indexName);
+        return sb.toString();
     }
 
     /**
@@ -281,7 +338,12 @@ public class DatastoreUtils {
 
         List<String> indexes = new ArrayList<>();
         while (startInstant.isBefore(endInstant) || areInThesameWeek(startInstant, endInstant)) {
-            String index = DatastoreUtils.getDataIndexName(scopeId, startInstant.toEpochMilli());
+            String index;
+            try {
+                index = DatastoreUtils.getDataIndexName(scopeId, startInstant.toEpochMilli());
+            } catch (KapuaException kaex) {
+                throw new ConfigurationException("Error while generating index name", kaex);
+            }
             LOG.info("Adding index: {}", index);
             indexes.add(index);
             startInstant = startInstant.plus(7, ChronoUnit.DAYS);
@@ -308,16 +370,23 @@ public class DatastoreUtils {
                 } catch (ParseException e) {
                     LOG.error("Cannot evaluate week of the year for the date", e);
                     throw new DatastoreException(DatastoreErrorCodes.INTERNAL_ERROR, e);
+                } catch (KapuaException kaex) {
+                    throw new ConfigurationException("Error while generating index name", kaex);
                 }
             }
         }
         return indexes.toArray(new String[0]);
     }
 
-    public static List<String> filterIndexesBeforeDate(KapuaId scopeId, String[] indexes, Instant startInstant) {
+    public static List<String> filterIndexesBeforeDate(KapuaId scopeId, String[] indexes, Instant startInstant) throws DatastoreException {
         //see https://docs.oracle.com/javase/8/docs/api/java/util/List.html#remove-int-
         List<String> filteredIndexes = new ArrayList<>();
-        String lastIndexToInclude = DatastoreUtils.getDataIndexName(scopeId, getLastDayOfTheWeek(startInstant).toEpochMilli());
+        String lastIndexToInclude;
+        try {
+            lastIndexToInclude = DatastoreUtils.getDataIndexName(scopeId, getLastDayOfTheWeek(startInstant).toEpochMilli());
+        } catch (KapuaException kaex) {
+            throw new ConfigurationException("Error while generating index name", kaex);
+        }
         for (String index : indexes) {
             if (lastIndexToInclude.compareTo(index) >= 0) {
                 filteredIndexes.add(index);

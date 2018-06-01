@@ -22,7 +22,7 @@ import org.eclipse.kapua.service.datastore.internal.mediator.MessageStoreConfigu
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MessageStoraConfigurationTest {
+public class MessageStoreConfigurationTest {
 
     @Test
     public void test1() {
