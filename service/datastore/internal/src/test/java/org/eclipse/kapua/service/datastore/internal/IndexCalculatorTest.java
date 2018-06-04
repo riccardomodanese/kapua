@@ -16,7 +16,6 @@ import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreException;
 import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreUtils;
-import org.eclipse.kapua.test.KapuaTest;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class IndexCalculatorTest extends KapuaTest {
+public class IndexCalculatorTest extends AbstractMessageStoreServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexCalculatorTest.class);
 

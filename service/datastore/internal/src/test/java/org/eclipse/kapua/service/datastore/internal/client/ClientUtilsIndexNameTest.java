@@ -19,11 +19,12 @@ import java.time.ZonedDateTime;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.model.id.KapuaId;
+import org.eclipse.kapua.service.datastore.internal.AbstractMessageStoreServiceTest;
 import org.eclipse.kapua.service.datastore.internal.mediator.DatastoreUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ClientUtilsIndexNameTest {
+public class ClientUtilsIndexNameTest extends AbstractMessageStoreServiceTest {
 
     private static final KapuaId ONE = new KapuaEid(BigInteger.ONE);
 
