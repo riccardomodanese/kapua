@@ -53,10 +53,6 @@ public class DatastoreUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatastoreUtils.class);
     private static final MessageStoreService MESSAGE_STORE_SERVICE = KapuaLocator.getInstance().getService(MessageStoreService.class);
-    private static final String INDEXING_WINDOW_OPTION = "indexingWindow";
-    private static final String INDEXING_WINDOW_OPTION_WEEK = "WEEK";
-    private static final String INDEXING_WINDOW_OPTION_DAY = "DAY";
-    private static final String INDEXING_WINDOW_OPTION_HOUR = "HOUR";
 
     private DatastoreUtils() {
     }
@@ -86,6 +82,11 @@ public class DatastoreUtils {
     public static final String CLIENT_METRIC_TYPE_DATE_ACRONYM = "dte";
     public static final String CLIENT_METRIC_TYPE_BOOLEAN_ACRONYM = "bln";
     public static final String CLIENT_METRIC_TYPE_BINARY_ACRONYM = "bin";
+
+    public static final String INDEXING_WINDOW_OPTION = "indexingWindow";
+    public static final String INDEXING_WINDOW_OPTION_WEEK = "WEEK";
+    public static final String INDEXING_WINDOW_OPTION_DAY = "DAY";
+    public static final String INDEXING_WINDOW_OPTION_HOUR = "HOUR";
 
     private static final DateTimeFormatter DATA_INDEX_FORMATTER_WEEK = DateTimeFormatter
             .ofPattern("YYYY-ww")
@@ -321,6 +322,25 @@ public class DatastoreUtils {
      * @throws DatastoreException
      */
     public static String[] convertToDataIndexes(KapuaId scopeId, Instant start, Instant end) throws DatastoreException {
+        List<String> indexes = new ArrayList<>();
+
+        String indexWindowSize = null;
+        try {
+            indexWindowSize = MESSAGE_STORE_SERVICE.getConfigValues(scopeId).get(INDEXING_WINDOW_OPTION).toString();
+        } catch (KapuaException kaex) {
+            throw new ConfigurationException("Unable to read account settings", kaex);
+        }
+
+        switch (indexWindowSize) {
+            case "WEEK":
+                indexes = convertToDataIndexesByWeek(scopeId, start, end);
+                break;
+        }
+
+        return indexes.toArray(new String[0]);
+    }
+
+    private static List<String> convertToDataIndexesByWeek(KapuaId scopeId, Instant start, Instant end) throws DatastoreException {
         // drop partial week so start from "from + 1 week" to "end - 1 week" included
         // if the start date is not the first day of the week and the end date is not the end day of the week
         Instant startInstant = getFirstDayOfTheWeek(start);
@@ -375,7 +395,20 @@ public class DatastoreUtils {
                 }
             }
         }
-        return indexes.toArray(new String[0]);
+        return indexes;
+    }
+
+    private static List<String> convertToDataIndexesByDay(KapuaId scopeId, Instant start, Instant end) throws DatastoreException {
+        List<String> indexes = new ArrayList<>();
+
+        return indexes;
+    }
+
+
+    private static List<String> convertToDataIndexesByHour(KapuaId scopeId, Instant start, Instant end) throws DatastoreException {
+        List<String> indexes = new ArrayList<>();
+
+        return indexes;
     }
 
     public static List<String> filterIndexesBeforeDate(KapuaId scopeId, String[] indexes, Instant startInstant) throws DatastoreException {
