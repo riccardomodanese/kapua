@@ -941,7 +941,12 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-user-api</artifactId>
+                <artifactId>kapua-translator-kura-amqp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-translator-kura-jms</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -962,6 +967,11 @@
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-tag-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-transport-amqp-proton</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1011,7 +1021,12 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-broker-client-amqp-proton</artifactId>
                 <artifactId>kapua-transport-jms</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

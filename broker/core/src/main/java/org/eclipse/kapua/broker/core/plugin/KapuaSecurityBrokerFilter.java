@@ -23,6 +23,7 @@ import org.apache.activemq.broker.ProducerBrokerExchange;
 import org.apache.activemq.broker.TransportConnector;
 import org.apache.activemq.broker.region.Subscription;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.command.ConnectionInfo;
 import org.apache.activemq.command.ConsumerInfo;
@@ -584,7 +585,16 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
             messageSend.setProperty(MessageConstants.HEADER_KAPUA_BROKER_CONTEXT, true);
         }
         publishMetric.getMessageSizeAllowed().update(messageSend.getSize());
-        messageSend.setProperty(MessageConstants.PROPERTY_ORIGINAL_TOPIC, originalTopic);
+        ActiveMQDestination destination = messageSend.getDestination();
+        if (destination instanceof ActiveMQTopic) {
+            ActiveMQTopic destinationTopic = (ActiveMQTopic) destination;
+            messageSend.setProperty(Properties.PROPERTY_ORIGINAL_TOPIC, destinationTopic.getTopicName().substring(VT_TOPIC_PREFIX.length()));
+        }
+        else {
+            ActiveMQQueue destinationQueue = (ActiveMQQueue) destination;
+            logger.info(destinationQueue.toString());
+            messageSend.setProperty(Properties.PROPERTY_ORIGINAL_TOPIC, destinationQueue.getQueueName().substring(VT_TOPIC_PREFIX.length()));
+        }
         publishMetric.getAllowedMessages().inc();
         super.send(producerExchange, messageSend);
     }
