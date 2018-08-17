@@ -141,6 +141,17 @@
             <artifactId>log4j2-mock</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- AMQP proton-j -->
+        <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>proton-j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

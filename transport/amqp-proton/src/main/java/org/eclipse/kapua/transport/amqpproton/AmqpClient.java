@@ -71,9 +71,8 @@ public class AmqpClient {
     }
 
     private ClientOptions wrapOptions(TransportClientConnectOptions options) {
-        clientOptions.put(AmqpClientOptions.BROKER_HOST, options.getEndpointURI().getHost());
-        //the connection port is a deployment parameter so read it from configuration
-        clientOptions.put(AmqpClientOptions.BROKER_PORT, AmqpClientSetting.getInstance().getInt(AmqpClientSettingKeys.TRANSPORT_CONNECTION_PORT));
+        clientOptions.put(AmqpClientOptions.BROKER_HOST, "localhost");//options.getEndpointURI().toString());
+        clientOptions.put(AmqpClientOptions.BROKER_PORT, 5673);
         clientOptions.put(AmqpClientOptions.PASSWORD, options.getPassword());
         clientOptions.put(AmqpClientOptions.USERNAME, options.getUsername());
         clientOptions.put(AmqpClientOptions.CLIENT_ID, options.getClientId());

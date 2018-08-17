@@ -49,6 +49,7 @@ public class EmbeddedBroker {
     private Map<String, List<AutoCloseable>> closables = new HashMap<>();
 
     private static BrokerService broker;
+    private static AmqpAcceptor amqpAcceptor;
 
     public EmbeddedBroker() {
     }
@@ -81,6 +82,8 @@ public class EmbeddedBroker {
             if (EXTRA_STARTUP_DELAY > 0) {
                 Thread.sleep(Duration.ofSeconds(EXTRA_STARTUP_DELAY).toMillis());
             }
+            amqpAcceptor = new AmqpAcceptor();
+            amqpAcceptor.start();
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
