@@ -18,13 +18,15 @@ import org.eclipse.kapua.service.KapuaDomainService;
 import org.eclipse.kapua.service.KapuaEntityService;
 import org.eclipse.kapua.service.KapuaNamedEntityService;
 import org.eclipse.kapua.service.KapuaUpdatableEntityService;
+import org.eclipse.kapua.service.config.KapuaConfigurableService;
 
 import java.util.List;
 
 public interface CertificateService extends KapuaEntityService<Certificate, CertificateCreator>,
         KapuaNamedEntityService<Certificate>,
         KapuaUpdatableEntityService<Certificate>,
-        KapuaDomainService<CertificateDomain> {
+        KapuaDomainService<CertificateDomain>,
+        KapuaConfigurableService {
 
     CertificateDomain CERTIFICATE_DOMAIN = new CertificateDomain();
 
