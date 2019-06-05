@@ -12,5 +12,6 @@
 #     Eurotech - initial API and implementation
 #*******************************************************************************
 
-# Kapua jars and activemq.xml need to be added before starting the activemq instance...
-bin/activemq start -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=* xbean:conf/activemq.xml
+cd /usr/local/artemis/kapua-event
+
+bin/artemis run
