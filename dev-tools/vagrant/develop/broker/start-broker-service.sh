@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #*******************************************************************************
-# Copyright (c) 2011, 2018 Eurotech and/or its affiliates and others
+# Copyright (c) 2011, 2019 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -11,5 +11,6 @@
 #     Eurotech - initial API and implementation
 #*******************************************************************************
 
-# Kapua jars and activemq.xml need to be added before starting the activemq instance...
-bin/activemq start -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=* xbean:conf/activemq.xml
+cd /usr/local/artemis/kapua-event
+
+bin/artemis run

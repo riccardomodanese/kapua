@@ -33,8 +33,7 @@ Vagrant.configure(2) do |config|
 
     export ELASTICSEARCH_VERSION="5.4.0"
     export H2DB_VERSION="1.4.192"
-    export ACTIVE_MQ_VERSION="5.14.5"
-    export ARTEMIS_VERSION="2.2.0"
+    export ARTEMIS_VERSION="2.8.1"
     export JETTY_VERSION="9.4.12.v20180830"
 
     export BINDING_IP="192.168.33.10"
@@ -46,84 +45,6 @@ Vagrant.configure(2) do |config|
     sudo yum install -y java-1.8.0-openjdk-devel
 
     #############################
-    ### Install ActiveMQ      ###
-    #############################
-    cd /usr/local/
-    sudo curl -O http://archive.apache.org/dist/activemq/${ACTIVE_MQ_VERSION}/apache-activemq-${ACTIVE_MQ_VERSION}-bin.tar.gz
-    sudo tar zxvf apache-activemq-${ACTIVE_MQ_VERSION}-bin.tar.gz
-    sudo rm apache-activemq-${ACTIVE_MQ_VERSION}-bin.tar.gz
-    sudo ln -s apache-activemq-${ACTIVE_MQ_VERSION} activemq
-
-    # Remove unnecessary library
-    cd activemq
-    echo 'cleanup unnecessary libraries'
-    sudo rm -rf activemq-all-*
-    sudo rm -rf lib/activemq-jaas-*
-    sudo rm -rf lib/activemq-openwire-legacy*
-    sudo rm -rf lib/activemq-web-*
-    sudo rm -rf lib/activemq-rar.txt
-    sudo rm -rf lib/geronimo-jms_1.1_spec-1.1.1.jar
-    sudo rm -rf lib/geronimo-jta_1.0.1B_spec*
-    sudo rm -rf lib/optional/activeio-core-*
-    sudo rm -rf lib/optional/activemq-amqp-*
-    sudo rm -rf lib/optional/activemq-jdbc-store*
-    sudo rm -rf lib/optional/activemq-leveldb-store*
-    sudo rm -rf lib/optional/activemq-log4j-appender*
-    sudo rm -rf lib/optional/activemq-shiro*
-    sudo rm -rf lib/optional/activemq-partition*
-    sudo rm -rf lib/optional/activemq-pool*
-    sudo rm -rf lib/optional/activemq-runtime-config*
-    sudo rm -rf lib/optional/activemq-stomp*
-    sudo rm -rf lib/optional/commons-codec-*
-    sudo rm -rf lib/optional/commons-collections-*
-    sudo rm -rf lib/optional/commons-dbcp*
-    sudo rm -rf lib/optional/commons-net*
-    sudo rm -rf lib/optional/commons-pool2*
-    sudo rm -rf lib/optional/geronimo-j2ee-connector*
-    sudo rm -rf lib/optional/guava*
-    sudo rm -rf lib/optional/hawt*
-    sudo rm -rf lib/optional/http*
-    sudo rm -rf lib/optional/insight-log*
-    sudo rm -rf lib/optional/jackson-*
-    sudo rm -rf lib/optional/jasypt-*
-    sudo rm -rf lib/optional/jaxb2-*
-    sudo rm -rf lib/optional/jettison-*
-    sudo rm -rf lib/optional/jmdns-*
-    sudo rm -rf lib/optional/leveldb*
-    sudo rm -rf lib/optional/org.apache.servicemix.bundles*
-    sudo rm -rf lib/optional/org.linkedin*
-    sudo rm -rf lib/optional/proton-j*
-    sudo rm -rf lib/optional/scala-library*
-    sudo rm -rf lib/optional/shiro*
-    sudo rm -rf lib/optional/snappy-*
-    sudo rm -rf lib/optional/spring-oxm-*
-    sudo rm -rf lib/optional/velocity*
-    sudo rm -rf lib/optional/xpp3-*
-    sudo rm -rf lib/optional/xstream-*
-    sudo rm -rf lib/optional/zookeeper-*
-
-    sudo rm -rf lib/web/apache*
-    sudo rm -rf lib/web/taglibs*
-    sudo rm -rf lib/web/spring*
-    sudo rm -rf lib/web/org.eclipse*
-    sudo rm -rf lib/web/json-simple*
-    sudo rm -rf lib/web/jolokia*
-    sudo rm -rf lib/web/rome*
-    sudo rm -rf lib/web/jdom*
-    sudo rm -rf lib/web/geronimo*
-    sudo rm -rf lib/web/asm*
-
-    sudo rm -rf bin/wrapper.jar
-    sudo rm -rf bin/macosx/
-    sudo rm -rf bin/linux-x86-32/
-    sudo rm -rf bin/linux-x86-64/
-
-    sudo rm -rf examples/
-    sudo rm -rf docs/
-    sudo rm -rf webapps/
-    sudo rm -rf webapps-demo/
-
-    #############################
     ### Install Artemis       ###
     #############################
     cd /usr/local/
@@ -133,22 +54,41 @@ Vagrant.configure(2) do |config|
     ln -s apache-artemis-${ARTEMIS_VERSION} artemis
 
     cd artemis
-    #create server
+    rm -rf examples
+
+    #create server event
     ./bin/artemis create \
     --allow-anonymous \
     --autocreate \
     --cluster-password password \
     --cluster-user user \
     --clustered false \
-    --data ./data/kapua --default-port 61616 \
+    --data ./data/kapua-event --default-port 61616 \
     --disable-persistence false \
     --home /usr/local/artemis \
     --host ${BINDING_IP} \
-    --name kapua \
+    --name kapua-event \
     --password password \
     --allow-anonymous \
     --user user \
-    --verbose kapua
+    --verbose kapua-event
+
+    #create server telemetry
+    ./bin/artemis create \
+    --allow-anonymous \
+    --autocreate \
+    --cluster-password password \
+    --cluster-user user \
+    --clustered false \
+    --data ./data/kapua-telemetry --default-port 1883 \
+    --disable-persistence false \
+    --home /usr/local/artemis \
+    --host ${BINDING_IP} \
+    --name kapua-telemetry \
+    --password password \
+    --allow-anonymous \
+    --user user \
+    --verbose kapua-telemetry
 
     #############################
     ### Install H2            ###

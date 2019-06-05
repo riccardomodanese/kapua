@@ -17,8 +17,7 @@ env_vars = {
   'BINDING_IP'            => network_address,
   'ELASTICSEARCH_VERSION' => '5.4.0',
   'H2DB_VERSION'          => '1.4.192',
-  'ACTIVEMQ_VERSION'      => '5.14.5',
-  'ARTEMIS_VERSION'       => '2.2.0',
+  'ARTEMIS_VERSION'       => '2.8.1',
   'JETTY_VERSION'         => '9.4.12.v20180830',
   'KAPUA_VERSION'         => '1.1.0-SNAPSHOT'
 }
@@ -32,11 +31,11 @@ Vagrant.configure("2") do |config|
   # If Virtualbox provider
   # Check that vagrant-vbguest plugin is installed
   # If missing, install it.
-  config.vm.provider "virtualbox" do |vb|
-    unless Vagrant.has_plugin?("vagrant-vbguest")
-      system('if ! vagrant plugin list | grep -q vagrant-vbguest; then echo "Installing missing plugin: vagrant-vbguest" ;vagrant plugin install vagrant-vbguest; fi')
-    end
-  end
+#  config.vm.provider "virtualbox" do |vb|
+#    unless Vagrant.has_plugin?("vagrant-vbguest")
+#      system('if ! vagrant plugin list | grep -q vagrant-vbguest; then echo "Installing missing plugin: vagrant-vbguest" ;vagrant plugin install vagrant-vbguest; fi')
+#    end
+#  end
 
   # Share the kapua directory with the vagrant machine to allow
   # the ActiveMQ broker to access the kapua code (jars)
@@ -44,7 +43,7 @@ Vagrant.configure("2") do |config|
     owner: "vagrant", group: "vagrant",
     mount_options: ["dmode=775", "fmode=664"]
 
-  config.vm.box = "kapua-dev-box/0.8"
+  config.vm.box = "kapua-dev-box/1.0"
   config.vm.box_check_update = false
 
   # DBMS
@@ -136,42 +135,27 @@ Vagrant.configure("2") do |config|
       # Stop H2 instance
       pkill -f h2
 
-      ######################
-      ### ActiveMQ setup ###
-      ######################
-
-      # ActiveMQ post-install setup
-      cd /usr/local/activemq/
-      rm conf/activemq.xml
-
-      ln -s /kapua/assembly/broker/configurations/activemq.xml conf/activemq.xml
-      ln -s /kapua/assembly/broker/configurations/camel.xml conf/camel.xml
-      echo 'Configuring conf/log4j.properties...'
-      sudo sed -i 's/log4j.appender.logfile.layout.ConversionPattern=%d | %-5p | %m | %c | %t%n/log4j.appender.logfile.layout.ConversionPattern=%d | %-5p | %t | %c | %m%n/g' conf/log4j.properties
-      sudo sed -i 's/log4j.appender.audit.layout.ConversionPattern=%-5p | %m | %t%n/log4j.appender.audit.layout.ConversionPattern=%-5p | %t%n | %m/g' conf/log4j.properties
-      echo 'Configuring conf/log4j.properties... DONE!'
-
-      cp /kapua/dev-tools/vagrant/develop/broker/update-kapua-jars-cfg.sh .
-      cp /kapua/dev-tools/vagrant/develop/broker/start-broker.sh .
-      chmod 555 update-kapua-jars-cfg.sh
-      chmod 555 start-broker.sh
-      
-      # Enable debug
-      sudo sed -i 's/\#ACTIVEMQ_DEBUG_OPTS=/ACTIVEMQ_DEBUG_OPTS=/g' bin/env
-      sudo sed -i 's/ACTIVEMQ_VERSION/'"$ACTIVEMQ_VERSION"'/g' update-kapua-jars-cfg.sh
-      sudo sed -i 's/ACTIVEMQ_VERSION/'"$ACTIVEMQ_VERSION"'/g' start-broker.sh
-      sudo sed -i 's/ARTEMIS_VERSION/'"$ARTEMIS_VERSION"'/g' start-broker.sh
-      sudo chown -R vagrant:vagrant /usr/local/activemq/
-
       ##############################
-      ### Artemis setup ###
+      ### Artemis events setup ###
       ##############################
-      cd /usr/local/artemis/kapua
+      cd /usr/local/artemis/kapua-event
       echo "Setting up Artemis..."
       sudo cp /kapua/assembly/events-broker/configurations/broker.xml etc/
       sudo sed -i '/<acceptor.*5672.*<\\/acceptor>/! s|<acceptor.*</acceptor>||g' etc/broker.xml
       sudo sed -i "s|/usr/local/artemis|/usr/local/artemis|g" etc/artemis.profile
       sudo sed -i "s|localhost:8161|${BINDING_IP}:8161|g" etc/bootstrap.xml
+
+      cd /usr/local/artemis/kapua-telemetry
+      sudo cp /kapua/assembly/broker-artemis/configurations/broker.xml etc/
+      sudo sed -i '/<acceptor.*1883.*<\\/acceptor>/! s|<acceptor.*</acceptor>||g' etc/broker.xml
+      sudo sed -i "s|/usr/local/artemis|/usr/local/artemis|g" etc/artemis.profile
+      sudo sed -i "s|localhost:8161|${BINDING_IP}:8162|g" etc/bootstrap.xml
+
+      cd /usr/local/artemis
+      sudo cp /kapua/dev-tools/vagrant/develop/broker/start-broker*.sh .
+      sudo chmod +x *.sh
+      sudo cp /kapua/dev-tools/vagrant/develop/broker/update-kapua*.sh kapua-telemetry
+      sudo chmod +x kapua-telemetry/*.sh
       sudo chown -R vagrant:vagrant /usr/local/artemis/
       echo "Setting up Artemis... DONE!"
 
@@ -189,7 +173,6 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", env: env_vars, run: "always", inline: <<-SHELL
       setsid su --login -c "java -cp /usr/local/h2/h2*.jar org.h2.tools.Server -baseDir /home/vagrant/H2/kapua -webAllowOthers -tcpAllowOthers -tcpPort 3306 &" vagrant
       setsid su --login -c "/usr/local/elasticsearch/bin/elasticsearch -d" vagrant
-      setsid su --login -c "/usr/local/artemis/kapua/bin/artemis-service start" vagrant
     SHELL
 
   end

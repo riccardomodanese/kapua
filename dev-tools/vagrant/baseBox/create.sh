@@ -12,7 +12,7 @@
 #*******************************************************************************
 
 BASEDIR=$(dirname "$0")
-KAPUA_BOX_VERSION=0.8
+KAPUA_BOX_VERSION=1.0
 KAPUA_BOX_NAME="kapua-dev-box/${KAPUA_BOX_VERSION}"
 KAPUA_BOX_TMP_DIR="/tmp/kapua-dev-box"
 

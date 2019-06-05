@@ -36,6 +36,7 @@
         <module>events-broker</module>
 
         <module>broker</module>
+        <module>broker-artemis</module>
         <module>api</module>
     </modules>
 
