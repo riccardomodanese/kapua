@@ -44,8 +44,12 @@ public class KapuaConnectionInfo {
         return String.format(FULL_CLIENT_ID_PATTERN, kapuaMetaData.getAccount(), kapuaMetaData.getClientId());
     }
 
-    public static String getFullClientId(KapuaConnectionInfo kapuaSession) {
-        return String.format(FULL_CLIENT_ID_PATTERN, kapuaSession.getAccount(), kapuaSession.getClientId());
+    public static String getFullClientId(String account, String clientId) {
+        return String.format(FULL_CLIENT_ID_PATTERN, account, clientId);
+    }
+
+    public String getFullClientId() {
+        return String.format(FULL_CLIENT_ID_PATTERN, getAccount(), getClientId());
     }
 
     public void updateAccount(String account) {

@@ -85,7 +85,7 @@
             <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
             <acceptor name="mqtt">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
         </acceptors>
-<!-- allowStealingLink=true -->
+        <!-- allowLinkStealing=true -->
         <security-settings>
             <security-setting match="#">
                 <permission type="createNonDurableQueue" roles="amq"/>

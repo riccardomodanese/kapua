@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnection;
+//import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnection;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
@@ -48,6 +49,7 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     private static final Map<String, KapuaSession> SESSION_MAP = new ConcurrentHashMap<>();
     private static final Map<String, KapuaConnectionInfo> CONNECTION_MAP = new ConcurrentHashMap<>();
 
+    private ActiveMQServer server;
     private String version;
 
     //
@@ -56,32 +58,52 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     public ArtemisSecurityPlugin() {
     }
 
+    @Override
+    public void registered(ActiveMQServer server) {
+        this.server = server;
+        logger.info("Plugin registered!");
+        ActiveMQServerPlugin.super.registered(server);
+    }
+
+    @Override
+    public void unregistered(ActiveMQServer server) {
+        logger.info("Plugin unregistered!");
+        ActiveMQServerPlugin.super.unregistered(server);
+    }
+
+    @Override
+    public void init(Map<String, String> properties) {
+        version = properties.get("version");
+        logger.info("Init version {}", version);
+        ActiveMQServerPlugin.super.init(properties);
+    }
+
     /**
      * CONNECT
      */
 
     @Override
     public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
-        Object connectionID = connection.getID();
+        String connectionId = getConnectionId(connection.getID());
         connection.addCloseListener(() -> {
-            logger.info("Connection closed: {} - {}", connectionID, connectionID.getClass());
+            logger.info("Connection closed: {} - {}", connectionId, connectionId.getClass());
         });
         connection.addFailureListener(new FailureListener() {
 
             @Override
             public void connectionFailed(ActiveMQException exception, boolean failedOver, String scaleDownTargetNodeID) {
-                logger.info("connectionFailed: {} - {} \n {} - {} - {}", connectionID, connectionID.getClass(), exception.getMessage(), failedOver, scaleDownTargetNodeID);
+                logger.info("connectionFailed: {} - {} - {} - {} - {}", connectionId, connectionId.getClass(), exception.getMessage(), failedOver, scaleDownTargetNodeID);
                 logger.trace("{}", exception);
             }
 
             @Override
             public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-                logger.info("connectionFailed: {} - {} \n {} - {}", connectionID, connectionID.getClass(), exception.getMessage(), failedOver);
+                logger.info("connectionFailed: {} - {} - {} - {}", connectionId, connectionId.getClass(), exception.getMessage(), failedOver);
                 logger.trace("{}", exception);
             }
         });
-        String clientId = ((MQTTConnection)connection).getClientID();
-        logger.info("afterCreateConnection: {}", connectionID, connectionID.getClass());
+//        String clientId = ((MQTTConnection)connection).getClientID();
+        logger.info("afterCreateConnection: {}", connectionId, connectionId.getClass());
         ActiveMQServerPlugin.super.afterCreateConnection(connection);//no info
     }
 
@@ -89,9 +111,22 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     public void afterCreateSession(ServerSession session) throws ActiveMQException {
         String connectionId = getConnectionId(session.getConnectionID());
         try {
-            KapuaConnectionInfo kapuaConnectionInfo = setConnectionInfo(session, connectionId, ACCOUNT);
+            KapuaConnectionInfo kapuaConnectionInfo = createConnectionInfo(session, connectionId, ACCOUNT);
+            String fullClientId = kapuaConnectionInfo.getFullClientId();
+
+            //stealing link detection
+            KapuaConnectionInfo kapuaConnectionInfoOld = getConnectionInfo(fullClientId);
+            if (kapuaConnectionInfoOld!=null) {
+                //stealing link disconnect old device
+                int disconnectedClients = disconnectClient(kapuaConnectionInfoOld.getConnectionId());
+                logger.info("############## Disconnected clients: {}", disconnectedClients);
+            }
+            setConnectionInfo(kapuaConnectionInfo);
             fillMetaData(session, connectionId);
             KapuaSession kapuaSession = new KapuaSession(session, connectionId, ACCOUNT);
+
+            //update client id with account|clientId (see pattern)
+            session.getRemotingConnection().setClientID(fullClientId);
             kapuaSession.log("afterCreateSession");
             kapuaConnectionInfo.log("afterCreateSession");
             setKapuaSession(kapuaSession);
@@ -112,26 +147,29 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
 
     @Override
     public void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
-        Object connectionID = connection.getID();
-        logger.info("afterDestroyConnection: {}", connectionID, connectionID.getClass());
+        String connectionId = getConnectionId(connection.getID());
+        logger.info("afterDestroyConnection: {}", connectionId, connectionId.getClass());
         ActiveMQServerPlugin.super.afterDestroyConnection(connection);//just client-id
     }
 
     @Override
     public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
         String connectionId = getConnectionId(session.getConnectionID());
-        KapuaMetaData kapuaMetaData = getKapuaMetaData(session, ACCOUNT, connectionId);
+        KapuaMetaData kapuaMetaData = createKapuaMetaData(session, ACCOUNT, connectionId);
         KapuaConnectionInfo connectionInfo = getConnectionInfo(kapuaMetaData);
         KapuaSession kapuaSession = getKapuaSession(connectionId);
-        if (connectionInfo.isStealingLink(connectionId)) {
-            logger.info("Stealing link occurred... skip adding disconnect event!");
+        //connection info could be null if, in case of stealing link, the connection process for the newest client is done before this step 
+        if (connectionInfo==null || connectionInfo.isStealingLink(connectionId)) {
+            logger.info("Stealing link occurred for connection id {}... skip adding disconnect event!", connectionId);
         }
         else {
             logger.info("Adding disconnect event!");
             doLogout();
             cleanConnectionInfo(connectionInfo);
         }
-        connectionInfo.log("beforeCloseSession");
+        if (connectionInfo!=null) {
+            connectionInfo.log("beforeCloseSession");
+        }
         kapuaSession.log("beforeCloseSession");
         ActiveMQServerPlugin.super.beforeCloseSession(session, failed);
     }
@@ -142,6 +180,9 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
 
     @Override
     public void afterCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
+        String localAddress = consumer.getConnectionLocalAddress();
+        String queueAddress = consumer.getQueueAddress().toString();
+        logger.info("Subscribed address {} - queue: {}", localAddress, queueAddress);
         String connectionId = getConnectionId(consumer.getConnectionID());
         KapuaSession kapuaSession = getKapuaSession(connectionId);
         kapuaSession.log("afterCreateConsumer");
@@ -156,11 +197,24 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     @Override
     public void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct,
             boolean noAutoCreateQueue) throws ActiveMQException {
+        String address = message.getAddress();
+        logger.info("Published message on address {}", address);
         String connectionId = getConnectionId(session.getConnectionID());
-        KapuaMetaData kapuaMetaData = getKapuaMetaData(session, ACCOUNT, connectionId);
+        KapuaMetaData kapuaMetaData = createKapuaMetaData(session, ACCOUNT, connectionId);
         KapuaSession kapuaSession = getKapuaSession(connectionId);
         kapuaSession.log("beforeSend");
         checkPublisherAllowed();
+        //disconnection test
+        if (address.startsWith("DISCONNECT.")) {
+            String[] path = address.split("\\.");
+            if (path.length>=3) {
+                logger.info("Disconnecting client: {} - {}", path[1], path[2]);
+                disconnectClient(path[1], path[2]);
+            }
+            else {
+                logger.info("Malformed disconnect address {}", address);
+            }
+        }
         ActiveMQServerPlugin.super.beforeSend(session, tx, message, direct, noAutoCreateQueue);
     }
 
@@ -169,9 +223,61 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
      * @throws ActiveMQException
      */
 
+    private int disconnectClient(String connectionId) {
+        logger.info("Disconnecting client for connection: {}", connectionId);
+        return server.getRemotingService().getConnections().stream().map(remotingConnection -> {
+            String connectionIdTmp;
+            int removed = 0;
+            try {
+                connectionIdTmp = getConnectionId(remotingConnection.getID());
+                if (connectionId.equals(connectionIdTmp)) {
+                    logger.info("               connection: {} - compared to: {} ... CLOSE", connectionId, connectionIdTmp);
+                    remotingConnection.disconnect(false);
+                    remotingConnection.destroy();
+                    removed++;
+                }
+                else {
+                    logger.info("               connection: {} - compared to: {} ... no action", connectionId, connectionIdTmp);
+                }
+            } catch (ActiveMQException e) {
+                logger.error("Error while checking connection {}", remotingConnection.getID());
+            }
+            return removed;
+        }).mapToInt(Integer::new).sum();
+    }
+
+    private int disconnectClient(String account, String clientId) {
+        logger.info("Disconnecting client for account: {} - client id: {}", account, clientId);
+        String fullClientId = KapuaConnectionInfo.getFullClientId(account, clientId);
+        return server.getSessions().stream().map(session -> {
+            String fullClientIdTmp;
+            String connectionId = null;
+            int removed = 0;
+            try {
+                RemotingConnection remotingConnection = session.getRemotingConnection();
+                connectionId = getConnectionId(remotingConnection.getID());
+                String sessionId = getConnectionId(session);
+                fullClientIdTmp = KapuaConnectionInfo.getFullClientId(createKapuaMetaData(session, ACCOUNT, getConnectionId(remotingConnection.getID())));
+                if (fullClientId.equals(fullClientIdTmp)) {
+                    logger.info("               connection: {} - session: {} - full client id: {}... CLOSE", connectionId, sessionId, fullClientIdTmp);
+                    remotingConnection.disconnect(false);
+                    remotingConnection.destroy();
+                    removed++;
+                }
+                else {
+                    logger.info("               connection: {} - session: {} - full client id: {}... no action", connectionId, sessionId, fullClientIdTmp);
+                }
+            } catch (ActiveMQException e) {
+                logger.error("Error while checking connection {}", connectionId);
+            }
+            return removed;
+        }).mapToInt(Integer::new).sum();
+    }
+
     private String getConnectionId(Object connectionId) throws ActiveMQException {
-        logger.info("==========> {} - {}", connectionId, connectionId.getClass());
+        logger.debug("==========> {} - {}", connectionId, connectionId.getClass());
         if (connectionId instanceof DefaultChannelId) {
+            logger.info("Connection id: {}  |  {}", ((DefaultChannelId)connectionId).asShortText(), ((DefaultChannelId)connectionId).asLongText());
             return ((DefaultChannelId)connectionId).asShortText();
         }
         else if (connectionId instanceof String) {
@@ -180,20 +286,39 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
         throw new ActiveMQException("Unsupported connectionId type " + (connectionId != null ? connectionId.getClass() : null));
     }
 
-    private KapuaConnectionInfo setConnectionInfo(ServerSession session, String connectionId, String account) {
+    private String getConnectionId(ServerSession session) throws ActiveMQException {
+        Object connectionId = session.getConnectionID();
+        logger.debug("==========> {} - {}", connectionId, connectionId.getClass());
+        if (connectionId instanceof DefaultChannelId) {
+            logger.info("Connection id: {}  |  {}", ((DefaultChannelId)connectionId).asShortText(), ((DefaultChannelId)connectionId).asLongText());
+            return ((DefaultChannelId)connectionId).asShortText();
+        }
+        else if (connectionId instanceof String) {
+            return (String) connectionId;
+        }
+        throw new ActiveMQException("Unsupported connectionId type " + (connectionId != null ? connectionId.getClass() : null));
+    }
+
+    private KapuaConnectionInfo createConnectionInfo(ServerSession session, String connectionId, String account) {
         String clientId = session.getRemotingConnection().getClientID();
         String username = session.getUsername();
-        KapuaConnectionInfo kapuaConnectionInfo = new KapuaConnectionInfo(connectionId, clientId, account, username);
-        CONNECTION_MAP.put(KapuaConnectionInfo.getFullClientId(kapuaConnectionInfo), kapuaConnectionInfo);
-        return kapuaConnectionInfo;
+        return new KapuaConnectionInfo(connectionId, clientId, account, username);
+    }
+
+    private void setConnectionInfo(KapuaConnectionInfo kapuaConnectionInfo) {
+        CONNECTION_MAP.put(kapuaConnectionInfo.getFullClientId(), kapuaConnectionInfo);
     }
 
     private KapuaConnectionInfo cleanConnectionInfo(KapuaConnectionInfo kapuaConnectionInfo) {
-        return CONNECTION_MAP.remove(KapuaConnectionInfo.getFullClientId(kapuaConnectionInfo));
+        return CONNECTION_MAP.remove(kapuaConnectionInfo.getFullClientId());
     }
 
     private KapuaConnectionInfo getConnectionInfo(KapuaMetaData kapuaMetaData) {
-        return CONNECTION_MAP.get(KapuaConnectionInfo.getFullClientId(kapuaMetaData));
+        return getConnectionInfo(KapuaConnectionInfo.getFullClientId(kapuaMetaData));
+    }
+
+    private KapuaConnectionInfo getConnectionInfo(String fullClientId) {
+        return CONNECTION_MAP.get(fullClientId);
     }
 
     private void fillMetaData(ServerSession session, String connectionId) throws ActiveMQException {
@@ -207,7 +332,7 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
         }
     }
 
-    private KapuaMetaData getKapuaMetaData(ServerSession session, String account, String connectionId) {
+    private KapuaMetaData createKapuaMetaData(ServerSession session, String account, String connectionId) {
         return new KapuaMetaData(connectionId, session.getMetaData(CLIENT_ID), session.getMetaData(USERNAME), account, session.getMetaData(PASSWORD));
     }
 
