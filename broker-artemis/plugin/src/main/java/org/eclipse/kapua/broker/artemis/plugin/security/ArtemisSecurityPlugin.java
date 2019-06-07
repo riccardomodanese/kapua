@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.eclipse.kapua.broker.artemis.plugin.security.connector.AcceptorConfigurationLoader;
 import org.eclipse.kapua.broker.artemis.plugin.security.connector.AcceptorHandler;
+import org.eclipse.kapua.broker.artemis.plugin.security.connector.ConnectorConfigurationLoader;
 import org.eclipse.kapua.broker.artemis.plugin.security.connector.ConnectorHandler;
 import org.eclipse.kapua.broker.artemis.plugin.security.context.KapuaConnectionInfo;
 import org.eclipse.kapua.broker.artemis.plugin.security.context.KapuaMetaData;
@@ -69,6 +70,7 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
             this.server = server;
             AcceptorConfigurationLoader.addAcceptorConfiguration(AcceptorConfigurationLoader.MQTT_1883_NAME);
             acceptorHandler = new AcceptorHandler(server, AcceptorConfigurationLoader.getAvailableAcceptors());
+            connectorHandler = new ConnectorHandler(server);
             //init acceptors
             acceptorHandler.syncAcceptors();
         } catch (Exception e) {
@@ -243,7 +245,7 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
         else if (address.startsWith("ACCEPTOR.")) {
             String[] path = address.split("\\.");
             if (path.length>=3) {
-                logger.info("Adding/removing acceptors: {} - {}", path[0], path[1], path[2]);
+                logger.info("Adding/removing acceptors: {} - {}", path[1], path[2]);
                 if ("ADD".equals(path[1])) {
                     AcceptorConfigurationLoader.addAcceptorConfiguration(path[2]);
                 }
@@ -257,7 +259,26 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
                 }
             }
             else {
-                logger.info("Malformed disconnect address {}", address);
+                logger.info("Malformed acceptors address {}", address);
+            }
+        }
+        else if (address.startsWith("CONNECTOR.")) {
+            String[] path = address.split("\\.");
+            if (path.length>=3) {
+                logger.info("Adding/removing conectors: {} - {}", path[1], path[2]);
+                try {
+                    if ("ADD".equals(path[1])) {
+                        connectorHandler.addAcceptor(path[2], ConnectorConfigurationLoader.getConnector(path[2]));
+                    }
+                    else {
+                        connectorHandler.removeAcceptor(path[2]);
+                    }
+                } catch (Exception e) {
+                    logger.info("Error adding/removing conectors {}", e.getMessage(), e);
+                }
+            }
+            else {
+                logger.info("Malformed conectors address {}", address);
             }
         }
     }
