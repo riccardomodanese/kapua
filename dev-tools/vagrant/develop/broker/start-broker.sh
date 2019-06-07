@@ -11,8 +11,26 @@
 #     Eurotech - initial API and implementation
 #*******************************************************************************
 
+echo '### starting telemetry Artemis'
 cd /usr/local/artemis/kapua-telemetry
 
 ./update-kapua-jars-cfg.sh
 
-bin/artemis run
+#bin/artemis run
+bin/artemis-service start
+
+echo '### starting telemetry Artemis 1'
+cd /usr/local/artemis/kapua-telemetry-1
+
+./update-kapua-jars-cfg.sh
+
+#bin/artemis run
+bin/artemis-service start
+
+echo '### starting telemetry Artemis 2'
+cd /usr/local/artemis/kapua-telemetry-2
+
+./update-kapua-jars-cfg.sh
+
+#bin/artemis run
+bin/artemis-service start

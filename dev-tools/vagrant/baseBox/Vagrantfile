@@ -89,6 +89,40 @@ Vagrant.configure(2) do |config|
     --allow-anonymous \
     --user user \
     --verbose kapua-telemetry
+    
+    #create server telemetry-1
+    ./bin/artemis create \
+    --allow-anonymous \
+    --autocreate \
+    --cluster-password password \
+    --cluster-user user \
+    --clustered false \
+    --data ./data/kapua-telemetry-1 --default-port 1893 \
+    --disable-persistence false \
+    --home /usr/local/artemis \
+    --host ${BINDING_IP} \
+    --name kapua-telemetry-1 \
+    --password password \
+    --allow-anonymous \
+    --user user \
+    --verbose kapua-telemetry-1
+    
+    #create server telemetry-2
+    ./bin/artemis create \
+    --allow-anonymous \
+    --autocreate \
+    --cluster-password password \
+    --cluster-user user \
+    --clustered false \
+    --data ./data/kapua-telemetry-2 --default-port 2003 \
+    --disable-persistence false \
+    --home /usr/local/artemis \
+    --host ${BINDING_IP} \
+    --name kapua-telemetry-2 \
+    --password password \
+    --allow-anonymous \
+    --user user \
+    --verbose kapua-telemetry-2
 
     #############################
     ### Install H2            ###

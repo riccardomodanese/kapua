@@ -54,6 +54,17 @@ public class ArtemisTest {
     }
 
     @Test
+    public void testAcceptors() throws Exception {
+        MqttClient client = getClient(SERVER_URL, CLIENT_ID);
+        MqttConnectOptions options = getOptions("user", "password");
+        client.connect(options);
+        Thread.sleep(SLEEP_TIME);
+        client.publish("ACCEPTOR.ADD.brokerNetwork", new MqttMessage());
+        Thread.sleep(SLEEP_TIME);
+        client.publish("CONNECTOR.ADD.brokerNetwork", new MqttMessage());
+    }
+
+    @Test
     public void testBasicConnectivity() throws Exception {
         MqttClient client = getClient(SERVER_URL, CLIENT_ID);
         MqttConnectOptions options = getOptions("user", "password");

@@ -22,6 +22,15 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
  */
 public class AcceptorConfigurationLoader {
 
+    public static final String NETWORK_ACCEPTOR_NAME_1 = "brokerNetwork";
+    private static final String NETWORK_ACCEPTOR_URI_1 = "tcp://localhost:61616?protocols=CORE";
+
+    public static final String NETWORK_ACCEPTOR_NAME_2 = "brokerNetwork";
+    private static final String NETWORK_ACCEPTOR_URI_2 = "tcp://localhost:61618?protocols=CORE";
+
+    public static final String NETWORK_ACCEPTOR_NAME_3 = "brokerNetwork";
+    private static final String NETWORK_ACCEPTOR_URI_3 = "tcp://localhost:61620?protocols=CORE";
+
     public static final String MQTT_1883_NAME = "mqtt";
     private static final String MQTT_1883_URI = "tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true";
     public static final String MQTT_1884_NAME = "mqtt2";
@@ -42,6 +51,15 @@ public class AcceptorConfigurationLoader {
         }
         else if (MQTT_1884_NAME.equals(name)) {
             return DEFAULT_ACCEPTORS_MAP.put(name, MQTT_1884_URI);
+        }
+        else if (NETWORK_ACCEPTOR_NAME_1.equals(name)) {
+            return DEFAULT_ACCEPTORS_MAP.put(name, NETWORK_ACCEPTOR_URI_1);
+        }
+        else if (NETWORK_ACCEPTOR_NAME_2.equals(name)) {
+            return DEFAULT_ACCEPTORS_MAP.put(name, NETWORK_ACCEPTOR_URI_2);
+        }
+        else if (NETWORK_ACCEPTOR_NAME_3.equals(name)) {
+            return DEFAULT_ACCEPTORS_MAP.put(name, NETWORK_ACCEPTOR_URI_3);
         }
         //TODO find more appropriate exception
         throw new ActiveMQException("Unknown acceptor name " + name);
