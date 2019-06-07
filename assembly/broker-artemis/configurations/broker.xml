@@ -79,12 +79,15 @@
               <global-max-size>100Mb</global-max-size>
         -->
 
-        <acceptors>
-            <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
+        <!-- Acceptors notes -->
+        <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
             <!-- amqpCredits: The number of credits sent to AMQP producers -->
             <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
+        <!-- 
+        <acceptors>
             <acceptor name="mqtt">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
         </acceptors>
+        -->
         <!-- allowLinkStealing=true -->
         <security-settings>
             <security-setting match="#">

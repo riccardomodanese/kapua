@@ -27,9 +27,11 @@ public class ArtemisTest {
 
     private static final long SLEEP_TIME = 500;
     private static final String SERVER_URL = "tcp://192.168.33.10:1883";
+    private static final String SERVER_URL_2 = "tcp://192.168.33.10:1884";
     private static final String CLIENT_ID = "client-id";
     private static final String CLIENT_ID_2 = "client-id-2";
     private static final String CLIENT_ID_3 = "client-id-3";
+    private static final String CLIENT_ID_1884 = "client-id-1884";
 
     public ArtemisTest() {
     }
@@ -40,6 +42,16 @@ public class ArtemisTest {
 //            doTestInternal();
 //        }
 //    }
+
+    @Test
+    public void testBasicConnectivityLoop() throws Exception {
+        for(int i=0; i<20; i++) {
+            logger.info("###################################");
+            logger.info("ITERATION {}", i);
+            logger.info("###################################");
+            testBasicConnectivity();
+        }
+    }
 
     @Test
     public void testBasicConnectivity() throws Exception {
@@ -66,11 +78,21 @@ public class ArtemisTest {
         Thread.sleep(SLEEP_TIME);
         Assert.assertTrue("Client2 should be connected!", client2.isConnected());
         Assert.assertTrue("Client3 should be connected!", client3.isConnected());
-        for(int i=0; i<20; i++) {
+        for(int i=0; i<1; i++) {
             doTestInternal();
             Assert.assertTrue("Client2 should be connected!", client2.isConnected());
             Assert.assertTrue("Client3 should be connected!", client3.isConnected());
         }
+        client2.publish("ACCEPTOR.ADD.mqtt2", new MqttMessage());
+        Thread.sleep(SLEEP_TIME);
+        MqttClient client1884 = getClient(SERVER_URL_2, CLIENT_ID_1884);
+        MqttConnectOptions options1884 = getOptions("user1884", "password1884");
+        client1884.connect(options1884);
+        Thread.sleep(SLEEP_TIME);
+        Assert.assertTrue("Client should be connected!", client1884.isConnected());
+        client2.publish("ACCEPTOR.REMOVE.mqtt2", new MqttMessage());
+        Thread.sleep(SLEEP_TIME);
+        Assert.assertTrue("Client should be disconnected!", !client1884.isConnected());
         client2.disconnect();
         client3.disconnect();
         Thread.sleep(SLEEP_TIME);
@@ -103,7 +125,7 @@ public class ArtemisTest {
 
     private static MqttClient getClient(String serverUrl, String clientId) throws MqttException {
         MemoryPersistence persistence = new MemoryPersistence();
-        MqttClient client = new MqttClient(SERVER_URL, clientId, persistence);
+        MqttClient client = new MqttClient(serverUrl, clientId, persistence);
         client.setCallback(new MqttCallback());
         return client;
     }
