@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
-//import org.apache.activemq.artemis.core.protocol.mqtt.MQTTConnection;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -25,6 +24,9 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.eclipse.kapua.broker.artemis.plugin.security.connector.AcceptorConfigurationLoader;
+import org.eclipse.kapua.broker.artemis.plugin.security.connector.AcceptorHandler;
+import org.eclipse.kapua.broker.artemis.plugin.security.connector.ConnectorHandler;
 import org.eclipse.kapua.broker.artemis.plugin.security.context.KapuaConnectionInfo;
 import org.eclipse.kapua.broker.artemis.plugin.security.context.KapuaMetaData;
 import org.eclipse.kapua.broker.artemis.plugin.security.context.KapuaSession;
@@ -49,10 +51,12 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     private static final Map<String, KapuaSession> SESSION_MAP = new ConcurrentHashMap<>();
     private static final Map<String, KapuaConnectionInfo> CONNECTION_MAP = new ConcurrentHashMap<>();
 
+    private AcceptorHandler acceptorHandler;
+    private ConnectorHandler connectorHandler;
     private ActiveMQServer server;
     private String version;
 
-    //
+    //just for test
     private static final String ACCOUNT = "ACCOUNT";
 
     public ArtemisSecurityPlugin() {
@@ -60,8 +64,17 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
 
     @Override
     public void registered(ActiveMQServer server) {
-        this.server = server;
-        logger.info("Plugin registered!");
+        logger.info("registering plugin...");
+        try {
+            this.server = server;
+            AcceptorConfigurationLoader.addAcceptorConfiguration(AcceptorConfigurationLoader.MQTT_1883_NAME);
+            acceptorHandler = new AcceptorHandler(server, AcceptorConfigurationLoader.getAvailableAcceptors());
+            //init acceptors
+            acceptorHandler.syncAcceptors();
+        } catch (Exception e) {
+            logger.error("Error initializing acceptors: {}", e.getMessage(), e);
+        }
+        logger.info("registering plugin... DONE");
         ActiveMQServerPlugin.super.registered(server);
     }
 
@@ -74,7 +87,7 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
     @Override
     public void init(Map<String, String> properties) {
         version = properties.get("version");
-        logger.info("Init version {}", version);
+        logger.info("Init Security plugin (version {})", version);
         ActiveMQServerPlugin.super.init(properties);
     }
 
@@ -204,6 +217,17 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
         KapuaSession kapuaSession = getKapuaSession(connectionId);
         kapuaSession.log("beforeSend");
         checkPublisherAllowed();
+        processMessage(address);
+        ActiveMQServerPlugin.super.beforeSend(session, tx, message, direct, noAutoCreateQueue);
+    }
+
+    /**
+     * DEMO CODE SECTION
+     * @throws ActiveMQException 
+     */
+
+    //TODO to be removed
+    private void processMessage(String address) throws ActiveMQException {
         //disconnection test
         if (address.startsWith("DISCONNECT.")) {
             String[] path = address.split("\\.");
@@ -215,7 +239,27 @@ public class ArtemisSecurityPlugin implements ActiveMQServerPlugin {
                 logger.info("Malformed disconnect address {}", address);
             }
         }
-        ActiveMQServerPlugin.super.beforeSend(session, tx, message, direct, noAutoCreateQueue);
+        //connector test
+        else if (address.startsWith("ACCEPTOR.")) {
+            String[] path = address.split("\\.");
+            if (path.length>=3) {
+                logger.info("Adding/removing acceptors: {} - {}", path[0], path[1], path[2]);
+                if ("ADD".equals(path[1])) {
+                    AcceptorConfigurationLoader.addAcceptorConfiguration(path[2]);
+                }
+                else {
+                    AcceptorConfigurationLoader.removeAcceptorConfiguration(path[2]);
+                }
+                try {
+                    acceptorHandler.syncAcceptors();
+                } catch (Exception e) {
+                    logger.info("Error adding/removing acceptors {}", e.getMessage(), e);
+                }
+            }
+            else {
+                logger.info("Malformed disconnect address {}", address);
+            }
+        }
     }
 
     /**
