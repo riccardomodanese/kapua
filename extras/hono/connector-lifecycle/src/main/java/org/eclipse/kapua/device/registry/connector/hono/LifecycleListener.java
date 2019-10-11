@@ -78,10 +78,10 @@ public class LifecycleListener {
      *
      * @param message
      */
-    public void processBirthMessage(MessageContext<TransportMessage> message) {
+    public void processBirthMessage(MessageContext<TransportMessage> message, KapuaId connectionId) {
         try {
             KapuaSecurityUtils.doPrivileged(() -> {
-                deviceLifeCycleService.birth(getConnectionId(message),
+                deviceLifeCycleService.birth(connectionId != null ? connectionId : getConnectionId(message),
                     LifecycleConverter.getBirthMessage(message.getMessage()));
                 metricDeviceBirthMessage.inc();
             });
@@ -96,10 +96,10 @@ public class LifecycleListener {
      *
      * @param message
      */
-    public void processDisconnectMessage(MessageContext<TransportMessage> message) {
+    public void processDisconnectMessage(MessageContext<TransportMessage> message, KapuaId connectionId) {
         try {
             KapuaSecurityUtils.doPrivileged(() -> {
-                deviceLifeCycleService.death(getConnectionId(message),
+                deviceLifeCycleService.death(connectionId != null ? connectionId : getConnectionId(message),
                     LifecycleConverter.getDisconnectMessage(message.getMessage()));
                 metricDeviceDisconnectMessage.inc();
             });
@@ -114,10 +114,10 @@ public class LifecycleListener {
      *
      * @param message
      */
-    public void processAppsMessage(MessageContext<TransportMessage> message) {
+    public void processAppsMessage(MessageContext<TransportMessage> message, KapuaId connectionId) {
         try {
             KapuaSecurityUtils.doPrivileged(() -> {
-                deviceLifeCycleService.applications(getConnectionId(message),
+                deviceLifeCycleService.applications(connectionId != null ? connectionId : getConnectionId(message),
                     LifecycleConverter.getAppsMessage(message.getMessage()));
                 metricDeviceAppsMessage.inc();
             });
@@ -132,10 +132,10 @@ public class LifecycleListener {
      *
      * @param message
      */
-    public void processMissingMessage(MessageContext<TransportMessage> message) {
+    public void processMissingMessage(MessageContext<TransportMessage> message, KapuaId connectionId) {
         try {
             KapuaSecurityUtils.doPrivileged(() -> {
-                deviceLifeCycleService.missing(getConnectionId(message),
+                deviceLifeCycleService.missing(connectionId != null ? connectionId : getConnectionId(message),
                     LifecycleConverter.getMissingMessage(message.getMessage()));
                 metricDeviceMissingMessage.inc();
             });

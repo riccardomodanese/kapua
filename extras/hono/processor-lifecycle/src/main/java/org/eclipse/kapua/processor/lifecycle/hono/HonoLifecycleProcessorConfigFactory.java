@@ -27,12 +27,16 @@ import org.eclipse.kapua.message.transport.TransportMessage;
 import org.eclipse.kapua.message.transport.TransportMessageType;
 import org.eclipse.kapua.processor.commons.MessageProcessorConfig;
 import org.eclipse.kapua.processor.commons.hono.HonoConsumerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vertx.core.Vertx;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.healthchecks.Status;
 
 public class HonoLifecycleProcessorConfigFactory implements ObjectFactory<MessageProcessorConfig<byte[], TransportMessage>> {
+
+    private static final Logger logger = LoggerFactory.getLogger(HonoLifecycleProcessorConfigFactory.class);
 
     private static final String CONFIG_PROP_PROCESSOR = "kapua.lifecycleProcessor";
     private static final String CONFIG_PROP_PROCESSOR_MSG_SOURCE_HONO = "kapua.lifecycleProcessor.messageSource.hono";
@@ -53,6 +57,7 @@ public class HonoLifecycleProcessorConfigFactory implements ObjectFactory<Messag
         AmqpHonoSource source = AmqpHonoSource.create(vertx, new HonoClient(vertx, honoSourceConfig.createClientOptions()));
         source.messageFilter(message -> {
             TransportMessageType messageType = (TransportMessageType) message.getProperties().get(Properties.MESSAGE_TYPE);
+            logger.info("Received message type: {}", messageType);
             MessageContent messageContent = (MessageContent)message.getProperties().get(Properties.MESSAGE_CONTENT);
             if (TransportMessageType.EVENTS.equals(messageType) && !MessageContent.SYSTEM.equals(messageContent)) {
                 return true;
@@ -80,7 +85,7 @@ public class HonoLifecycleProcessorConfigFactory implements ObjectFactory<Messag
         config.setConverter(new KuraPayloadProtoConverter());
 
         // Processor
-        LifecycleProcessor processor = LifecycleProcessor.create();
+        LifecycleProcessor processor = LifecycleProcessor.create(vertx);
         config.setMessageTarget(processor);
         config.getHealthCheckAdapters().add(new HealthCheckAdapter() {
 

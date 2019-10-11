@@ -79,9 +79,14 @@ public class SystemMessageUtil {
      * @param message
      * @throws KapuaException
      */
-    public static void checkDeviceConnectionId(MessageContext<?> message) throws KapuaException {
-        if (message.getProperties().get(Properties.MESSAGE_CONNECTION_ID) == null) {
+    public static KapuaId checkDeviceConnectionId(MessageContext<?> message) throws KapuaException {
+        String connectionIdStr = (String) message.getProperties().get(Properties.MESSAGE_CONNECTION_ID);
+        KapuaId connectionId = SerializationUtils.deserialize(Base64.getDecoder().decode(connectionIdStr));
+        if (connectionId == null) {
             throw new KapuaException(KapuaErrorCodes.ENTITY_NOT_FOUND, "deviceConnectionId");
+        }
+        else {
+            return connectionId;
         }
     }
 
@@ -90,16 +95,17 @@ public class SystemMessageUtil {
      * @param message
      * @throws KapuaException
      */
-    public static void createOrUpdateDeviceConnection(MessageContext<?> message) throws KapuaException {
+    public static KapuaId createOrUpdateDeviceConnection(MessageContext<?> message) throws KapuaException {
         Map<String, Object> parameters = message.getProperties();
         String clientId = (String)parameters.get(Properties.MESSAGE_CLIENT_ID);
         KapuaId scopeId = getScopeId((String)parameters.get(Properties.MESSAGE_SCOPE_NAME));
         DeviceConnection deviceConnection = getDeviceConnection(scopeId, clientId);
         if (deviceConnection == null) {
-            addConnection(scopeId, clientId);
+            return addConnection(scopeId, clientId).getId();
         }
         else {
             updateDeviceConnection(scopeId, deviceConnection.getId(), DeviceConnectionStatus.CONNECTED);
+            return deviceConnection.getId();
         }
     }
 
@@ -108,7 +114,7 @@ public class SystemMessageUtil {
      * @param message
      * @throws KapuaException
      */
-    public static void disconnectDeviceConnection(MessageContext<?> message) throws KapuaException {
+    public static KapuaId disconnectDeviceConnection(MessageContext<?> message) throws KapuaException {
         Map<String, Object> parameters = message.getProperties();
         String clientId = (String)parameters.get(Properties.MESSAGE_CLIENT_ID);
         KapuaId scopeId = getScopeId((String)parameters.get(Properties.MESSAGE_SCOPE_NAME));
@@ -119,6 +125,7 @@ public class SystemMessageUtil {
         }
         else {
             updateDeviceConnection(scopeId, deviceConnection.getId(), DeviceConnectionStatus.DISCONNECTED);
+            return deviceConnection.getId();
         }
     }
 
