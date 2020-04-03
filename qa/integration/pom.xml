@@ -394,6 +394,12 @@
             <artifactId>log4j2-mock</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.netcrusherorg</groupId>
+            <artifactId>netcrusher-core</artifactId>
+            <version>0.10</version>
+        </dependency>
     </dependencies>
 
 </project>
