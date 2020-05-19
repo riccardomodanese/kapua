@@ -55,6 +55,7 @@ import org.eclipse.kapua.broker.core.setting.BrokerSettingKey;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
+import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.ClassUtil;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -119,12 +120,16 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
     private static boolean stealingLinkEnabled;
     private Future<?> stealingLinkManagerFuture;
 
+    private static final String CONNECTOR_NAME_VM = String.format("vm://%s", BrokerSetting.getInstance().getString(BrokerSettingKey.BROKER_NAME));
+    private static final String CONNECTOR_NAME_INTERNAL;
+
     static {
         BrokerSetting config = BrokerSetting.getInstance();
         BROKER_IP_RESOLVER_CLASS_NAME = config.getString(BrokerSettingKey.BROKER_IP_RESOLVER_CLASS_NAME);
         BROKER_ID_RESOLVER_CLASS_NAME = config.getString(BrokerSettingKey.BROKER_ID_RESOLVER_CLASS_NAME);
         AUTHENTICATOR_CLASS_NAME = config.getString(BrokerSettingKey.AUTHENTICATOR_CLASS_NAME);
         AUTHORIZER_CLASS_NAME = config.getString(BrokerSettingKey.AUTHORIZER_CLASS_NAME);
+        CONNECTOR_NAME_INTERNAL = SystemSetting.getInstance().getString(SystemSettingKey.BROKER_INTERNAL_CONNECTOR_NAME);
         STEALING_LINK_INITIALIZATION_MAX_WAIT_TIME = config.getLong(BrokerSettingKey.STEALING_LINK_INITIALIZATION_MAX_WAIT_TIME);
         stealingLinkEnabled = config.getBoolean(BrokerSettingKey.BROKER_STEALING_LINK_ENABLED);
     }
@@ -136,7 +141,6 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
     protected String brokerId;
 
     protected static final Map<String, String> CONNECTION_MAP = new ConcurrentHashMap<>();
-    private static final String CONNECTOR_NAME_VM = String.format("vm://%s", BrokerSetting.getInstance().getString(BrokerSettingKey.BROKER_NAME));
     private Authenticator authenticator;
     private Authorizer authorizer;
 
@@ -338,7 +342,9 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
      */
     private boolean isPassThroughConnection(ConnectionContext context) {
         if (context != null) {
-            if (context.getConnector() == null || CONNECTOR_NAME_VM.equals(((TransportConnector) context.getConnector()).getName())) {
+            if (context.getConnector() == null ||
+                    CONNECTOR_NAME_VM.equals(((TransportConnector) context.getConnector()).getName()) ||
+                    CONNECTOR_NAME_INTERNAL.equals(((TransportConnector) context.getConnector()).getName())) {
                 return true;
             }
 
@@ -351,6 +357,14 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
         return false;
     }
 
+    private boolean isInternalConnector(ConnectionContext context) {
+        if (context != null &&
+                (context.getConnector() == null || CONNECTOR_NAME_INTERNAL.equals(((TransportConnector) context.getConnector()).getName()))) {
+                return true;
+        }
+        return false;
+    }
+
     /**
      * Check if security context is broker context
      * Return true if security context is a broker context or if is a pass through connection
@@ -360,13 +374,13 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
      * @param context
      * @return
      */
-    private boolean isBrokerContext(ConnectionContext context) {
+    private boolean isTrustedContext(ConnectionContext context) {
         if (context == null) {
             return false;
         } else if (context.getSecurityContext() != null) {
             return context.getSecurityContext().isBrokerContext();
         } else {
-            return isPassThroughConnection(context);
+            return isPassThroughConnection(context) || isInternalConnector(context);
         }
     }
 
@@ -397,10 +411,22 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
             addExternalConnection(context, info);
             loginMetric.getSuccess().inc();
         }
+        else if (isInternalConnector(context)) {
+            logger.debug("Internal connector: Login from {}", info.getUserName());
+            //this connection type is not so frequent so we can read values from configuration each time without having big performance impact
+            loginMetric.getInternalConnectorAttempt().inc();
+            String username = SystemSetting.getInstance().getString(SystemSettingKey.BROKER_INTERNAL_CONNECTOR_USERNAME);
+            String pass = SystemSetting.getInstance().getString(SystemSettingKey.BROKER_INTERNAL_CONNECTOR_PASSWORD);
+            if (username==null || !username.equals(info.getUserName()) ||
+                    pass==null || !pass.equals(info.getPassword())) {
+                throw new SecurityException("User not allowed!");
+            }
+            loginMetric.getInternalConnectorConnected().inc();
+        }
         super.addConnection(context, info);
     }
 
-    private void addExternalConnection(ConnectionContext context, ConnectionInfo info)
+    protected void addExternalConnection(ConnectionContext context, ConnectionInfo info)
             throws Exception {
         // Clean-up credentials possibly associated with the current thread by previous connection.
         ThreadContext.unbindSubject();
@@ -423,6 +449,7 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
             loginShiroLoginTimeContext.stop();
 
             CONNECTION_MAP.put(kapuaSecurityContext.getFullClientId(), info.getConnectionId().getValue());
+
             buildAuthorization(kapuaSecurityContext, authenticator.connect(kapuaSecurityContext));
             context.setSecurityContext(kapuaSecurityContext);
 
@@ -470,38 +497,46 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
     }
 
     @Override
-    public void removeConnection(ConnectionContext context, ConnectionInfo info, Throwable error)
-            throws Exception {
-        logger.error("Throwable on remove connection: {}", error!=null ? error.getMessage() : "N/A");
+    public void removeConnection(ConnectionContext context, ConnectionInfo info, Throwable error) throws Exception {
         if (!isPassThroughConnection(context)) {
-            Context loginRemoveConnectionTimeContext = loginMetric.getRemoveConnectionTime().time();
-            KapuaSecurityContext kapuaSecurityContext = getKapuaSecurityContext(context);
-            try {
-                KapuaPrincipal kapuaPrincipal = ((KapuaPrincipal) kapuaSecurityContext.getMainPrincipal());
-                kapuaSecurityContext.updateOldConnectionId(CONNECTION_MAP.get(kapuaSecurityContext.getFullClientId()));
-                // TODO fix the kapua session when run as feature will be implemented
-                KapuaSecurityUtils.setSession(new KapuaSession(kapuaPrincipal));
-                authenticator.disconnect(kapuaSecurityContext, error);
-                // multiple account stealing link fix
-                info.setClientId(kapuaSecurityContext.getFullClientId());
-                context.setClientId(kapuaSecurityContext.getFullClientId());
-            } finally {
-                loginRemoveConnectionTimeContext.stop();
-                authenticationService.logout();
-                if (kapuaSecurityContext != null && kapuaSecurityContext.getFullClientId() != null) {
-                    if (info.getConnectionId().getValue().equals(CONNECTION_MAP.get(kapuaSecurityContext.getFullClientId()))) {
-                        // cleanup stealing link detection map
-                        CONNECTION_MAP.remove(kapuaSecurityContext.getFullClientId());
-                    } else {
-                        logger.info("Cannot find client id in the connection map. May be it's due to a stealing link. ({})", kapuaSecurityContext.getFullClientId());
-                    }
-                } else {
-                    logger.warn("Cannot find Kapua connection context or client id is null");
-                }
-            }
+            removeExternalConnection(context, info, error);
+        }
+        else if (isInternalConnector(context)) {
+            logger.debug("Internal connector: Logout from {}", info.getUserName());
+            loginMetric.getInternalConnectorDisconnected().inc();
         }
         super.removeConnection(context, info, error);
         context.setSecurityContext(null);
+    }
+
+    protected void removeExternalConnection(ConnectionContext context, ConnectionInfo info, Throwable error)
+            throws Exception {
+        logger.debug("Throwable on remove connection: {}", error!=null ? error.getMessage() : "N/A");
+        Context loginRemoveConnectionTimeContext = loginMetric.getRemoveConnectionTime().time();
+        KapuaSecurityContext kapuaSecurityContext = getKapuaSecurityContext(context);
+        try {
+            KapuaPrincipal kapuaPrincipal = ((KapuaPrincipal) kapuaSecurityContext.getMainPrincipal());
+            kapuaSecurityContext.updateOldConnectionId(CONNECTION_MAP.get(kapuaSecurityContext.getFullClientId()));
+            // TODO fix the kapua session when run as feature will be implemented
+            KapuaSecurityUtils.setSession(new KapuaSession(kapuaPrincipal));
+            authenticator.disconnect(kapuaSecurityContext, error);
+            // multiple account stealing link fix
+            info.setClientId(kapuaSecurityContext.getFullClientId());
+            context.setClientId(kapuaSecurityContext.getFullClientId());
+        } finally {
+            loginRemoveConnectionTimeContext.stop();
+            authenticationService.logout();
+            if (kapuaSecurityContext != null && kapuaSecurityContext.getFullClientId() != null) {
+                if (info.getConnectionId().getValue().equals(CONNECTION_MAP.get(kapuaSecurityContext.getFullClientId()))) {
+                    // cleanup stealing link detection map
+                    CONNECTION_MAP.remove(kapuaSecurityContext.getFullClientId());
+                } else {
+                    logger.info("Cannot find client id in the connection map. May be it's due to a stealing link. ({})", kapuaSecurityContext.getFullClientId());
+                }
+            } else {
+                logger.warn("Cannot find Kapua connection context or client id is null");
+            }
+        }
     }
 
     private Account getAccount(KapuaId accountId) {
@@ -552,7 +587,7 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
             originalTopic = destinationTopic.getTopicName().substring(VT_TOPIC_PREFIX.length());
         }
         messageSend.setProperty(MessageConstants.HEADER_KAPUA_RECEIVED_TIMESTAMP, KapuaDateUtils.getKapuaSysDate().toEpochMilli());
-        if (!isBrokerContext(producerExchange.getConnectionContext())) {
+        if (!isTrustedContext(producerExchange.getConnectionContext())) {
             KapuaSecurityContext kapuaSecurityContext = getKapuaSecurityContext(producerExchange.getConnectionContext());
             if (!messageSend.getDestination().isTemporary() && !authorizer.isAllowed(ActionType.WRITE, kapuaSecurityContext, messageSend.getDestination())) {
                 String message = MessageFormat.format("User {0} ({1} - {2} - conn id {3}) is not authorized to write to: {4}",
@@ -613,7 +648,7 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
     private Subscription internalAddConsumer(ConnectionContext context, ConsumerInfo info)
             throws Exception {
         info.setClientId(context.getClientId());
-        if (!isBrokerContext(context)) {
+        if (!isTrustedContext(context)) {
             String[] destinationsPath = info.getDestination().getDestinationPaths();
             String destination = info.getDestination().getPhysicalName();
             KapuaSecurityContext kapuaSecurityContext = getKapuaSecurityContext(context);

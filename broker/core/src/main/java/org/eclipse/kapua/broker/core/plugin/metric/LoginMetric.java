@@ -25,11 +25,14 @@ public class LoginMetric {
     private Counter invalidUserPassword;
     private Counter invalidClientId;
     private Counter kapuasysTokenAttempt;
+    private Counter internalConnectorAttempt;
+    private Counter internalConnectorConnected;
     private Counter normalUserAttempt;
     private Counter stealingLinkConnect;
     private Counter stealingLinkDisconnect;
     private Counter adminStealingLinkDisconnect;
-    protected Counter remoteStealingLinkDisconnect;
+    private Counter remoteStealingLinkDisconnect;
+    private Counter internalConnectorDisconnected;
     private Timer addConnectionTime;
     private Timer normalUserTime;
     private Timer shiroLoginTime;
@@ -52,6 +55,9 @@ public class LoginMetric {
         invalidUserPassword = metricsService.getCounter("security", "login", "failure_password", "count");
         invalidClientId = metricsService.getCounter("security", "login", "failure_client_id", "count");
         kapuasysTokenAttempt = metricsService.getCounter("security", "login", "kapuasys", "count");
+        internalConnectorAttempt = metricsService.getCounter("security", "login", "internal_connector", "count");
+        internalConnectorConnected = metricsService.getCounter("security", "login", "internal_connector", "connected", "count");
+        internalConnectorDisconnected = metricsService.getCounter("security", "login", "internal_connector", "disconnected", "count");
         normalUserAttempt = metricsService.getCounter("security", "login", "normal", "count");
         stealingLinkConnect = metricsService.getCounter("security", "login", "stealing_link", "connect", "count");
         stealingLinkDisconnect = metricsService.getCounter("security", "login", "stealing_link", "disconnect", "count");
@@ -89,6 +95,10 @@ public class LoginMetric {
         return kapuasysTokenAttempt;
     }
 
+    public Counter getInternalConnectorAttempt() {
+        return internalConnectorAttempt;
+    }
+
     public Counter getNormalUserAttempt() {
         return normalUserAttempt;
     }
@@ -109,8 +119,12 @@ public class LoginMetric {
         return adminStealingLinkDisconnect;
     }
 
-    public void setAdminStealingLinkDisconnect(Counter adminStealingLinkDisconnect) {
-        this.adminStealingLinkDisconnect = adminStealingLinkDisconnect;
+    public Counter getInternalConnectorConnected() {
+        return internalConnectorConnected;
+    }
+
+    public Counter getInternalConnectorDisconnected() {
+        return internalConnectorDisconnected;
     }
 
     public Timer getAddConnectionTime() {
