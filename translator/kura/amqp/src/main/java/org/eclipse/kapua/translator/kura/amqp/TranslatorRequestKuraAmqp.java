@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.translator.kura.amqp;
 
-import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.service.device.call.message.kura.KuraPayload;
 import org.eclipse.kapua.service.device.call.message.kura.app.request.KuraRequestChannel;
 import org.eclipse.kapua.service.device.call.message.kura.app.request.KuraRequestMessage;
-import org.eclipse.kapua.service.device.call.message.kura.setting.DeviceCallSetting;
 import org.eclipse.kapua.service.device.call.message.kura.setting.DeviceCallSettingKeys;
+import org.eclipse.kapua.service.device.call.message.kura.setting.DeviceCallSettings;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.exception.TranslateException;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
@@ -34,7 +34,7 @@ public class TranslatorRequestKuraAmqp extends Translator<KuraRequestMessage, Am
 
     @Override
     public AmqpMessage translate(KuraRequestMessage kuraMessage)
-            throws KapuaException {
+            throws TranslateException {
         // Amqp request topic
         AmqpTopic aqmpRequestTopic = translate(kuraMessage.getChannel());
 
@@ -49,7 +49,7 @@ public class TranslatorRequestKuraAmqp extends Translator<KuraRequestMessage, Am
     }
 
     public AmqpTopic translate(KuraRequestChannel kuraChannel)
-            throws KapuaException {
+            throws TranslateException {
         List<String> topicTokens = new ArrayList<>();
 
         if (kuraChannel.getMessageClassification() != null) {
@@ -68,7 +68,7 @@ public class TranslatorRequestKuraAmqp extends Translator<KuraRequestMessage, Am
     }
 
     private AmqpTopic generateResponseTopic(KuraRequestChannel kuraChannel) {
-        String replyPart = DeviceCallSetting.getInstance().getString(DeviceCallSettingKeys.DESTINATION_REPLY_PART);
+        String replyPart = DeviceCallSettings.getInstance().getString(DeviceCallSettingKeys.DESTINATION_REPLY_PART);
 
         List<String> topicTokens = new ArrayList<>();
 
@@ -86,7 +86,7 @@ public class TranslatorRequestKuraAmqp extends Translator<KuraRequestMessage, Am
     }
 
     private AmqpPayload translate(KuraPayload kuraPayload)
-            throws KapuaException {
+            throws TranslateException {
         return new AmqpPayload(kuraPayload.toByteArray());
     }
 

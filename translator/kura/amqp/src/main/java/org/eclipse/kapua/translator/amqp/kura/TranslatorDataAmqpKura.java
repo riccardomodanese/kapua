@@ -11,11 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.translator.amqp.kura;
 
-import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.message.internal.MessageException;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataChannel;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataMessage;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataPayload;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.exception.TranslateException;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
@@ -27,7 +28,7 @@ public class TranslatorDataAmqpKura extends Translator<AmqpMessage, KuraDataMess
 
     @Override
     public KuraDataMessage translate(AmqpMessage aqmpMessage)
-            throws KapuaException {
+            throws TranslateException {
         // Kura topic
         KuraDataChannel kuraChannel = translate(aqmpMessage.getRequestTopic());
 
@@ -41,18 +42,23 @@ public class TranslatorDataAmqpKura extends Translator<AmqpMessage, KuraDataMess
     }
 
     private KuraDataChannel translate(AmqpTopic aqmpTopic)
-            throws KapuaException {
+            throws TranslateException {
         String[] aqmpTopicTokens = aqmpTopic.getSplittedTopic();
         return new KuraDataChannel(aqmpTopicTokens[0],
                 aqmpTopicTokens[1]);
     }
 
     private KuraDataPayload translate(AmqpPayload aqmpPayload)
-            throws KapuaException {
+            throws TranslateException {
         byte[] jmsBody = aqmpPayload.getBody();
 
         KuraDataPayload kuraPayload = new KuraDataPayload();
-        kuraPayload.readFromByteArray(jmsBody);
+        try {
+            kuraPayload.readFromByteArray(jmsBody);
+        } catch (MessageException e) {
+            //TODO EXT-CAMEL why another exception (TranslateException)?
+            throw new RuntimeException();
+        }
         return kuraPayload;
     }
 

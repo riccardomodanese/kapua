@@ -20,7 +20,6 @@
     <name>kapua</name>
 
     <packaging>pom</packaging>
-
     <properties>
         <!-- Build properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -521,6 +520,16 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-broker-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-broker-client-amqp-proton</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-client-gateway-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -951,6 +960,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
+                <artifactId>kapua-user-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-user-internal</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1001,11 +1015,6 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-translator-kura-jms</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-translator-kura-mqtt</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1021,17 +1030,12 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-broker-client-amqp-proton</artifactId>
                 <artifactId>kapua-transport-jms</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-transport-mqtt</artifactId>
+                <artifactId>kapua-transport-amqp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

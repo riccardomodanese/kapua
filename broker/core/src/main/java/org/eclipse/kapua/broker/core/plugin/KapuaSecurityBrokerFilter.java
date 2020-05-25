@@ -551,6 +551,12 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
         if (destination instanceof ActiveMQTopic) {
             ActiveMQTopic destinationTopic = (ActiveMQTopic) destination;
             originalTopic = destinationTopic.getTopicName().substring(VT_TOPIC_PREFIX.length());
+            messageSend.setProperty(MessageConstants.PROPERTY_ORIGINAL_TOPIC, destinationTopic.getTopicName().substring(VT_TOPIC_PREFIX.length()));
+        }
+        else {
+            ActiveMQQueue destinationQueue = (ActiveMQQueue) destination;
+            logger.info(destinationQueue.toString());
+            messageSend.setProperty(MessageConstants.PROPERTY_ORIGINAL_TOPIC, destinationQueue.getQueueName().substring(VT_TOPIC_PREFIX.length()));
         }
         messageSend.setProperty(MessageConstants.HEADER_KAPUA_RECEIVED_TIMESTAMP, KapuaDateUtils.getKapuaSysDate().toEpochMilli());
         if (!isBrokerContext(producerExchange.getConnectionContext())) {
@@ -585,16 +591,6 @@ public class KapuaSecurityBrokerFilter extends BrokerFilter {
             messageSend.setProperty(MessageConstants.HEADER_KAPUA_BROKER_CONTEXT, true);
         }
         publishMetric.getMessageSizeAllowed().update(messageSend.getSize());
-        ActiveMQDestination destination = messageSend.getDestination();
-        if (destination instanceof ActiveMQTopic) {
-            ActiveMQTopic destinationTopic = (ActiveMQTopic) destination;
-            messageSend.setProperty(Properties.PROPERTY_ORIGINAL_TOPIC, destinationTopic.getTopicName().substring(VT_TOPIC_PREFIX.length()));
-        }
-        else {
-            ActiveMQQueue destinationQueue = (ActiveMQQueue) destination;
-            logger.info(destinationQueue.toString());
-            messageSend.setProperty(Properties.PROPERTY_ORIGINAL_TOPIC, destinationQueue.getQueueName().substring(VT_TOPIC_PREFIX.length()));
-        }
         publishMetric.getAllowedMessages().inc();
         super.send(producerExchange, messageSend);
     }

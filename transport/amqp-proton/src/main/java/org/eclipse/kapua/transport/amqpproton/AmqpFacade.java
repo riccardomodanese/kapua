@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.eclipse.kapua.transport.amqpproton;
 
-import org.eclipse.kapua.KapuaErrorCodes;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.transport.TransportFacade;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
 import org.eclipse.kapua.transport.amqpproton.pooling.AmqpClientPool;
+import org.eclipse.kapua.transport.exception.TransportClientGetException;
+import org.eclipse.kapua.transport.exception.TransportSendException;
+import org.eclipse.kapua.transport.exception.TransportTimeoutException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +57,7 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
      * @param nodeUri
      * @throws KapuaException When AMQP client is not available.
      */
-    public AmqpFacade(String nodeUri) throws KapuaException {
+    public AmqpFacade(String nodeUri) throws TransportClientGetException {
         this.nodeUri = nodeUri;
 
         //
@@ -63,8 +65,8 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
         try {
             borrowedClient = AmqpClientPool.getInstance(nodeUri).borrowObject();
         } catch (Exception e) {
-            // FIXME use appropriate exception for this
-            throw new KapuaException(KapuaErrorCodes.INTERNAL_ERROR, e, (Object[]) null);
+            //TODO EXT-CAMEL why another exception (TranslateException)?
+            throw new RuntimeException();
         }
     }
 
@@ -77,20 +79,21 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
      */
     @Override
     public void sendAsync(AmqpMessage amqpMessage)
-            throws KapuaException {
+            throws TransportTimeoutException, TransportSendException {
         sendSync(amqpMessage, null);
     }
 
     @Override
     public AmqpMessage sendSync(AmqpMessage amqpMessage, Long timeout)
-            throws KapuaException {
+            throws TransportTimeoutException, TransportSendException {
         List<AmqpMessage> responses = new ArrayList<>();
 
         sendInternal(amqpMessage, responses, timeout);
 
         if (timeout != null) {
             if (responses.isEmpty()) {
-                throw new AmqpClientException(AmqpClientErrorCodes.CLIENT_TIMEOUT_EXCEPTION, null, amqpMessage.getRequestTopic());
+                //TODO EXT-CAMEL get timeout
+                throw new TransportTimeoutException(1l);
             }
             AmqpMessage response = responses.get(0);
             //TODO FIXME why the message interchanges between AMQP-MQTT connectors (with MQTT virtual topic on) on AtiveMQ doesn't clean the topic://VirtualTopic prefix?
@@ -119,7 +122,7 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
      * @since 1.0.0.
      */
     private void sendInternal(AmqpMessage amqpMessage, List<AmqpMessage> responses, Long timeout)
-            throws KapuaException {
+            throws TransportTimeoutException, TransportSendException {
         try {
             //
             // Subscribe if necessary
@@ -179,9 +182,10 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
                 }
             }
         } catch (Exception e) {
-            throw new AmqpClientException(AmqpClientErrorCodes.SEND_ERROR,
-                    e,
-                    amqpMessage.getRequestTopic().getTopic());
+            throw new TransportSendException(e, amqpMessage);
+//            throw new AmqpClientException(AmqpClientErrorCodes.SEND_ERROR,
+//                    e,
+//                    amqpMessage.getRequestTopic().getTopic());
         }
     }
 
@@ -193,6 +197,12 @@ public class AmqpFacade implements TransportFacade<AmqpTopic, AmqpPayload, AmqpM
     @Override
     public Class<AmqpMessage> getMessageClass() {
         return AmqpMessage.class;
+    }
+
+    @Override
+    public void close() {
+        //TODO EXT-CAMEL check if it's compatible with the object lifecycle
+        clean();
     }
 
     @Override

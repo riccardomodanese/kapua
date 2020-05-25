@@ -11,11 +11,11 @@
  *******************************************************************************/
 package org.eclipse.kapua.translator.kura.amqp;
 
-import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataChannel;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataMessage;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataPayload;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.exception.TranslateException;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
@@ -31,7 +31,7 @@ public class TranslatorDataKuraAmqp extends Translator<KuraDataMessage, AmqpMess
 
     @Override
     public AmqpMessage translate(KuraDataMessage kuraMessage)
-            throws KapuaException {
+            throws TranslateException {
         // Amqp request topic
         AmqpTopic aqmpRequestTopic = translate(kuraMessage.getChannel());
 
@@ -45,22 +45,22 @@ public class TranslatorDataKuraAmqp extends Translator<KuraDataMessage, AmqpMess
     }
 
     private AmqpTopic translate(KuraDataChannel kuraChannel)
-            throws KapuaException {
+            throws TranslateException {
         List<String> topicTokens = new ArrayList<>();
 
         topicTokens.add(kuraChannel.getScope());
         topicTokens.add(kuraChannel.getClientId());
 
-        if (kuraChannel.getSemanticChannelParts() != null &&
-                !kuraChannel.getSemanticChannelParts().isEmpty()) {
-            topicTokens.addAll(kuraChannel.getSemanticChannelParts());
+        if (kuraChannel.getSemanticParts() != null &&
+                !kuraChannel.getSemanticParts().isEmpty()) {
+            topicTokens.addAll(kuraChannel.getSemanticParts());
         }
 
         return new AmqpTopic(topicTokens.toArray(new String[0]));
     }
 
     private AmqpPayload translate(KuraDataPayload kuraPayload)
-            throws KapuaException {
+            throws TranslateException {
         return new AmqpPayload(kuraPayload.toByteArray());
     }
 

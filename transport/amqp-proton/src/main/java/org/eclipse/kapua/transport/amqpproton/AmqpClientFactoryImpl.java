@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.kapua.transport.amqpproton;
 
-import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.locator.KapuaProvider;
@@ -19,6 +18,7 @@ import org.eclipse.kapua.transport.TransportClientFactory;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
+import org.eclipse.kapua.transport.exception.TransportClientGetException;
 
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class AmqpClientFactoryImpl implements TransportClientFactory<AmqpTopic, 
 
     @Override
     public AmqpFacade getFacade(Map<String, Object> configParameters)
-            throws KapuaException {
+            throws TransportClientGetException {
         return new AmqpFacade(formatNodeUri(configParameters.get("serverAddress").toString()));
     }
 

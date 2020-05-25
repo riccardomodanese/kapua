@@ -51,7 +51,6 @@
                 <exclude>lib/slf4j*</exclude> <!-- pull in version 1.7.24 -->
 
                 <exclude>lib/optional/activeio-core-*</exclude>
-                <exclude>lib/optional/activemq-amqp-*</exclude>
                 <exclude>lib/optional/activemq-jdbc-store*</exclude>
                 <exclude>lib/optional/activemq-leveldb-store*</exclude>
                 <exclude>lib/optional/activemq-log4j-appender*</exclude>
@@ -279,7 +278,7 @@
                 <include>${pom.groupId}:kapua-translator-kura-mqtt</include>
                 <include>${pom.groupId}:kapua-transport-api</include>
                 <include>${pom.groupId}:kapua-transport-jms</include>
-                <include>${pom.groupId}:kapua-transport-mqtt</include>
+                <include>${pom.groupId}:kapua-transport-amqp</include>
                 <include>${pom.groupId}:kapua-user-api</include>
                 <include>${pom.groupId}:kapua-user-internal</include>
             </includes>

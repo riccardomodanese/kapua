@@ -11,14 +11,13 @@
  *******************************************************************************/
 package org.eclipse.kapua.translator.amqp.kura;
 
-import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
+import org.eclipse.kapua.message.internal.MessageException;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponseChannel;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponseMessage;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponsePayload;
 import org.eclipse.kapua.translator.Translator;
-import org.eclipse.kapua.translator.exception.TranslatorErrorCodes;
-import org.eclipse.kapua.translator.exception.TranslatorException;
+import org.eclipse.kapua.translator.exception.TranslateException;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqpproton.message.AmqpTopic;
@@ -35,7 +34,7 @@ public class TranslatorResponseAmqpKura extends Translator<AmqpMessage, KuraResp
 
     @Override
     public KuraResponseMessage translate(AmqpMessage aqmpMessage)
-            throws KapuaException {
+            throws TranslateException {
         // Kura topic
         KuraResponseChannel kuraChannel = translate(aqmpMessage.getRequestTopic());
 
@@ -49,13 +48,15 @@ public class TranslatorResponseAmqpKura extends Translator<AmqpMessage, KuraResp
     }
 
     private KuraResponseChannel translate(AmqpTopic aqmpTopic)
-            throws KapuaException {
+            throws TranslateException {
         String[] aqmpTopicTokens = aqmpTopic.getSplittedTopic();
 
         if (!CONTROL_MESSAGE_CLASSIFIER.equals(aqmpTopicTokens[0])) {
-            throw new TranslatorException(TranslatorErrorCodes.INVALID_CHANNEL_CLASSIFIER,
-                    null,
-                    aqmpTopicTokens[0]);
+            //TODO EXT-CAMEL why another exception (TranslateException)?
+            throw new RuntimeException();
+//            throw new TranslatorException(TranslatorErrorCodes.INVALID_CHANNEL_CLASSIFIER,
+//                    null,
+//                    aqmpTopicTokens[0]);
         }
 
         KuraResponseChannel kuraResponseChannel = new KuraResponseChannel(aqmpTopicTokens[0],
@@ -69,11 +70,16 @@ public class TranslatorResponseAmqpKura extends Translator<AmqpMessage, KuraResp
     }
 
     private KuraResponsePayload translate(AmqpPayload aqmpPayload)
-            throws KapuaException {
+            throws TranslateException {
         byte[] aqmpBody = aqmpPayload.getBody();
 
         KuraResponsePayload kuraResponsePayload = new KuraResponsePayload();
-        kuraResponsePayload.readFromByteArray(aqmpBody);
+        try {
+            kuraResponsePayload.readFromByteArray(aqmpBody);
+        } catch (MessageException e) {
+            //TODO EXT-CAMEL why another exception (TranslateException)?
+            throw new RuntimeException();
+        }
         return kuraResponsePayload;
     }
 
