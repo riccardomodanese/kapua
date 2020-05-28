@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################
-#    Copyright (c) 2011, 2018 Eurotech and/or its affiliates and others
+#    Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
 #
 #    All rights reserved. This program and the accompanying materials
 #    are made available under the terms of the Eclipse Public License v1.0
@@ -52,11 +52,6 @@ if [ "${KAPUA_DISABLE_SSL}" == "false" ]; then
     ACTIVEMQ_SSL_OPTS="${ACTIVEMQ_SSL_OPTS} -Djavax.net.ssl.trustStorePassword=${KAPUA_KEYSTORE_PASSWORD}"
 
     export ACTIVEMQ_SSL_OPTS
-fi
-
-if [ "${KAPUA_DISABLE_DATASTORE:-false}" == "true" ]; then
-  sed -i '/BEGIN DATASTORE PERSISTENCE/,/END DATASTORE PERSISTENCE/d' /opt/activemq/conf/camel.xml
-  sed -i '/BEGIN DATASTORE PERSISTENCE/,/END DATASTORE PERSISTENCE/d' /opt/activemq/conf/camel-routes.xml
 fi
 
 # Run broker

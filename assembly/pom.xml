@@ -37,6 +37,8 @@
 
         <module>broker</module>
         <module>api</module>
+
+        <module>consumer</module>
     </modules>
 
     <dependencyManagement>

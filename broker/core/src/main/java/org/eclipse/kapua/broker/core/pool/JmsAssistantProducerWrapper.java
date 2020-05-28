@@ -17,9 +17,9 @@ import javax.jms.Topic;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.broker.core.message.JmsUtil;
-import org.eclipse.kapua.broker.core.message.MessageConstants;
 import org.eclipse.kapua.broker.core.plugin.KapuaSecurityContext;
+import org.eclipse.kapua.consumer.commons.message.JmsUtil;
+import org.eclipse.kapua.consumer.commons.message.MessageConstants;
 
 /**
  * Broker ({@link JmsProducerWrapper}) implementation.<BR>

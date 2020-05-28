@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Red Hat Inc and others
+ * Copyright (c) 2017, 2020 Red Hat Inc and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,26 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.broker.core.setting;
 
-import org.eclipse.kapua.broker.core.plugin.ConnectorDescriptor;
-import org.eclipse.kapua.broker.core.router.CamelKapuaDefaultRouter;
 import org.eclipse.kapua.commons.setting.SettingKey;
 
 /**
  * Broker settings
  */
 public enum BrokerSettingKey implements SettingKey {
-    /**
-     * Allow disabling the default connector descriptor
-     */
-    DISABLE_DEFAULT_CONNECTOR_DESCRIPTOR("broker.connector.descriptor.default.disable"),
-    /**
-     * A URI to a configuration file for providing additional {@link ConnectorDescriptor} configurations
-     */
-    CONFIGURATION_URI("broker.connector.descriptor.configuration.uri"),
-    /**
-     * Broker jaxb context provider class name
-     */
-    BROKER_JAXB_CONTEXT_CLASS_NAME("broker.jaxb_context_class_name"),
     /**
      * Broker IP resolver implementation (if not evaluated, the default resolver will be used).
      */
@@ -78,12 +64,7 @@ public enum BrokerSettingKey implements SettingKey {
     /**
      * Broker name (used also for the vm connector name)
      */
-    BROKER_NAME("broker.name"),
-    /**
-     * Camel default route configuration file name. (please specify just the name. The file path will be discovered by the class loader)
-     * Used by the {@link CamelKapuaDefaultRouter} to load the routing configuration.
-     */
-    CAMEL_DEFAULT_ROUTE_CONFIGURATION_FILE_NAME("camel.default_route.configuration_file_name");
+    BROKER_NAME("broker.name");
 
     private String key;
 

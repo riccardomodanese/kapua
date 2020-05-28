@@ -26,6 +26,8 @@ import org.apache.activemq.security.SecurityContext;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSession;
+import org.eclipse.kapua.consumer.commons.plugin.ProtocolDescriptor;
+import org.eclipse.kapua.consumer.commons.plugin.ProtocolDescriptorProviders;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.authentication.KapuaPrincipal;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnection;
@@ -42,17 +44,17 @@ public class KapuaSecurityContext extends SecurityContext {
     protected static final Logger logger = LoggerFactory.getLogger(KapuaSecurityContext.class);
 
     public static final int BROKER_CONNECT_IDX = 0;
-    public static final int DEVICE_MANAGE_IDX = 1;
-    public static final int DATA_VIEW_IDX = 2;
-    public static final int DATA_MANAGE_IDX = 3;
-    public static final int DEVICE_VIEW_IDX = 4;
+    public static final int DEVICE_VIEW_IDX = 1;
+    public static final int DEVICE_MANAGE_IDX = 2;
+    public static final int DATA_VIEW_IDX = 3;
+    public static final int DATA_MANAGE_IDX = 4;
 
     private KapuaPrincipal principal;
     private KapuaSession kapuaSession;
     private KapuaId kapuaConnectionId;
     private String connectionId;
     private Set<Principal> principals;
-    private ConnectorDescriptor connectorDescriptor;
+    private ProtocolDescriptor connectorDescriptor;
 
     private AuthorizationMap authorizationMap;
 
@@ -106,7 +108,7 @@ public class KapuaSecurityContext extends SecurityContext {
         if (connectorName == null) {
             throw new IllegalStateException("Connector name is empty!");
         }
-        connectorDescriptor = ConnectorDescriptorProviders.getDescriptor(connectorName);
+        connectorDescriptor = ProtocolDescriptorProviders.getDescriptor(connectorName);
         if (connectorDescriptor == null) {
             throw new IllegalStateException(String.format("Unable to find connector descriptor for connector '%s'", connectorName));
         }
@@ -144,7 +146,7 @@ public class KapuaSecurityContext extends SecurityContext {
         return connectionId;
     }
 
-    public ConnectorDescriptor getConnectorDescriptor() {
+    public ProtocolDescriptor getConnectorDescriptor() {
         return connectorDescriptor;
     }
 

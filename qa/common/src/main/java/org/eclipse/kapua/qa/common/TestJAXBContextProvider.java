@@ -13,10 +13,6 @@ package org.eclipse.kapua.qa.common;
 
 import javax.xml.bind.JAXBContext;
 
-import org.eclipse.kapua.broker.core.router.EndChainEndPoint;
-import org.eclipse.kapua.broker.core.router.EndPointContainer;
-import org.eclipse.kapua.broker.core.router.ParentEndPoint;
-import org.eclipse.kapua.broker.core.router.SimpleEndPoint;
 import org.eclipse.kapua.commons.configuration.metatype.TscalarImpl;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.job.engine.commons.model.JobTargetSublist;
@@ -135,12 +131,7 @@ public class TestJAXBContextProvider implements JAXBContextProvider {
                         Job.class,
                         JobListResult.class,
                         JobXmlRegistry.class,
-                        JobTargetSublist.class,
-                        // Broker core
-                        EndPointContainer.class,
-                        SimpleEndPoint.class,
-                        ParentEndPoint.class,
-                        EndChainEndPoint.class
+                        JobTargetSublist.class
                 }, null);
             }
             return context;

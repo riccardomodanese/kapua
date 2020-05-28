@@ -89,7 +89,7 @@ public class ClassUtil {
                 throw new KapuaException(KapuaErrorCodes.INTERNAL_ERROR, e, String.format(CANNOT_LOAD_INSTANCE_ERROR_MSG, clazz, clazzToInstantiate));
             }
         }
-        logger.info("Initializing broker ip resolver... DONE");
+        logger.info("Initializing instance of... DONE");
         return instance;
     }
 }
