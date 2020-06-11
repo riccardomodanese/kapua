@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2019, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,14 +15,11 @@
 
 Feature: User Permission tests
 
-  Scenario: Start datastore for all scenarios
-    Given Start Datastore
-
-  Scenario: Start event broker for all scenarios
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-    Given Start Broker
+  Scenario: Start full full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
   Scenario: Adding One Permission To User
     Create a new user kapua-a, with only one permission - user:read.
@@ -1468,11 +1465,6 @@ Feature: User Permission tests
     And An exception was thrown
     And I logout
 
-  Scenario: Stop broker after all scenarios
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-    Given Stop Event Broker
-
-  Scenario: Stop datastore after all scenarios
-    Given Stop Datastore
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

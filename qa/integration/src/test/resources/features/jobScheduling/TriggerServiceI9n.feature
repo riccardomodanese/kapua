@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2019, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -16,8 +16,9 @@
 Feature: Trigger service tests
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
   Scenario: Adding "Device Connect" Schedule With All Valid Parameters
     Login as kapua-sys user and create a job with name job0.
@@ -782,5 +783,5 @@ Scenario: Init Security Context for all scenarios
     Then I logout
 
   Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+    Given Set test shutdown
+    And Reset Security Context

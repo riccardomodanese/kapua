@@ -55,6 +55,13 @@
                                             <bean ref="kapuaLifeCycleConverter" method="convertToMissing"/>
                                             <to uri="bean:deviceMessageListener?method=processMissingMessage"/>
                                         </when>
+                                        <!-- TODO EXT-CAMEL only for test remove when jobs will be defined in their own container -->
+                                        <when id="eviceManagementNotificationLifeCycleMessageFilter">
+                                            <!-- bad pattern only test!!! -->
+                                            <simple>${header.originalTopic} contains 'DEPLOY-V2.NOTIFY.'</simple>
+                                            <bean ref="deviceManagementNotificationConverter" method="convertToManagementNotification"/>
+                                            <to uri="bean:deviceManagementNotificationMessageProcessor?method=processMessage"/>
+                                        </when>
                                     </choice>
                                 </when>
                             </choice>

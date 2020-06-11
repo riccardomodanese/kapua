@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,8 +17,9 @@ Feature: Job step service CRUD tests
     The Job Step service is responsible for maintaining job steps.
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
 Scenario: Regular step creation
 
@@ -192,6 +193,6 @@ Scenario: Step factory sanity checks
 
     Given I test the sanity of the step factory
 
-Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+  Scenario: Reset Security Context for all scenarios
+    Given Set test shutdown
+    And Reset Security Context

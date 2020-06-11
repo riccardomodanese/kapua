@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,13 +22,10 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
-import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
-import org.eclipse.kapua.qa.common.TestJAXBContextProvider;
 import org.eclipse.kapua.qa.common.utils.EmbeddedBroker;
 import org.eclipse.kapua.service.device.management.asset.internal.DeviceAssetsImpl;
 import org.eclipse.kapua.service.device.management.asset.DeviceAsset;
@@ -58,6 +55,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
@@ -73,6 +72,8 @@ import java.util.stream.Collectors;
  */
 @ScenarioScoped
 public class BrokerSteps extends TestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(BrokerSteps.class);
 
     /**
      * Embedded broker configuration file from classpath resources.
@@ -142,25 +143,14 @@ public class BrokerSteps extends TestBase {
     private KuraDevice kuraDevice;
     private ArrayList<KuraDevice> kuraDevices = kuraDevices = new ArrayList<>();
 
-    /**
-     * Scenario scoped step data.
-     */
-//    private StepData stepData;
-
     @Inject
-    public BrokerSteps(/* dependency */ EmbeddedBroker broker, DBHelper database, StepData stepData) {
-
-        this.stepData = stepData;
-        this.database = database;
+    public BrokerSteps(/* dependency */ EmbeddedBroker broker, DBHelper dbHelper, StepData stepData) {
+        super(stepData, dbHelper);
     }
 
     @Before
     public void beforeScenario(Scenario scenario) {
-
-        this.scenario = scenario;
-
         BrokerSetting.resetInstance();
-
         KapuaLocator locator = KapuaLocator.getInstance();
         devicePackageManagementService = locator.getService(DevicePackageManagementService.class);
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
@@ -171,20 +161,14 @@ public class BrokerSteps extends TestBase {
         deviceCommandFactory = locator.getFactory(DeviceCommandFactory.class);
         deviceConnectionService = locator.getService(DeviceConnectionService.class);
         deviceAssetManagementService = locator.getService(DeviceAssetManagementService.class);
-
-        JAXBContextProvider consoleProvider = new TestJAXBContextProvider();
-        XmlUtil.setContextProvider(consoleProvider);
     }
 
     @After
-    public void afterScenario() throws Exception {
-
+    public void afterScenario() {
         if (kuraDevice != null) {
             this.kuraDevice.mqttClientDisconnect();
         }
-
         KapuaSecurityUtils.clearSession();
-
         this.stepData = null;
     }
 
@@ -216,11 +200,19 @@ public class BrokerSteps extends TestBase {
     }
 
 
-    @When("I get the KuraMock device(?:|s)$")
-    public void getKuraMockDevice() throws Exception {
+    @When("I get the KuraMock device(?:|s) after (\\d+) seconds$")
+    public void getKuraMockDevice(int seconds) throws Exception {
         ArrayList<Device> deviceList = new ArrayList<>();
         for (KuraDevice kuraDevice : kuraDevices) {
-            Device device = deviceRegistryService.findByClientId(getCurrentScopeId(), kuraDevice.getClientId());
+            Device device = null;
+            int loop = 0;
+            do {
+                device = deviceRegistryService.findByClientId(getCurrentScopeId(), kuraDevice.getClientId());
+                if (device==null) {
+                    Thread.sleep(1000);
+                }
+            }
+            while(device==null && loop++ < seconds);
             if (device != null) {
                 deviceList.add(device);
                 stepData.put("LastDevice", device);
@@ -487,14 +479,14 @@ public class BrokerSteps extends TestBase {
             mqttClient = new MqttClient(BROKER_URI, clientId,
                     new MemoryPersistence());
         } catch (MqttException e) {
-            e.printStackTrace();
+            logger.error("Error: {}", e.getMessage(), e);
         }
         clientOpts.setUserName(user);
         clientOpts.setPassword(password.toCharArray());
         try {
             mqttClient.connect(clientOpts);
         } catch (MqttException e) {
-            e.printStackTrace();
+            logger.error("Error: {}", e.getMessage(), e);
         }
         if (mqttClient != null) {
             stepData.put(clientName, mqttClient);
@@ -551,12 +543,8 @@ public class BrokerSteps extends TestBase {
     public void deviceStatusIs(String deviceStatus) throws Exception {
         DeviceConnection deviceConn = null;
         ArrayList<KuraDevice> kuraDevices = (ArrayList<KuraDevice>) stepData.get("KuraDevices");
-        try {
-            for (KuraDevice kuraDevice : kuraDevices) {
-                deviceConn = deviceConnectionService.findByClientId(SYS_SCOPE_ID, kuraDevice.getClientId());
-            }
-        } catch (KapuaException ex) {
-            return;
+        for (KuraDevice kuraDevice : kuraDevices) {
+            deviceConn = deviceConnectionService.findByClientId(SYS_SCOPE_ID, kuraDevice.getClientId());
         }
         assertEquals(deviceStatus, deviceConn.getStatus().toString());
     }

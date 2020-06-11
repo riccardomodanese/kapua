@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -16,13 +16,11 @@
 Feature: User Service Integration
   User Service integration scenarios
 
-Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
-
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
+Scenario: Initialize test environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start Event Broker
 
   Scenario: Deleting user in account that is lower in hierarchy
   Using user A in in different scope than user B, try to delete user B. Scope of user A is one
@@ -213,10 +211,7 @@ Scenario: Init Security Context for all scenarios
     Then An exception was thrown
     And I logout
 
-  Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
-
-  Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+  Scenario: Stop test environment
+    Given Set test shutdown
+    And Stop Event Broker
+    And Reset Security Context

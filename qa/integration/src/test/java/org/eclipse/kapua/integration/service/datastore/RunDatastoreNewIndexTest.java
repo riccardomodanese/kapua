@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 Eurotech and/or its affiliates and others
+ * Copyright (c) 2018, 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,12 +30,13 @@ import org.junit.runner.RunWith;
                 "json:target/DatastoreNewIndex_cucumber.json" },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="datastore.client.class", value="org.eclipse.kapua.service.datastore.client.rest.RestDatastoreClient")
-@CucumberProperty(key="broker.ip", value="192.168.33.10")
-@CucumberProperty(key="kapua.config.url", value="")
-@CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="5")
-@CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="5")
-@CucumberProperty(key="datastore.index.prefix", value="")
+@CucumberProperty(key="test.type", value="integration")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
+@CucumberProperty(key="commons.db.connection.host", value="localhost")
+@CucumberProperty(key="commons.db.connection.port", value="3306")
+@CucumberProperty(key="datastore.index.prefix", value="")
 public class RunDatastoreNewIndexTest {
 }

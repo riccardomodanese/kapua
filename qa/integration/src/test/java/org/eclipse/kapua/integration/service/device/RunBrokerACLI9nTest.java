@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
         features = {"classpath:features/broker/acl/BrokerACLI9n.feature"
         },
         glue = {"org.eclipse.kapua.qa.common",
+                "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
                 "org.eclipse.kapua.service.user.steps",
                 "org.eclipse.kapua.service.tag.steps",
@@ -32,19 +33,15 @@ import org.junit.runner.RunWith;
         },
         strict = true,
         monochrome = true )
-@CucumberProperty(key="kapua.config.url", value="")
-@CucumberProperty(key="DOCKER_HOST", value= "")
-@CucumberProperty(key="DOCKER_CERT_PATH", value= "")
-@CucumberProperty(key="commons.db.schema.update", value= "")
-@CucumberProperty(key="commons.db.connection.host", value= "")
-@CucumberProperty(key="commons.db.connection.port", value= "")
-@CucumberProperty(key="datastore.elasticsearch.nodes", value= "")
-@CucumberProperty(key="datastore.elasticsearch.port", value= "")
-@CucumberProperty(key="datastore.client.class", value= "")
-@CucumberProperty(key="commons.eventbus.url", value= "")
+@CucumberProperty(key="test.type", value="integration")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
+@CucumberProperty(key="commons.db.connection.host", value="localhost")
+@CucumberProperty(key="commons.db.connection.port", value="3306")
+@CucumberProperty(key="datastore.index.prefix", value="")
 @CucumberProperty(key="certificate.jwt.private.key", value= "")
 @CucumberProperty(key="certificate.jwt.certificate", value= "")
-@CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="3")
-@CucumberProperty(key="broker.ip", value="192.168.33.10")
 public class RunBrokerACLI9nTest {
 }

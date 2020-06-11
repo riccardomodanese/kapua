@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,8 +17,9 @@ Feature: Job Target service CRUD tests
     The Job service is responsible for maintaining a list of job targets.
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
 Scenario: Regular target creation
 
@@ -207,6 +208,6 @@ Scenario: Job target factory sanity checks
 
     When I test the sanity of the job target factory
 
-Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+  Scenario: Reset Security Context for all scenarios
+    Given Set test shutdown
+    And Reset Security Context

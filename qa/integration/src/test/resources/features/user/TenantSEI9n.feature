@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,13 +17,10 @@ Feature: Tenant service with Service Events
   Basic workflow of Account and User creation and deletion, where Service Events are
   being trigered on create, update and delete action on Account and User service.
 
-Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
-
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
+Scenario: Initialize test environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
 
   Scenario: To be defined
 #    Given this step says to skip
@@ -66,9 +63,5 @@ Scenario: Init Security Context for all scenarios
     And I logout
 
   Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
-
-  Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+    Given Reset test shutdown
+    And Reset Security Context

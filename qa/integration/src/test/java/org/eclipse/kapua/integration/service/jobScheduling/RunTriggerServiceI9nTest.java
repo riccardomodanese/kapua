@@ -12,6 +12,8 @@
 package org.eclipse.kapua.integration.service.jobScheduling;
 
 import cucumber.api.CucumberOptions;
+
+import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
 import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
 
@@ -32,5 +34,6 @@ import org.junit.runner.RunWith;
                 "json:target/cucumber.json" },
         strict = true,
         monochrome = true)
+@CucumberProperty(key="test.type", value="unit")
 public class RunTriggerServiceI9nTest {
 }

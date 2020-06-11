@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         features = {"classpath:features/broker/DeviceBrokerIpUndefinedI9n.feature"},
         glue = {"org.eclipse.kapua.qa.common",
+                "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
                 "org.eclipse.kapua.service.user.steps",
                 "org.eclipse.kapua.service.tag.steps",
@@ -32,6 +33,14 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true )
+@CucumberProperty(key="test.type", value="integration")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
+@CucumberProperty(key="commons.db.connection.host", value="localhost")
+@CucumberProperty(key="commons.db.connection.port", value="3306")
+@CucumberProperty(key="datastore.index.prefix", value="")
 @CucumberProperty(key="broker.ip", value="")
 @CucumberProperty(key="kapua.config.url", value="")
 public class RunDeviceBrokerIpUndefinedI9nTest {}

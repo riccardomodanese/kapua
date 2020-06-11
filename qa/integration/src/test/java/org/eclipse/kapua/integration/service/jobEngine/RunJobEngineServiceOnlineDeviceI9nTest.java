@@ -12,6 +12,8 @@
 package org.eclipse.kapua.integration.service.jobEngine;
 
 import cucumber.api.CucumberOptions;
+
+import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
 import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
 
@@ -26,13 +28,22 @@ import org.junit.runner.RunWith;
         glue = { "org.eclipse.kapua.service.job.steps",
                 "org.eclipse.kapua.service.user.steps",
                 "org.eclipse.kapua.qa.common",
+                "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
-                "org.eclipse.kapua.service.device.registry.steps",
+                "org.eclipse.kapua.service.device.registry.steps"
         },
         plugin = { "pretty",
                 "html:target/cucumber/JobEngineOnlineDeviceI9n",
                 "json:target/JobEngineOnlineDeviceI9n_cucumber.json" },
         strict = true,
         monochrome = true)
+@CucumberProperty(key="test.type", value="integration")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
+@CucumberProperty(key="commons.db.connection.host", value="localhost")
+@CucumberProperty(key="commons.db.connection.port", value="3306")
+@CucumberProperty(key="datastore.index.prefix", value="")
 public class RunJobEngineServiceOnlineDeviceI9nTest {
 }

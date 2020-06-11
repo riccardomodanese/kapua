@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,17 +15,11 @@
 
 Feature: Datastore tests
 
-  Scenario: Start datastore for all scenarios
-
-    Given Start Datastore
-
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-
-    Given Start Broker
+  Scenario: Start full full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
   Scenario: Delete items by date ranges
     Delete previously stored messages based on a time interval. The number of deleted items should
@@ -754,13 +748,13 @@ Feature: Datastore tests
     Checking of the number of messages that are associated with the correct metrics.
     Searching for messages is done by one metric.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait for 1 seconds
     Then Device status is "CONNECTED"
-    Given I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I set the database to device timestamp indexing
     Then I prepare a number of messages with the following details and remember the list as "TestMessages"
       | clientId      | topic            |
@@ -809,13 +803,13 @@ Feature: Datastore tests
     Checking of the number of messages that are associated with the correct metrics.
     Searching for messages is done by two metrics.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait for 1 seconds
     Then Device status is "CONNECTED"
-    Given I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I set the database to device timestamp indexing
     Then I prepare a number of messages with the following details and remember the list as "TestMessages"
       | clientId      | topic            |
@@ -867,13 +861,13 @@ Feature: Datastore tests
     Checking of the number of messages that are associated with the correct metrics.
     Searching for messages is done by all metrics.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait for 1 seconds
     Then Device status is "CONNECTED"
-    Given I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I set the database to device timestamp indexing
     Then I prepare a number of messages with the following details and remember the list as "TestMessages"
       | clientId      | topic            |
@@ -917,13 +911,13 @@ Feature: Datastore tests
   Checking of the number of messages that are associated with the incorrect metrics.
   Searching for messages is done by one metric.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait for 1 seconds
     Then Device status is "CONNECTED"
-    Given I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I set the database to device timestamp indexing
     Then I prepare a number of messages with the following details and remember the list as "TestMessages"
       | clientId      | topic            |
@@ -975,14 +969,6 @@ Feature: Datastore tests
     Then An assertion error was thrown
     And I logout
 
-  Scenario: Stop broker after all scenarios
-
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
-
-  Scenario: Stop datastore after all scenarios
-
-    Given Stop Datastore
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

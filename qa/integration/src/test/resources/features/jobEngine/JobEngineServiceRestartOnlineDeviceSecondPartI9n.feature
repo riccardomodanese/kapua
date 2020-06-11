@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2019, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -14,15 +14,11 @@
 
 Feature: JobEngineService restart job tests with online device - second part
 
-  Scenario: Set environment variables
-    Given System property "broker.ip" with value "localhost"
-    And System property "commons.db.connection.host" with value "localhost"
-
-  Scenario: Start event broker for all scenarios
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-    Given Start Broker
+  Scenario: Start full full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
     # *************************************************
     # * Restarting a job with one Target and one Step *
@@ -34,13 +30,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     When I search for events from device "rpione3" in account "kapua-sys"
@@ -79,13 +75,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     When I search for events from device "rpione3" in account "kapua-sys"
@@ -124,13 +120,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Packages are requested and 1 package is received
     When I search for events from device "rpione3" in account "kapua-sys"
     Then I find 2 device events
@@ -167,13 +163,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Packages are requested and 1 package is received
     When I search for events from device "rpione3" in account "kapua-sys"
     Then I find 2 device events
@@ -210,13 +206,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     When I search for events from device "rpione3" in account "kapua-sys"
@@ -255,13 +251,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     When I search for events from device "rpione3" in account "kapua-sys"
@@ -304,13 +300,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the step index of executed targets should
   be 1 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And Command pwd is executed
@@ -354,13 +350,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And Command pwd is executed
@@ -404,13 +400,13 @@ Feature: JobEngineService restart job tests with online device - second part
   Restart the job two times. After the executed job is finished, the executed target's
   step index should be 1 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     And Packages are requested and 1 package is received
@@ -454,13 +450,13 @@ Feature: JobEngineService restart job tests with online device - second part
   Restart the job two times. After the executed job is finished, the executed target's step
   index should be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     And Packages are requested and 1 package is received
@@ -510,13 +506,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_OK
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And I search events from devices in account "kapua-sys" and 2 events is found
@@ -552,13 +548,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And I search events from devices in account "kapua-sys" and 2 events is found
@@ -593,13 +589,13 @@ Feature: JobEngineService restart job tests with online device - second part
   step to the created job. Restart the job two times. After the executed job is finished, the executed
   target's step index should be 0 and the status PROCESS_OK.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Packages are requested and 1 package is received
     And I search events from devices in account "kapua-sys" and 2 events is found
     Given I create a job with the name "TestJob"
@@ -630,13 +626,13 @@ Feature: JobEngineService restart job tests with online device - second part
   step to the created job. Restart the job two times. After the executed job is finished, the executed target's
   step index should be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Packages are requested and 1 package is received
     And I search events from devices in account "kapua-sys" and 2 events is found
     Given I create a job with the name "TestJob"
@@ -670,13 +666,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_OK
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Devices status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     And I search events from devices in account "kapua-sys" and 2 events is found
@@ -713,13 +709,13 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Devices status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
     And I search events from devices in account "kapua-sys" and 2 events is found
@@ -760,14 +756,14 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the step index of executed targets should
   be 1 and the status PROCESS_OK
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     Then I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And Command pwd is executed
@@ -809,14 +805,14 @@ Feature: JobEngineService restart job tests with online device - second part
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     Then I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Then Configuration is requested
     And A Configuration named org.eclipse.kura.clock.ClockService has property clock.ntp.retry.interval with value 5
     And Command pwd is executed
@@ -858,13 +854,13 @@ Feature: JobEngineService restart job tests with online device - second part
   Restart the job two times. After the executed job is finished, the executed target's
   step index should be 1 and the status PROCESS_OK
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Devices status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Packages are requested and 1 package is received
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
@@ -906,13 +902,13 @@ Feature: JobEngineService restart job tests with online device - second part
   Restart the job two times. After the executed job is finished, the executed target's step
   index should be 0 and the status PROCESS_FAILED
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Devices status is "CONNECTED"
-    When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     And Packages are requested and 1 package is received
     And Device assets are requested
     And Asset with name "asset1" and channel with name "channel1" and value 123 are received
@@ -950,8 +946,6 @@ Feature: JobEngineService restart job tests with online device - second part
     Then KuraMock is disconnected
     And I logout
 
-  Scenario: Stop broker after all scenarios
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-    Given Stop Event Broker
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

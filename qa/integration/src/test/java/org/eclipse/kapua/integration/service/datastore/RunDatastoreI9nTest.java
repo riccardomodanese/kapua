@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,21 +20,25 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         features = "classpath:features/datastore/Datastore.feature",
         glue = {"org.eclipse.kapua.qa.common",
-                "org.eclipse.kapua.service.datastore.steps",
+               "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
+                "org.eclipse.kapua.service.datastore.steps",
                 "org.eclipse.kapua.service.user.steps",
                 "org.eclipse.kapua.service.device.registry.steps"},
         plugin = {"pretty",
+                  "html:target/cucumber/DockerBroker",
+                  "json:target/DockerBroker_cucumber.json",
                   "html:target/cucumber/DatastoreTransportI9n",
                   "json:target/DatastoreTransportI9n_cucumber.json"},
         strict = true,
         monochrome = true)
-@CucumberProperty(key="datastore.client.class", value="org.eclipse.kapua.service.datastore.client.transport.TransportDatastoreClient")
-@CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="5")
-@CucumberProperty(key="broker.ip", value="192.168.33.10")
-@CucumberProperty(key="kapua.config.url", value="")
-@CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="3")
-@CucumberProperty(key="datastore.index.prefix", value="")
+@CucumberProperty(key="test.type", value="integration")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
+@CucumberProperty(key="commons.db.connection.host", value="localhost")
+@CucumberProperty(key="commons.db.connection.port", value="3306")
+@CucumberProperty(key="datastore.index.prefix", value="")
 public class RunDatastoreI9nTest {
 }

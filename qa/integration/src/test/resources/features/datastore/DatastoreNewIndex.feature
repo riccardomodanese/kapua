@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2018, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2018, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -16,25 +16,11 @@
 
 Feature: Datastore tests
 
-  Scenario: Set environment variables
-
-    Given System property "commons.settings.hotswap" with value "true"
-    And System property "datastore.index.prefix" with value "null"
-    And System property "kapua.config.url" with value "null"
-    And System property "broker.ip" with value "192.168.33.10"
-    And System property "datastore.client.class" with value "org.eclipse.kapua.service.datastore.client.rest.RestDatastoreClient"
-
-  Scenario: Start datastore for all scenarios
-
-    Given Start Datastore
-
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-
-    Given Start Broker
+  Scenario: Start full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
   Scenario: Simple positive scenario for creating default - weekly index
   Create elasticsearch index with default setting for index creation which is weekly
@@ -211,14 +197,6 @@ Feature: Datastore tests
     And REST response containing "-2018-01" with prefix account "LastAccount"
     And I delete all indices
 
-  Scenario: Stop broker after all scenarios
-
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
-
-  Scenario: Stop datastore after all scenarios
-
-    Given Stop Datastore
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

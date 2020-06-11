@@ -45,6 +45,7 @@ import org.junit.runner.RunWith;
         },
         strict = true,
         monochrome = true)
+@CucumberProperty(key="test.type", value="unit")
 @CucumberProperty(key = "DOCKER_HOST", value = "")
 @CucumberProperty(key = "DOCKER_CERT_PATH", value = "")
 @CucumberProperty(key = "commons.db.schema.update", value = "")

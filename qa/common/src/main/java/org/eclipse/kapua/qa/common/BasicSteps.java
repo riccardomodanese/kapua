@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 Red Hat Inc and others.
+ * Copyright (c) 2017, 2020 Red Hat Inc and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,6 +8,7 @@
  *
  * Contributors:
  *     Red Hat Inc - initial API and implementation
+ *     Eurotech
  *******************************************************************************/
 package org.eclipse.kapua.qa.common;
 
@@ -32,14 +33,9 @@ public class BasicSteps extends TestBase {
 
     private static final double WAIT_MULTIPLIER = Double.parseDouble(System.getProperty("org.eclipse.kapua.qa.waitMultiplier", "1.0"));
 
-    /**
-     * Scenario scoped step data.
-     */
-    private StepData stepData;
-
     @Inject
     public BasicSteps(StepData stepData) {
-        this.stepData = stepData;
+        super(stepData);
     }
 
     @Before
@@ -47,6 +43,16 @@ public class BasicSteps extends TestBase {
         if (WAIT_MULTIPLIER != 1.0d) {
             logger.info("Wait multiplier active: {}", WAIT_MULTIPLIER);
         }
+    }
+
+    @When("Set test shutdown")
+    public void setShutdown() {
+        shutdown = Boolean.TRUE;
+    }
+
+    @When("Reset test shutdown")
+    public void resetShutdown() {
+        shutdown = Boolean.FALSE;
     }
 
     @Given("A placeholder step")

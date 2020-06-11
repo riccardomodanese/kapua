@@ -14,9 +14,10 @@
 
 Feature: Account Service Tests
 
-Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+Scenario: Initialize test environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
 
   Scenario: Creating A Valid Account
   Login as kapua-sys, create an account with all valid fields
@@ -389,6 +390,6 @@ Scenario: Init Security Context for all scenarios
     Then No exception was thrown
     And I logout
 
-  Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+Scenario: Reset Security Context for all scenarios
+  Given Set test shutdown
+    And Reset Security Context

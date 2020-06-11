@@ -15,13 +15,11 @@
 
 Feature: User Coupling
 
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-
-    Given Start Broker
+  Scenario: Start docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
   Scenario: Test LOOSE user coupling on single connection
 
@@ -45,7 +43,7 @@ Feature: User Coupling
     Given The account name is test-acc-1 and the client ID is device-1
     And The broker URI is tcp://test-user-1:KeepCalm123.@localhost:1883
     When I start the simulator
-    And I wait for 2 seconds
+    And I wait for 5 seconds
     When I search for a connection from the device "device-1" in account "test-acc-1"
     Then I find 1 connection
     And The connection status is "CONNECTED"
@@ -1666,10 +1664,6 @@ Feature: User Coupling
     Then I stop the simulator
     And I wait for 2 seconds
 
-  Scenario: Stop broker after all scenarios
-
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
+  Scenario: Stop docker environment
+    Given Set test shutdown
+    And Stop full docker environment

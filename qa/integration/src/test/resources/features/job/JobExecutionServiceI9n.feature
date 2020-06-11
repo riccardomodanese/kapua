@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -17,8 +17,9 @@ Feature: Job Execution service CRUD tests
     The Job service is responsible for maintaining the status of the target step executions.
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
 Scenario: Regular job execution creation
 
@@ -212,6 +213,6 @@ Scenario: Job execution factory sanity checks
 
     And I test the sanity of the job execution factory
 
-Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+  Scenario: Reset Security Context for all scenarios
+    Given Set test shutdown
+    And Reset Security Context

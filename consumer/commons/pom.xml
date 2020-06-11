@@ -186,6 +186,20 @@
             <artifactId>kapua-locator-guice</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- TODO EXT-CAMEL only for test remove when jobs will be defined in their own container -->
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-job-engine-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-device-management-command-internal</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-device-management-packages-internal</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

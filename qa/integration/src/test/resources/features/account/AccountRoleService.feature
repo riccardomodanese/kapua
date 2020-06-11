@@ -15,9 +15,10 @@
 
 Feature: Account Role Service Integration Tests
 
-Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+Scenario: Initialize test environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
 
   Scenario: Creating Roles Under Account That Allows Infinite Child Roles
   Login as kapua-sys, create an account
@@ -124,6 +125,6 @@ Scenario: Init Security Context for all scenarios
     Then No exception was thrown
     And I logout
 
-  Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+Scenario: Reset Security Context for all scenarios
+  Given Set test shutdown
+    And Reset Security Context

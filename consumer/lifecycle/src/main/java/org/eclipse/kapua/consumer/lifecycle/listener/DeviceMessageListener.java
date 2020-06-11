@@ -21,6 +21,7 @@ import org.eclipse.kapua.message.device.lifecycle.KapuaAppsMessage;
 import org.eclipse.kapua.message.device.lifecycle.KapuaBirthMessage;
 import org.eclipse.kapua.message.device.lifecycle.KapuaDisconnectMessage;
 import org.eclipse.kapua.message.device.lifecycle.KapuaMissingMessage;
+import org.eclipse.kapua.service.device.management.job.scheduler.manager.JobDeviceManagementTriggerManagerService;
 import org.eclipse.kapua.service.device.registry.lifecycle.DeviceLifeCycleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class DeviceMessageListener extends AbstractListener {
     private static final Logger LOG = LoggerFactory.getLogger(DeviceMessageListener.class);
 
     private static DeviceLifeCycleService deviceLifeCycleService = KapuaLocator.getInstance().getService(DeviceLifeCycleService.class);
+    private static JobDeviceManagementTriggerManagerService jobDeviceManagementTriggerManagerService = KapuaLocator.getInstance().getService(JobDeviceManagementTriggerManagerService.class);
 
     // metrics
     private Counter metricDeviceBirthMessage;
@@ -70,6 +72,15 @@ public class DeviceMessageListener extends AbstractListener {
         } catch (KapuaException e) {
             metricDeviceErrorMessage.inc();
             LOG.error("Error while processing device birth life-cycle event", e);
+        }
+
+        //TODO EXT-CAMEL only for test remove when jobs will be defined in their own container
+        try {
+            KapuaBirthMessage kapuaBirthMessage = birthMessage.getMessage();
+
+            jobDeviceManagementTriggerManagerService.processOnConnect(kapuaBirthMessage.getScopeId(), kapuaBirthMessage.getDeviceId());
+        } catch (Exception e) {
+            LOG.error("Error while processing device birth to trigger jobs", e);
         }
     }
 

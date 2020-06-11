@@ -28,7 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.kura.simulator.GatewayConfiguration;
 import org.eclipse.kapua.kura.simulator.MqttAsyncTransport;
 import org.eclipse.kapua.kura.simulator.Simulator;
@@ -51,6 +50,8 @@ import org.eclipse.kapua.service.device.management.packages.model.DevicePackages
 import org.eclipse.kapua.service.device.management.packages.model.download.DevicePackageDownloadOperation;
 import org.eclipse.kapua.service.device.management.packages.model.download.DevicePackageDownloadRequest;
 import org.eclipse.kapua.service.device.management.packages.model.download.DevicePackageDownloadStatus;
+import org.eclipse.kapua.service.device.registry.Device;
+import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnection;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionService;
 import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionStatus;
@@ -68,7 +69,6 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.runtime.java.guice.ScenarioScoped;
-
 
 @ScenarioScoped
 public class SimulatedDeviceSteps {
@@ -106,8 +106,6 @@ public class SimulatedDeviceSteps {
 
     @Before
     public void beforeScenario(final Scenario scenario) throws Exception {
-        XmlUtil.setContextProvider(new TestJAXBContextProvider());
-
         downloadExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DownloadSimulator"));
     }
 
@@ -401,11 +399,14 @@ public class SimulatedDeviceSteps {
 
     private void assertConnectionStatus(final String clientId, final String accountName, final DeviceConnectionStatus expectedState) throws Exception {
         final DeviceConnectionService service = KapuaLocator.getInstance().getService(DeviceConnectionService.class);
-
+        final DeviceRegistryService registry = KapuaLocator.getInstance().getService(DeviceRegistryService.class);
         With.withUserAccount(accountName, account -> {
 
             final DeviceConnection result = service.findByClientId(account.getId(), clientId);
+            final Device device = registry.findByClientId(account.getId(), clientId);
+
             Assert.assertNotNull(result);
+            Assert.assertNotNull(device);
             Assert.assertEquals(clientId, result.getClientId());
             Assert.assertEquals(expectedState, result.getStatus());
         });

@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2019, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -14,15 +14,11 @@
 
 Feature: JobEngineService tests for restarting job with offline device
 
-  Scenario: Set environment variables
-    Given System property "broker.ip" with value "localhost"
-    And System property "commons.db.connection.host" with value "localhost"
-
-  Scenario: Start event broker for all scenarios
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-    Given Start Broker
+  Scenario: Start full full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
     # *************************************************
     # * Restarting a job with one Target and one Step *
@@ -34,16 +30,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Command Execution"
@@ -68,16 +64,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Asset Write"
@@ -102,16 +98,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Configuration Put"
@@ -136,16 +132,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Bundle Start"
@@ -170,16 +166,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Bundle Stop"
@@ -204,16 +200,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Package Download / Install"
@@ -238,16 +234,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Package Uninstall"
@@ -276,16 +272,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Bundle Start"
@@ -317,16 +313,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Bundle Start"
@@ -358,16 +354,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Package Download / Install"
@@ -398,16 +394,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     When Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     And I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Package Uninstall"
@@ -438,16 +434,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     And KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Given I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Command Execution"
@@ -478,16 +474,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Given I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Asset Write"
@@ -518,16 +514,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the executed target's step index should
   be 0 and the status PROCESS_FAILED.
 
-    Given I start the Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I start the Kura Mock
     And Device is connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock device
+    And I get the KuraMock device after 5 seconds
     Given I create a job with the name "TestJob"
     And A new job target item
     And Search for step definition with the name "Configuration Put"
@@ -562,16 +558,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -598,16 +594,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -634,16 +630,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -670,16 +666,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -706,16 +702,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -743,16 +739,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -779,16 +775,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -819,16 +815,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     And Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -862,16 +858,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -905,16 +901,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -948,16 +944,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -991,16 +987,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -1034,16 +1030,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -1077,16 +1073,16 @@ Feature: JobEngineService tests for restarting job with offline device
   After the executed job is finished, the step index of executed targets should
   be 0 and the status PROCESS_FAILED.
 
-    Given I add 2 devices to Kura Mock
+    Given I login as user with name "kapua-sys" and password "kapua-password"
+    And I add 2 devices to Kura Mock
     When Devices are connected
     And I wait 1 second
     Then Device status is "CONNECTED"
     When KuraMock is disconnected
     And I wait 1 second
     Then Device status is "DISCONNECTED"
-    And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
-    And I get the KuraMock devices
+    And I get the KuraMock devices after 5 seconds
     Given I create a job with the name "TestJob"
     And I add targets to job
     When I count the targets in the current scope
@@ -1114,8 +1110,6 @@ Feature: JobEngineService tests for restarting job with offline device
     And I confirm the step index is 0 and status is "PROCESS_FAILED"
     And I logout
 
-  Scenario: Stop broker after all scenarios
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-    Given Stop Event Broker
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

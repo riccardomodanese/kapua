@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -13,6 +13,7 @@
 package org.eclipse.kapua.integration.service.user;
 
 import cucumber.api.CucumberOptions;
+
 import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
 import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
@@ -30,6 +31,5 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="broker.ip", value="192.168.33.10")
-@CucumberProperty(key="kapua.config.url", value="")
+@CucumberProperty(key="test.type", value="unit")
 public class RunLockoutExpirationI9nTest {}

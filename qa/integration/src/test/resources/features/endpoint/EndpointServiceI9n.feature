@@ -16,8 +16,9 @@ Feature: Endpoint Info Service Integration Tests
   Integration test scenarios for Endpoint Info service
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
   Scenario: Creating Valid Endpoint
   Login as kapua-sys
@@ -754,6 +755,6 @@ Scenario: Init Security Context for all scenarios
     And I delete endpoint with schema "Schema2", domain "abc.com" and port 2222
     And I logout
 
-Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+  Scenario: Reset Security Context for all scenarios
+    Given Set test shutdown
+    And Reset Security Context

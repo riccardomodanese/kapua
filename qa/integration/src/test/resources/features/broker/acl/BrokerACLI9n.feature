@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2018 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -41,17 +41,11 @@ Feature: Broker ACL tests
   ACL_DATA_ACC_CLI = {0}.{1}.>
   ACL_CTRL_ACC_NOTIFY = $EDC.{0}.*.*.NOTIFY.{1}.>
 
-  Scenario: Start datastore for all scenarios
-
-    Given Start Datastore
-
-  Scenario: Start event broker for all scenarios
-
-    Given Start Event Broker
-
-  Scenario: Start broker for all scenarios
-
-    Given Start Broker
+  Scenario: Start full docker environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
+    And Start full docker environment
 
 #
 #  Admin
@@ -606,14 +600,6 @@ Feature: Broker ACL tests
       And clients are disconnected
       And Mqtt Device is stoped
 
-  Scenario: Stop broker after all scenarios
-
-    Given Stop Broker
-
-  Scenario: Stop event broker for all scenarios
-
-    Given Stop Event Broker
-
-  Scenario: Stop datastore after all scenarios
-
-    Given Stop Datastore
+  Scenario: Stop full docker environment
+    Given Set test shutdown
+    And Stop full docker environment

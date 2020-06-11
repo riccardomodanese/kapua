@@ -17,8 +17,9 @@ Feature: Feature file for testing Password user credential
   This feature file provides test scenarios for user password credential.
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
   Scenario: Create a valid user with valid password credential
     Creating a new user "kapua-a" in kapua-sys account with valid password credential.
@@ -312,5 +313,5 @@ Scenario: Init Security Context for all scenarios
     And An exception was thrown
 
 Scenario: Reset Security Context for all scenarios
-
-  Given Reset Security Context
+  Given Reset test shutdown
+    And Reset Security Context

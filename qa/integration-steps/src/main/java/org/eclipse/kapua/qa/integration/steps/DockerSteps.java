@@ -11,16 +11,24 @@
  *******************************************************************************/
 package org.eclipse.kapua.qa.integration.steps;
 
-import com.google.common.base.Strings;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerClient.ListContainersParam;
+import com.spotify.docker.client.DockerClient.ListNetworksFilterParam;
+import com.spotify.docker.client.DockerClient.RemoveContainerParam;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.exceptions.NetworkNotFoundException;
+import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.Image;
+import com.spotify.docker.client.messages.Network;
 import com.spotify.docker.client.messages.NetworkConfig;
 import com.spotify.docker.client.messages.NetworkCreation;
 import com.spotify.docker.client.messages.PortBinding;
@@ -37,6 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,24 +63,43 @@ public class DockerSteps {
     private static final Logger logger = LoggerFactory.getLogger(DockerSteps.class);
 
     private static final String NETWORK_PREFIX = "kapua-net";
+    private static final String KAPUA_VERSION = "1.3.0-EXT-CONN-SNAPSHOT";
+    private static final String ES_IMAGE = "elasticsearch:5.4.0";
+    private static final List<String> DEFAULT_DEPLOYMENT_CONTAINERS_NAME;
+    private static final int WAIT_COUNT = 60;//total wait time = 120 secs (60 * 2000ms)
+    private static final long WAIT_STEP = 2000;
+    private static final long WAIT_FOR_BROKER = 10000;
+    private static final int HTTP_COMMUNICATION_TIMEOUT = 3000;
+
+    private static final int LIFECYCLE_HEALTH_CHECK_PORT = 8090;
+    private static final int TElEMETRY_HEALTH_CHECK_PORT = 8091;
+
+    private static final String LIFECYCLE_CHECK_WEB_APP = "lifecycle";
+    private static final String TELEMETRY_CHECK_WEB_APP = "telemetry";
+
+    private static final String LIFECYCLE_HEALTH_URL = String.format("http://localhost:%d/%s/health", LIFECYCLE_HEALTH_CHECK_PORT, LIFECYCLE_CHECK_WEB_APP);
+    private static final String TELEMETRY_HEALTH_URL = String.format("http://localhost:%d/%s/health", TElEMETRY_HEALTH_CHECK_PORT, TELEMETRY_CHECK_WEB_APP);
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    static {
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME = new ArrayList<>();
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("telemetry-consumer");
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("lifecycle-consumer");
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("message-broker");
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("events-broker");
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("es");
+        DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("db");
+    }
 
     private DockerClient docker;
-
     private NetworkConfig networkConfig;
-
     private String networkId;
-
     private boolean debug;
-
     private List<String> envVar;
-
     private Map<String, String> containerMap;
-
     public Map<String, Integer> portMap;
-
     public Map<String, BrokerInfo> brokerMap;
-
-    private ContainerConfig dbContainerConfig;
 
     private StepData stepData;
 
@@ -155,6 +189,118 @@ public class DockerSteps {
         }
     }
 
+    @Given("^Start full docker environment$")
+    public void startFullDockerEnvironment() throws DockerException, InterruptedException, JsonParseException, JsonMappingException, IOException {
+        pullImage(ES_IMAGE);
+        stopFullDockerEnvironment();
+        removeNetwork();
+        createNetwork();
+        startDBContainer("db");
+        startESContainer("es");
+        startEventBrokerContainer("events-broker");
+        startMessageBrokerContainer("message-broker");
+        synchronized (this) {
+            this.wait(WAIT_FOR_BROKER);
+        }
+        startLifecycleConsumerContainer("lifecycle-consumer");
+        startTelemetryConsumerContainer("telemetry-consumer");
+        //wait until consumers are ready
+        int loops = 0;
+        while(!areConsumersReady()) {
+            if (loops++ > WAIT_COUNT) {
+                throw new DockerException("Timeout waiting for cluster sgtartup reached!");
+            }
+            synchronized (this) {
+                this.wait(WAIT_STEP);
+            }
+            logger.info("Consumers not ready after {}s... wait", (loops*WAIT_STEP/1000));
+        }
+        logger.info("Consumers ready");
+    }
+
+    private boolean areConsumersReady() throws JsonParseException, JsonMappingException, IOException {
+        if (isConsumerReady(LIFECYCLE_CHECK_WEB_APP)) {
+            return isConsumerReady(TELEMETRY_CHECK_WEB_APP);
+        }
+        return false;
+    }
+
+    private boolean isConsumerReady(String type) throws JsonParseException, JsonMappingException, IOException {
+        URL consumerUrl = new URL(LIFECYCLE_HEALTH_URL);//lifecycle endpoint
+        if (TELEMETRY_CHECK_WEB_APP.equals(type)) {
+            consumerUrl = new URL(TELEMETRY_HEALTH_URL);
+        }
+        logger.debug("Querying {} consumer status for url: {}", type, consumerUrl);
+        HttpURLConnection conn = null;
+        DataOutputStream out = null;
+        BufferedReader in = null;
+        InputStreamReader isr = null;
+        try {
+            conn = (HttpURLConnection) consumerUrl.openConnection();
+            conn.setConnectTimeout(HTTP_COMMUNICATION_TIMEOUT);
+            conn.setReadTimeout(HTTP_COMMUNICATION_TIMEOUT);
+            //works with spring boot actuator servlet mappings
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
+            int status = conn.getResponseCode();
+            if (status == 200) {
+                isr = new InputStreamReader(conn.getInputStream());
+                in = new BufferedReader(isr);
+                return isRunning(MAPPER.readValue(in, Map.class));
+            } else {
+                logger.info("Querying {} consumer status for url: {} - ERROR", type, consumerUrl);
+                return false;
+            }
+        }
+        catch (IOException e) {
+            //nothing to do
+        }
+        finally {
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (Exception e) {
+                    logger.warn("Cannot close InputStreamReader", e.getMessage(), e);
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (Exception e) {
+                    logger.warn("Cannot close BufferedReader", e.getMessage(), e);
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (Exception e) {
+                    logger.warn("Cannot close DataOutputStream", e.getMessage(), e);
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.disconnect();
+                } catch (Exception e) {
+                    logger.warn("Cannot close HttpURLConnection", e.getMessage(), e);
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isRunning(Map<String,Object> map) {
+        if (map.get("status")!=null && "UP".equals(map.get("status"))) {
+            return true;
+        }
+        return false;
+    }
+
+    @Given("^Stop full docker environment$")
+    public void stopFullDockerEnvironment() throws DockerException, InterruptedException {
+        removeContainer(DEFAULT_DEPLOYMENT_CONTAINERS_NAME);
+    }
+
     @Given("^Create network$")
     public void createNetwork() throws DockerException, InterruptedException {
         networkConfig = NetworkConfig.builder().name(NETWORK_PREFIX).build();
@@ -164,7 +310,22 @@ public class DockerSteps {
 
     @Given("^Remove network$")
     public void removeNetwork() throws DockerException, InterruptedException {
-        docker.removeNetwork(networkId);
+        List<Network> networkList = docker.listNetworks(ListNetworksFilterParam.byNetworkName(NETWORK_PREFIX));
+        if (networkList!=null) {
+            for (Network network : networkList) {
+                String networkId = network.id();
+                String networkName = network.name();
+                logger.info("Removing network id {} - name {}...", networkId, networkName);
+                try {
+                    docker.removeNetwork(networkId);
+                }
+                catch (NetworkNotFoundException e) {
+                    //no error!
+                    logger.warn("Cannot remove network id {}... network not found!", networkId);
+                }
+                logger.info("Removing network id {} - name {}... DONE", networkId, networkName);
+            }
+        }
     }
 
     @Given("^Pull image \"(.*)\"$")
@@ -211,7 +372,7 @@ public class DockerSteps {
     }
 
     @And("^Start EventBroker container with name \"(.*)\"$")
-    public void startEBContainer(String name) throws DockerException, InterruptedException {
+    public void startEventBrokerContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting EventBroker container...");
         ContainerConfig ebConfig = getEventBrokerContainerConfig();
         ContainerCreation ebContainerCreation = docker.createContainer(ebConfig, name);
@@ -223,38 +384,75 @@ public class DockerSteps {
         logger.info("EventBroker container started: {}", containerId);
     }
 
-    @And("^Start Message Broker container$")
-    public void startEBContainer(List<BrokerConfigData> brokerConfigDataList) throws DockerException, InterruptedException {
-        BrokerConfigData bcData = brokerConfigDataList.get(0);
-        logger.info("Starting Message Broker container {}...", bcData.getName());
-        ContainerConfig mbConfig = getBrokerContainerConfig(
-                bcData.getBrokerAddress(), bcData.getBrokerIp(), bcData.getClusterName(), null,
-                bcData.getMqttPort(), bcData.getMqttHostPort(), bcData.getMqttsPort(), bcData.getMqttsHostPort(),
-                bcData.getWebPort(), bcData.getWebHostPort(), bcData.getDebugPort(), bcData.getDebugHostPort(),
-                bcData.getBrokerInternalDebugPort(), bcData.getDockerImage());
-        ContainerCreation mbContainerCreation = docker.createContainer(mbConfig, bcData.getName());
+    @And("^Start MessageBroker container with name \"(.*)\"$")
+    public void startMessageBrokerContainer(String name) throws DockerException, InterruptedException {
+//        BrokerConfigData bcData = brokerConfigDataList.get(0);
+        logger.info("Starting Message Broker container {}...", name);
+        ContainerConfig mbConfig = getBrokerContainerConfig("message-broker", 1883, 1883, 1893, 1893, 8883, 8883, 8161, 8161, 5005, 5005, "kapua/kapua-broker:" + KAPUA_VERSION);
+        ContainerCreation mbContainerCreation = docker.createContainer(mbConfig, name);
         String containerId = mbContainerCreation.id();
 
         docker.startContainer(containerId);
         docker.connectToNetwork(containerId, networkId);
-        containerMap.put(bcData.getName(), containerId);
-        logger.info("Message Broker {} container started: {}", bcData.getName(), containerId);
+        containerMap.put(name, containerId);
+        logger.info("Message Broker {} container started: {}", name, containerId);
+    }
+
+    @And("^Start TelemetryConsumer container with name \"(.*)\"$")
+    public void startTelemetryConsumerContainer(String name) throws DockerException, InterruptedException {
+        logger.info("Starting Telemetry Consumer container {}...", name);
+        ContainerCreation mbContainerCreation = docker.createContainer(getTelemetryConsumerConfig(8080, 8091, 8001, 8002), name);
+        String containerId = mbContainerCreation.id();
+
+        docker.startContainer(containerId);
+        docker.connectToNetwork(containerId, networkId);
+        containerMap.put(name, containerId);
+        logger.info("Telemetry Consumer {} container started: {}", name, containerId);
+    }
+
+    @And("^Start LifecycleConsumer container with name \"(.*)\"$")
+    public void startLifecycleConsumerContainer(String name) throws DockerException, InterruptedException {
+        logger.info("Starting Lifecycle Consumer container {}...", name);
+        ContainerCreation mbContainerCreation = docker.createContainer(getLifecycleConsumerConfig(8080, 8090, 8001, 8001), name);
+        String containerId = mbContainerCreation.id();
+
+        docker.startContainer(containerId);
+        docker.connectToNetwork(containerId, networkId);
+        containerMap.put(name, containerId);
+        logger.info("Lifecycle Consumer {} container started: {}", name, containerId);
     }
 
     @Then("^Stop container with name \"(.*)\"$")
-    public void stopContainer(String name) throws DockerException, InterruptedException {
-        logger.info("Stopping container {}...", name);
-        String containerId = containerMap.get(name);
-        docker.stopContainer(containerId, 3);
-        logger.info("Container {} stopped.", name);
+    public void stopContainer(List<String> names) throws DockerException, InterruptedException {
+        for (String name : names) {
+            logger.info("Stopping container {}...", name);
+            String containerId = containerMap.get(name);
+            docker.stopContainer(containerId, 3);
+            logger.info("Container {} stopped.", name);
+        }
     }
 
     @Then("^Remove container with name \"(.*)\"$")
-    public void removeContainer(String name) throws DockerException, InterruptedException {
-        logger.info("Removing container {}...", name);
-        String containerId = containerMap.get(name);
-        docker.removeContainer(containerId);
-        logger.info("Container {} removed.", name);
+    public void removeContainer(List<String> names) throws DockerException, InterruptedException {
+        for (String name : names) {
+            logger.info("Removing container {}...", name);
+            List<Container> containers = docker.listContainers(ListContainersParam.filter("name", name));
+            if (containers.isEmpty()) {
+                logger.info("No docker images found. Cannot remove container {}. (Container not found!)", name);
+            }
+            else {
+                containers.forEach(container -> {
+                    try {
+                        docker.removeContainer(container.id(), new RemoveContainerParam("force", "true"));
+                    } catch (DockerException | InterruptedException e) {
+                        //test fails since the environment is no cleaned up
+                        Assert.fail("Cannot remove container!");
+                    }
+                    containerMap.remove(name);
+                    logger.info("Container {} removed. (Container id: {})", name, container.id());
+                });
+            }
+        }
     }
 
     /**
@@ -273,21 +471,20 @@ public class DockerSteps {
      * @param debugPort                debug port on docker
      * @param debugHostPort            debug port on docker host
      * @param brokerInternalDebugPort
-     * @param dockerImage              full name of image (e.g. "kapua/kapua-broker:1.3.0-EXT-CONN-SNAPSHOT")
+     * @param dockerImage              full name of image (e.g. "kapua/kapua-broker:" + version)
      * @return Container configuration for specific boroker instance
      */
-    private ContainerConfig getBrokerContainerConfig(String brokerAddr, String brokerIp,
-            String clusterName,
-            String controlMessageForwarding,
+    private ContainerConfig getBrokerContainerConfig(String brokerIp,
             int mqttPort, int mqttHostPort,
+            int mqttInternalPort, int mqttInternalHostPort,
             int mqttsPort, int mqttsHostPort,
             int webPort, int webHostPort,
             int debugPort, int debugHostPort,
-            int brokerInternalDebugPort,
             String dockerImage) {
 
         final Map<String, List<PortBinding>> portBindings = new HashMap<>();
         addHostPort("0.0.0.0", portBindings, mqttPort, mqttHostPort);
+        addHostPort("0.0.0.0", portBindings, mqttInternalPort, mqttInternalHostPort);
         addHostPort("0.0.0.0", portBindings, mqttsPort, mqttsHostPort);
         addHostPort("0.0.0.0", portBindings, webPort, webHostPort);
         addHostPort("0.0.0.0", portBindings, debugPort, debugHostPort);
@@ -309,19 +506,12 @@ public class DockerSteps {
         }
 
         if (debug) {
-            envVars.add(String.format("ACTIVEMQ_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%s", brokerInternalDebugPort));
-        }
-
-        if (!Strings.isNullOrEmpty(clusterName)) {
-            envVars.add(String.format("cluster.name=%s", clusterName));
-        }
-
-        if (!Strings.isNullOrEmpty(controlMessageForwarding)) {
-            envVars.add(String.format("cluster.control_message_forwarding=%s", controlMessageForwarding));
+            envVars.add(String.format("ACTIVEMQ_DEBUG_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=%s", debugPort));
         }
 
         String[] ports = {
                 String.valueOf(mqttPort),
+                String.valueOf(mqttInternalPort),
                 String.valueOf(mqttsPort),
                 String.valueOf(webPort),
                 String.valueOf(debugPort)
@@ -342,20 +532,81 @@ public class DockerSteps {
      */
     private ContainerConfig getDbContainerConfig() {
         final int dbPort = 3306;
+        final int dbPortConsole = 8181;
         final Map<String, List<PortBinding>> portBindings = new HashMap<>();
         addHostPort("0.0.0.0", portBindings, dbPort, dbPort);
+        addHostPort("0.0.0.0", portBindings, dbPortConsole, dbPortConsole);
         final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+
+        String[] ports = {
+                String.valueOf(dbPort),
+                String.valueOf(dbPortConsole)
+        };
 
         return ContainerConfig.builder()
                 .hostConfig(hostConfig)
-                .exposedPorts(String.valueOf(dbPort))
+                .exposedPorts(ports)
                 .env(
                         "DATABASE=kapuadb",
                         "DB_USER=kapua",
                         "DB_PASSWORD=kapua",
                         "DB_PORT_3306_TCP_PORT=3306"
                 )
-                .image("kapua/kapua-sql:1.3.0-EXT-CONN-SNAPSHOT")
+                .image("kapua/kapua-sql:" + KAPUA_VERSION)
+                .build();
+    }
+
+    /**
+     * Creation of docker container configuration for telemetry consumer.
+     *
+     * @return Container configuration for telemetry consumer.
+     */
+    private ContainerConfig getTelemetryConsumerConfig(int healthPort, int healthHostPort, int debugPort, int debugHostPort) {
+        final Map<String, List<PortBinding>> portBindings = new HashMap<>();
+        addHostPort("0.0.0.0", portBindings, healthPort, healthHostPort);
+        addHostPort("0.0.0.0", portBindings, debugPort, debugHostPort);
+        final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+
+        String[] ports = {
+                String.valueOf(healthPort),
+                String.valueOf(debugPort)
+        };
+
+        return ContainerConfig.builder()
+                .hostConfig(hostConfig)
+                .exposedPorts(ports)
+                .env(
+                    "commons.db.schema.update=true",
+                    "BROKER_HOST=message-broker"
+                )
+                .image("kapua/kapua-consumer-telemetry:" + KAPUA_VERSION)
+                .build();
+    }
+
+    /**
+     * Creation of docker container configuration for lifecycle consumer.
+     *
+     * @return Container configuration for lifecycle consumer.
+     */
+    private ContainerConfig getLifecycleConsumerConfig(int healthPort, int healthHostPort, int debugPort, int debugHostPort) {
+        final Map<String, List<PortBinding>> portBindings = new HashMap<>();
+        addHostPort("0.0.0.0", portBindings, healthPort, healthHostPort);
+        addHostPort("0.0.0.0", portBindings, debugPort, debugHostPort);
+        final HostConfig hostConfig = HostConfig.builder().portBindings(portBindings).build();
+
+        String[] ports = {
+                String.valueOf(healthPort),
+                String.valueOf(debugPort)
+        };
+
+        return ContainerConfig.builder()
+                .hostConfig(hostConfig)
+                .exposedPorts(ports)
+                .env(
+                    "commons.db.schema.update=true",
+                    "BROKER_HOST=message-broker"
+                )
+                .image("kapua/kapua-consumer-lifecycle:" + KAPUA_VERSION)
                 .build();
     }
 
@@ -400,7 +651,7 @@ public class DockerSteps {
         return ContainerConfig.builder()
                 .hostConfig(hostConfig)
                 .exposedPorts(String.valueOf(brokerPort))
-                .image("kapua/kapua-events-broker:1.3.0-EXT-CONN-SNAPSHOT")
+                .image("kapua/kapua-events-broker:" + KAPUA_VERSION)
                 .build();
     }
 

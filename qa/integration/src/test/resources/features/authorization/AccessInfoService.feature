@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -15,9 +15,10 @@
 
 Feature: Access Info Service CRUD tests
 
-Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+Scenario: Initialize test environment
+    Given Reset test shutdown
+    And Init Jaxb Context
+    And Init Security Context
 
   Scenario: Simple create
   Create a simple access info entry. Only a user is supplied. The entry must
@@ -723,6 +724,6 @@ Scenario: Init Security Context for all scenarios
     Then I can compare access role objects
     Then I can compare access permission objects
 
-  Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+Scenario: Reset Security Context for all scenarios
+  Given Set test shutdown
+    And Reset Security Context

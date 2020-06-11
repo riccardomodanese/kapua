@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2019 Eurotech and/or its affiliates and others
+# Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -19,8 +19,9 @@ Feature: User and Credential expiration abd lockout features
   Additionally login failures and lockout and lockout resets are tested.
 
 Scenario: Init Security Context for all scenarios
-
-  Given Init Security Context
+  Given Reset test shutdown
+    And Init Jaxb Context
+  And Init Security Context
 
 #
 # Credential state
@@ -503,5 +504,5 @@ Scenario: Init Security Context for all scenarios
     And I logout
 
   Scenario: Reset Security Context for all scenarios
-
-    Given Reset Security Context
+    Given Reset test shutdown
+    And Reset Security Context

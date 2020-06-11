@@ -15,14 +15,12 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.message.device.data.KapuaDataChannel;
 import org.eclipse.kapua.message.device.data.KapuaDataMessage;
 import org.eclipse.kapua.message.device.data.KapuaDataMessageFactory;
 import org.eclipse.kapua.message.device.data.KapuaDataPayload;
 import org.eclipse.kapua.model.id.KapuaId;
-import org.eclipse.kapua.qa.common.TestJAXBContextProvider;
 import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
@@ -46,7 +44,6 @@ import org.eclipse.kapua.service.device.registry.DeviceCreator;
 import org.eclipse.kapua.service.device.registry.DeviceFactory;
 import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.eclipse.kapua.qa.markers.junit.JUnitTests;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -93,11 +90,6 @@ public class MessageStoreServiceSslTest extends AbstractMessageStoreServiceTest 
     // public void deleteAllIndices() throws Exception {
     // DatastoreMediator.getInstance().deleteAllIndexes();
     // }
-
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        XmlUtil.setContextProvider(new TestJAXBContextProvider());
-    }
 
     @Test(expected = DatastoreException.class)
     @Ignore

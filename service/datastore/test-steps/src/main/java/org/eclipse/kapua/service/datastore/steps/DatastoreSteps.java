@@ -20,11 +20,10 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.runtime.java.guice.ScenarioScoped;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.shiro.SecurityUtils;
+import org.eclipse.kapua.KapuaErrorCodes;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.KapuaRuntimeException;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
-import org.eclipse.kapua.commons.util.xml.XmlUtil;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.message.KapuaMessageFactory;
 import org.eclipse.kapua.message.KapuaPayload;
@@ -40,13 +39,11 @@ import org.eclipse.kapua.qa.common.SimulatedDevice;
 import org.eclipse.kapua.qa.common.SimulatedDeviceApplication;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
-import org.eclipse.kapua.qa.common.TestJAXBContextProvider;
 import org.eclipse.kapua.qa.common.With;
 import org.eclipse.kapua.qa.common.cucumber.CucMessageRange;
 import org.eclipse.kapua.qa.common.cucumber.CucMetric;
 import org.eclipse.kapua.qa.common.cucumber.CucTopic;
 import org.eclipse.kapua.service.account.Account;
-import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.datastore.ChannelInfoRegistryService;
 import org.eclipse.kapua.service.datastore.ClientInfoRegistryService;
 import org.eclipse.kapua.service.datastore.DatastoreObjectFactory;
@@ -105,8 +102,6 @@ import org.eclipse.kapua.service.device.registry.DeviceCreator;
 import org.eclipse.kapua.service.device.registry.DeviceFactory;
 import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -129,8 +124,6 @@ import java.util.stream.Collectors;
 
 @ScenarioScoped
 public class DatastoreSteps extends TestBase {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatastoreSteps.class);
 
     @Then("^Number of received data messages is different than (\\d+)$")
     public void numberOfReceivedDataMessagesIsDifferentThan(int numberOfMessages) {
@@ -246,8 +239,6 @@ public class DatastoreSteps extends TestBase {
         }
     }
 
-    private AccountService accountService;
-
     private DeviceRegistryService deviceRegistryService;
 
     private DeviceFactory deviceFactory;
@@ -277,11 +268,9 @@ public class DatastoreSteps extends TestBase {
 
     @Inject
     public DatastoreSteps(final SimulatedDevice currentDevice, final Session session, StepData stepData, DBHelper dbHelper) {
-
+        super(stepData, dbHelper);
         this.currentDevice = currentDevice;
         this.session = session;
-        this.stepData = stepData;
-        this.database = dbHelper;
     }
 
     // *************************************
@@ -289,18 +278,18 @@ public class DatastoreSteps extends TestBase {
     // *************************************
 
     @Before
-    public void beforeScenario(Scenario scenario) throws ClientUnavailableException {
-
-        this.scenario = scenario;
-
+    public void beforeScenario(Scenario scenario) {
+        super.beforeScenario(scenario);
         // Get instance of services used in different scenarios
-        KapuaLocator locator = KapuaLocator.getInstance();
-        accountService = locator.getService(AccountService.class);
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);
         messageStoreService = locator.getService(MessageStoreService.class);
         messageFactory = locator.getFactory(KapuaMessageFactory.class);
-        datastoreClient = DatastoreClientFactory.getInstance();
+        try {
+            datastoreClient = DatastoreClientFactory.getInstance();
+        } catch (ClientUnavailableException e) {
+            throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, e);
+        }
         storablePredicateFactory = locator.getFactory(StorablePredicateFactory.class);
         datastoreObjectFactory = locator.getFactory(DatastoreObjectFactory.class);
         storableIdFactory = locator.getFactory(StorableIdFactory.class);
@@ -312,23 +301,18 @@ public class DatastoreSteps extends TestBase {
         clientInfoRegistryServiceProxy = new ClientInfoRegistryServiceProxy();
         messageFactory = locator.getFactory(KapuaMessageFactory.class);
         dataMessageFactory = locator.getFactory(KapuaDataMessageFactory.class);
-
-        // JAXB Context
-        XmlUtil.setContextProvider(new TestJAXBContextProvider());
     }
 
     @After
     public void afterScenario() {
-
-        // Clean up the database
-        try {
-            LOGGER.info("Logging out in cleanup");
-            deleteIndices();
-            SecurityUtils.getSubject().logout();
-            KapuaSecurityUtils.clearSession();
-        } catch (Exception e) {
-            LOGGER.error("Failed to log out in @After", e);
-        }
+        super.afterScenario(() -> {
+            try {
+                deleteIndices();
+            } catch (Exception e) {
+                throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, e);
+            }
+            return (Void)null;
+        });
     }
 
     @Given("I delete indexes \"(.*)\"")

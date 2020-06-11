@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 Eurotech and/or its affiliates and others
+ * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="datastore.client.class", value="org.eclipse.kapua.service.datastore.client.rest.RestDatastoreClient")
+@CucumberProperty(key="test.type", value="unit")
 @CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="1")
 @CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="1")
 public class RunTenantSEI9nTest {}

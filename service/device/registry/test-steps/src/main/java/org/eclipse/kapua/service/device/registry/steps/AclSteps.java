@@ -109,8 +109,7 @@ public class AclSteps extends TestBase {
 
     @Inject
     public AclSteps(StepData stepData) {
-
-        this.stepData = stepData;
+        super(stepData);
     }
 
     @Before
