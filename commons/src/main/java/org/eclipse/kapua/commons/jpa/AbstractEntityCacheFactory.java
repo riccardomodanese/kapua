@@ -11,9 +11,14 @@
  *******************************************************************************/
 package org.eclipse.kapua.commons.jpa;
 
+import org.eclipse.kapua.commons.service.internal.AbstractKapuaService;
 import org.eclipse.kapua.commons.service.internal.cache.EntityCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractEntityCacheFactory implements CacheFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractKapuaService.class);
 
     private String idCacheName;
 
@@ -27,6 +32,12 @@ public abstract class AbstractEntityCacheFactory implements CacheFactory {
 
     @Override
     public EntityCache createCache() {
-        return new EntityCache(getEntityIdCacheName());
+        try {
+            return new EntityCache(getEntityIdCacheName());
+        }
+        catch (Throwable t) {
+            logger.error("\n\n============\n============\nError initializing locator... {}\n============\n============\n", t.getMessage(), t);
+            throw t;
+        }
     }
 }

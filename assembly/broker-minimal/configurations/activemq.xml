@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Eurotech - initial API and implementation
+        Red Hat Inc
+ -->
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://activemq.apache.org/schema/core
+         http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:${activemq.conf}/credentials.properties</value>
+        </property>
+    </bean>
+
+    <broker xmlns="http://activemq.apache.org/schema/core"
+            brokerName="message-broker"
+            id="broker-minimal"
+            persistent="false"
+            dataDirectory="${activemq.data}"
+            schedulePeriodForDestinationPurge="-1"
+            networkConnectorStartAsync="true"
+            restartAllowed="false"
+            useJmx="false"
+            advisorySupport="false">
+
+        <transportConnectors>
+            <transportConnector name="mqtt"
+                                uri="mqtt+nio://0.0.0.0:1883?transport.defaultKeepAlive=60000&amp;transport.maximumConnections=1000&amp;transport.socketBufferSize=131072&amp;transport.ioBufferSize=16384&amp;transport.activeMQSubscriptionPrefetch=32766&amp;transport.publishDollarTopics=true&amp;transport.subscriptionStrategy=mqtt-virtual-topic-subscriptions"/>
+            <transportConnector name="internalMqtt"
+                                uri="mqtt+nio://0.0.0.0:1893?transport.defaultKeepAlive=60000&amp;transport.maximumConnections=1000&amp;transport.socketBufferSize=131072&amp;transport.ioBufferSize=16384&amp;transport.activeMQSubscriptionPrefetch=32766&amp;transport.publishDollarTopics=true&amp;transport.subscriptionStrategy=mqtt-virtual-topic-subscriptions"/>
+            <transportConnector name="mqtts"
+                                uri="mqtt+nio+ssl://0.0.0.0:8883?transport.defaultKeepAlive=60000&amp;transport.maximumConnections=1000&amp;transport.socketBufferSize=131072&amp;transport.ioBufferSize=16384&amp;transport.activeMQSubscriptionPrefetch=32766&amp;transport.publishDollarTopics=true&amp;transport.subscriptionStrategy=mqtt-virtual-topic-subscriptions"/>
+            <transportConnector name="amqp"
+                                uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=1048576&amp;transport.transformer=jms" />
+        </transportConnectors>
+    </broker>
+
+</beans>

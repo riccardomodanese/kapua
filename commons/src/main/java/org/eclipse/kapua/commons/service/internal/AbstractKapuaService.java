@@ -20,6 +20,8 @@ import org.eclipse.kapua.event.ServiceEventBusException;
 import org.eclipse.kapua.event.ServiceEventBusListener;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.KapuaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract Kapua service.<br>
@@ -29,6 +31,8 @@ import org.eclipse.kapua.service.KapuaService;
  *
  */
 public class AbstractKapuaService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractKapuaService.class);
 
     protected EntityManagerFactory entityManagerFactory;
     protected EntityManagerSession entityManagerSession;
@@ -51,10 +55,15 @@ public class AbstractKapuaService {
      * @param abstractCacheFactory the service cache factory.
      */
     protected AbstractKapuaService(EntityManagerFactory entityManagerFactory, AbstractEntityCacheFactory abstractCacheFactory) {
-        this.entityManagerFactory = entityManagerFactory;
-        this.entityManagerSession = new EntityManagerSession(entityManagerFactory);
-        if (abstractCacheFactory != null) {
-            this.entityCache = abstractCacheFactory.createCache();
+        try {
+            this.entityManagerFactory = entityManagerFactory;
+            this.entityManagerSession = new EntityManagerSession(entityManagerFactory);
+            if (abstractCacheFactory != null) {
+                this.entityCache = abstractCacheFactory.createCache();
+            }
+        }
+        catch (Throwable t) {
+            logger.error("\n\n============\n============\nError initializing locator... {}\n============\n============\n", t.getMessage(), t);
         }
     }
 

@@ -58,7 +58,7 @@ Initialization script is responsible for logging you into a cluster and creating
 
 If your Openshift cluster is not on the localhost, set the `OPENSHIFT_HOST` environment variable. For example, something like
 
-    export OPENSHIFT_HOST=192.168.64.2:8443
+    export OPENSHIFT_HOST=1.2.1-TEST-LOG-SNAPSHOT68.64.2:8443
 
 If for some reasons, you cannot start your cluster, try to execute the startup script with option `DOCKERIZED=FALSE`:
 
@@ -150,14 +150,14 @@ then you can also install Grafana for Hawkular to visualize your data:
 In order to enable devices to access Kapua we need to allow external access to the broker's MQTT connector. In the default deployment there are two ways to achieve this.
 
 First, the broker exposes MQTT over WebSocket transport. As WebSocket is based on HTTP we can define a router inside the Openshift to get those device connections to the broker.
-For example, if your Openshift deployment is running at the address `192.168.64.2`, you can connect the [Kura Simulator](../user-manual/simulator.md) like this
+For example, if your Openshift deployment is running at the address `1.2.1-TEST-LOG-SNAPSHOT68.64.2`, you can connect the [Kura Simulator](../user-manual/simulator.md) like this
 
-    java -jar target/kapua-simulator-kura-*-SNAPSHOT-app.jar --broker ws://kapua-broker:kapua-password@broker-eclipse-kapua.192.168.64.2.nip.io:80
+    java -jar target/kapua-simulator-kura-*-SNAPSHOT-app.jar --broker ws://kapua-broker:kapua-password@broker-eclipse-kapua.1.2.1-TEST-LOG-SNAPSHOT68.64.2.nip.io:80
 
 Not all MQTT clients have WebSocket support, so we need to enable direct MQTT over TCP access to the broker as well. By default, Kapua comes with the NodePort service that routes all traffic from port `31883` to the broker.
 So you can connect your MQTT clients directly to this service. For the simulator example similar to the above, that would look something like
 
-    java -jar target/kapua-simulator-kura-1.2.1-app.jar --broker tcp://kapua-broker:kapua-password@192.168.64.2:31883
+    java -jar target/kapua-simulator-kura-1.2.1-TEST-LOG-SNAPSHOT-app.jar --broker tcp://kapua-broker:kapua-password@1.2.1-TEST-LOG-SNAPSHOT68.64.2:31883
 
 This is suitable only for the local deployments. In the cloud or production environments, you should deploy a proper LoadBalancer Openshift service to enable external traffic flow to the broker.
 

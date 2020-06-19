@@ -15,7 +15,7 @@
 
     <groupId>org.eclipse.kapua</groupId>
     <artifactId>kapua</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.1-TEST-LOG-SNAPSHOT</version>
     <name>kapua</name>
 
     <packaging>pom</packaging>
@@ -139,7 +139,7 @@
         <!-- -->
         <!-- Database configuration for local installs and tests -->
         <!-- Database host address is the one exported by the dev-tools/vagrant/Vagrantfile -->
-        <db.host>192.168.33.10</db.host>
+        <db.host>1.2.1-TEST-LOG-SNAPSHOT68.33.10</db.host>
         <db.name>kapuadb</db.name>
         <db.schema>kapuadb</db.schema>
         <db.conn.properties>schema=${db.schema}</db.conn.properties>
@@ -1846,7 +1846,7 @@
         <url>https://github.com/eclipse/kapua.git</url>
         <connection>scm:git:ssh://git@github.com/eclipse/kapua.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/eclipse/kapua.git</developerConnection>
-      <tag>1.2.1</tag>
+      <tag>1.2.1-TEST-LOG-SNAPSHOT</tag>
   </scm>
 
     <issueManagement>

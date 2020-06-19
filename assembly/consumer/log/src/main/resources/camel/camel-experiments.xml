@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2020 Eurotech and/or its affiliates and others
+
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+        Eurotech - initial API and implementation
+ -->
+<routes xmlns="http://camel.apache.org/schema/spring">
+    <route errorHandlerRef="mainRouteMessageErrorHandler" id="syslogListener">
+        <from uri="netty:udp://0.0.0.0:10514?sync=false&amp;allowDefaultCodec=false"/>
+        <bean ref="logComponent" method="logInMessage"/>
+        <unmarshal><custom ref="mySyslog"/></unmarshal>
+        <bean ref="logComponent" method="logInMessageAfterMarshal"/>
+        <to uri="amqp:queue://Consumer.kapua-sys:loglisteners:EXACTLY_ONCE.VirtualTopic.logMessages"/>
+    </route>
+
+    <route errorHandlerRef="mainRouteMessageErrorHandler" id="syslogPublisher">
+        <from uri="amqp:queue://Consumer.kapua-sys:loglisteners:EXACTLY_ONCE.VirtualTopic.logMessages?asyncConsumer=false&amp;acknowledgementModeName=CLIENT_ACKNOWLEDGE&amp;transacted=false&amp;concurrentConsumers=20&amp;maxConcurrentConsumers=50"/>
+        <!--
+        <from uri="direct:syslogMessages"/>
+        -->
+        <!--
+        <marshal><custom ref="mySyslog"/></marshal>
+        <to uri="netty:udp://${LOG_SERVER_NAME}:${LOG_SERVER_PORT}"/>
+        -->
+        <bean ref="logComponent" method="logOutMessage"/>
+        <to uri="netty:udp://localhost:12345"/>
+    </route>
+
+    <route errorHandlerRef="mainRouteMessageErrorHandler" id="syslogTextListener">
+        <from uri="amqp:queue://Consumer.kapua-sys:loglisteners:EXACTLY_ONCE.VirtualTopic.textLogMessages?asyncConsumer=false&amp;acknowledgementModeName=CLIENT_ACKNOWLEDGE&amp;transacted=false&amp;concurrentConsumers=20&amp;maxConcurrentConsumers=50"/>
+        <bean ref="logComponent" method="logOutMessage"/>
+        <marshal><custom ref="mySyslog"/></marshal>
+        <bean ref="logComponent" method="logOutMessageAfterMarshal"/>
+        <to uri="netty:udp://localhost:12345"/>
+    </route>
+</routes>

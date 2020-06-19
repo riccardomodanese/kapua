@@ -10,7 +10,7 @@
 #     Eurotech - initial API and implementationq
 #*******************************************************************************
 
-network_address = '192.168.33.10'
+network_address = '1.2.1-TEST-LOG-SNAPSHOT68.33.10'
 
 # Environment variables used in the scripts
 env_vars = {
@@ -20,7 +20,7 @@ env_vars = {
   'ACTIVEMQ_VERSION'      => '5.14.5',
   'ARTEMIS_VERSION'       => '2.2.0',
   'JETTY_VERSION'         => '9.4.12.v20180830',
-  'KAPUA_VERSION'         => '1.2.1'
+  'KAPUA_VERSION'         => '1.2.1-TEST-LOG-SNAPSHOT'
 }
 
 # Vagrant 1.9.6 or major is required
