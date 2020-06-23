@@ -1866,23 +1866,26 @@ public class JobServiceSteps extends TestBase {
         try {
             startOrRestartJob(100, 2, stepIndex, jobStatus);
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+             ex.printStackTrace();
         }
     }
 
-    public void startOrRestartJob(int secondsToWait, int secondsToTry, int stepIndex, String jobTargetStatus) throws InterruptedException, KapuaException {
+    private void startOrRestartJob(int secondsToWait, int secondsToTry, int stepIndex, String jobTargetStatus) throws InterruptedException, KapuaException {
         JobTarget jobTarget = (JobTarget) stepData.get("JobTarget");
         long endWaitTime = System.currentTimeMillis() + secondsToWait * 1000;
-        while (System.currentTimeMillis() < endWaitTime) {
-            JobTarget targetFound = jobTargetService.find(jobTarget.getScopeId(), jobTarget.getId());
-            if (targetFound.getStepIndex() == stepIndex && targetFound.getStatus().toString().equals(jobTargetStatus)) {
-                assertEquals(jobTargetStatus, targetFound.getStatus().toString());
-                assertEquals(stepIndex, targetFound.getStepIndex());
-                break;
-            } else {
-                Thread.sleep(secondsToTry * 1000);
+        JobTarget targetFound = null;
+        do {
+            targetFound = jobTargetService.find(jobTarget.getScopeId(), jobTarget.getId());
+            if (targetFound.getStepIndex() == stepIndex && jobTargetStatus.equals(targetFound.getStatus().name())) {
+                return;
             }
+            Thread.sleep(secondsToTry * 1000);
         }
+        while (System.currentTimeMillis() < endWaitTime);
+        //lets the test fail for the right reason
+        targetFound = jobTargetService.find(jobTarget.getScopeId(), jobTarget.getId());
+        assertEquals(jobTargetStatus, targetFound.getStatus().toString());
+        assertEquals(stepIndex, targetFound.getStepIndex());
     }
 
     @Given("^I prepare a job with name \"([^\"]*)\" and description \"([^\"]*)\"$")

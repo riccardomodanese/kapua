@@ -69,8 +69,11 @@ public class ClassUtil {
             } catch (ClassNotFoundException e) {
                 throw new KapuaException(KapuaErrorCodes.INTERNAL_ERROR, e, String.format(CANNOT_LOAD_INSTANCE_ERROR_MSG, clazz, clazzToInstantiate));
             }
-        } else {
+        } else if (defaultInstance!=null) {
             logger.info("Initializing instance of. Instantiate default instance {} ...", defaultInstance);
+        }
+        else {
+            throw new KapuaException(KapuaErrorCodes.INTERNAL_ERROR, String.format(CANNOT_LOAD_INSTANCE_ERROR_MSG, clazz, clazzToInstantiate));
         }
         if (parameterTypes == null || parameterTypes.length <= 0) {
             try {

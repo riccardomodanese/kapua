@@ -29,7 +29,7 @@
 
     <bean xmlns="http://www.springframework.org/schema/beans"
         id="jaxbContextLoader"
-        class="org.eclipse.kapua.consumer.commons.JAXBContextLoader"
+        class="org.eclipse.kapua.broker.core.JAXBContextLoader"
         init-method="init"/>
     <bean xmlns="http://www.springframework.org/schema/beans"
         id="databaseCheckUpdate"

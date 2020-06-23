@@ -12,7 +12,8 @@
 package org.eclipse.kapua.qa.common.utils;
 
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.consumer.commons.JAXBContextLoader;
+import org.eclipse.kapua.commons.util.xml.XmlUtil;
+import org.eclipse.kapua.qa.common.TestJAXBContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +27,8 @@ public class InitJaxbContext {
 
     @Given("^Init Jaxb Context$")
     public void initJAXBContext() throws KapuaException {
-        logger.info("Initializing JAXB context...");
-        JAXBContextLoader jaxbContextLoader = new JAXBContextLoader();
-        jaxbContextLoader.init();
-        logger.info("Initializing JAXB context... DONE");
+        logger.info("Initializing Test JAXB context...");
+        XmlUtil.setContextProvider(new TestJAXBContextProvider());
+        logger.info("Initializing Test JAXB context... DONE");
     }
 }

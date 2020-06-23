@@ -9,7 +9,7 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.consumer.commons.setting;
+package org.eclipse.kapua.consumer.lifecycle.setting;
 
 import org.eclipse.kapua.commons.setting.AbstractKapuaSetting;
 
@@ -17,23 +17,23 @@ import org.eclipse.kapua.commons.setting.AbstractKapuaSetting;
  * Broker setting implementation.<br>
  * This class handles settings for the {@link ConsumerSettingKey}.
  */
-public final class ConsumerSetting extends AbstractKapuaSetting<ConsumerSettingKey> {
+public final class LifecycleConsumerSetting extends AbstractKapuaSetting<LifecycleConsumerSettingKey> {
 
-    private static final String CONFIG_RESOURCE_NAME = "kapua-consumer-setting.properties";
+    private static final String CONFIG_RESOURCE_NAME = "kapua-lifecycle-consumer-setting.properties";
 
-    private static ConsumerSetting instance;
+    private static LifecycleConsumerSetting instance;
 
-    private ConsumerSetting() {
+    private LifecycleConsumerSetting() {
         super(CONFIG_RESOURCE_NAME);
     }
 
     /**
      * Return the broker setting instance (singleton)
      */
-    public static ConsumerSetting getInstance() {
-        synchronized (ConsumerSetting.class) {
+    public static LifecycleConsumerSetting getInstance() {
+        synchronized (LifecycleConsumerSetting.class) {
             if (instance == null) {
-                instance = new ConsumerSetting();
+                instance = new LifecycleConsumerSetting();
             }
             return instance;
         }
@@ -51,7 +51,7 @@ public final class ConsumerSetting extends AbstractKapuaSetting<ConsumerSettingK
      * </p>
      */
     public static void resetInstance() {
-        synchronized (ConsumerSetting.class) {
+        synchronized (LifecycleConsumerSetting.class) {
             instance = null;
         }
     }

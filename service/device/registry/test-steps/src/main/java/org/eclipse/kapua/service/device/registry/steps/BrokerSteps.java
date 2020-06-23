@@ -213,6 +213,7 @@ public class BrokerSteps extends TestBase {
                 }
             }
             while(device==null && loop++ < seconds);
+
             if (device != null) {
                 deviceList.add(device);
                 stepData.put("LastDevice", device);

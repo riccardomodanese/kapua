@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -66,9 +65,12 @@ public class DockerSteps {
     private static final String KAPUA_VERSION = "1.3.0-EXT-CONN-SNAPSHOT";
     private static final String ES_IMAGE = "elasticsearch:5.4.0";
     private static final List<String> DEFAULT_DEPLOYMENT_CONTAINERS_NAME;
-    private static final int WAIT_COUNT = 60;//total wait time = 120 secs (60 * 2000ms)
+    private static final int WAIT_COUNT = 120;//total wait time = 240 secs (120 * 2000ms)
     private static final long WAIT_STEP = 2000;
-    private static final long WAIT_FOR_BROKER = 10000;
+    private static final long WAIT_FOR_DB = 10000;
+    private static final long WAIT_FOR_ES = 10000;
+    private static final long WAIT_FOR_EVENTS_BROKER = 10000;
+    private static final long WAIT_FOR_BROKER = 60000;
     private static final int HTTP_COMMUNICATION_TIMEOUT = 3000;
 
     private static final int LIFECYCLE_HEALTH_CHECK_PORT = 8090;
@@ -195,25 +197,39 @@ public class DockerSteps {
         stopFullDockerEnvironment();
         removeNetwork();
         createNetwork();
+
         startDBContainer("db");
+        synchronized (this) {
+            this.wait(WAIT_FOR_DB);
+        }
+
         startESContainer("es");
+        synchronized (this) {
+            this.wait(WAIT_FOR_ES);
+        }
+
         startEventBrokerContainer("events-broker");
+        synchronized (this) {
+            this.wait(WAIT_FOR_EVENTS_BROKER);
+        }
+
         startMessageBrokerContainer("message-broker");
         synchronized (this) {
             this.wait(WAIT_FOR_BROKER);
         }
+
         startLifecycleConsumerContainer("lifecycle-consumer");
         startTelemetryConsumerContainer("telemetry-consumer");
         //wait until consumers are ready
         int loops = 0;
-        while(!areConsumersReady()) {
+        while (!areConsumersReady()) {
             if (loops++ > WAIT_COUNT) {
                 throw new DockerException("Timeout waiting for cluster sgtartup reached!");
             }
             synchronized (this) {
                 this.wait(WAIT_STEP);
             }
-            logger.info("Consumers not ready after {}s... wait", (loops*WAIT_STEP/1000));
+            logger.info("Consumers not ready after {}s... wait", (loops * WAIT_STEP / 1000));
         }
         logger.info("Consumers ready");
     }
@@ -252,11 +268,9 @@ public class DockerSteps {
                 logger.info("Querying {} consumer status for url: {} - ERROR", type, consumerUrl);
                 return false;
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             //nothing to do
-        }
-        finally {
+        } finally {
             if (isr != null) {
                 try {
                     isr.close();
@@ -289,8 +303,8 @@ public class DockerSteps {
         return false;
     }
 
-    private boolean isRunning(Map<String,Object> map) {
-        if (map.get("status")!=null && "UP".equals(map.get("status"))) {
+    private boolean isRunning(Map<String, Object> map) {
+        if (map.get("status") != null && "UP".equals(map.get("status"))) {
             return true;
         }
         return false;
@@ -311,15 +325,14 @@ public class DockerSteps {
     @Given("^Remove network$")
     public void removeNetwork() throws DockerException, InterruptedException {
         List<Network> networkList = docker.listNetworks(ListNetworksFilterParam.byNetworkName(NETWORK_PREFIX));
-        if (networkList!=null) {
+        if (networkList != null) {
             for (Network network : networkList) {
                 String networkId = network.id();
                 String networkName = network.name();
                 logger.info("Removing network id {} - name {}...", networkId, networkName);
                 try {
                     docker.removeNetwork(networkId);
-                }
-                catch (NetworkNotFoundException e) {
+                } catch (NetworkNotFoundException e) {
                     //no error!
                     logger.warn("Cannot remove network id {}... network not found!", networkId);
                 }
@@ -439,8 +452,7 @@ public class DockerSteps {
             List<Container> containers = docker.listContainers(ListContainersParam.filter("name", name));
             if (containers.isEmpty()) {
                 logger.info("No docker images found. Cannot remove container {}. (Container not found!)", name);
-            }
-            else {
+            } else {
                 containers.forEach(container -> {
                     try {
                         docker.removeContainer(container.id(), new RemoveContainerParam("force", "true"));
@@ -475,12 +487,12 @@ public class DockerSteps {
      * @return Container configuration for specific boroker instance
      */
     private ContainerConfig getBrokerContainerConfig(String brokerIp,
-            int mqttPort, int mqttHostPort,
-            int mqttInternalPort, int mqttInternalHostPort,
-            int mqttsPort, int mqttsHostPort,
-            int webPort, int webHostPort,
-            int debugPort, int debugHostPort,
-            String dockerImage) {
+                                                     int mqttPort, int mqttHostPort,
+                                                     int mqttInternalPort, int mqttInternalHostPort,
+                                                     int mqttsPort, int mqttsHostPort,
+                                                     int webPort, int webHostPort,
+                                                     int debugPort, int debugHostPort,
+                                                     String dockerImage) {
 
         final Map<String, List<PortBinding>> portBindings = new HashMap<>();
         addHostPort("0.0.0.0", portBindings, mqttPort, mqttHostPort);
@@ -576,8 +588,8 @@ public class DockerSteps {
                 .hostConfig(hostConfig)
                 .exposedPorts(ports)
                 .env(
-                    "commons.db.schema.update=true",
-                    "BROKER_HOST=message-broker"
+                        "commons.db.schema.update=true",
+                        "BROKER_HOST=message-broker"
                 )
                 .image("kapua/kapua-consumer-telemetry:" + KAPUA_VERSION)
                 .build();
@@ -603,8 +615,8 @@ public class DockerSteps {
                 .hostConfig(hostConfig)
                 .exposedPorts(ports)
                 .env(
-                    "commons.db.schema.update=true",
-                    "BROKER_HOST=message-broker"
+                        "commons.db.schema.update=true",
+                        "BROKER_HOST=message-broker"
                 )
                 .image("kapua/kapua-consumer-lifecycle:" + KAPUA_VERSION)
                 .build();
@@ -664,7 +676,7 @@ public class DockerSteps {
      * @param hostPort     port on host
      */
     private void addHostPort(String host, Map<String, List<PortBinding>> portBindings,
-            int port, int hostPort) {
+                             int port, int hostPort) {
 
         List<PortBinding> hostPorts = new ArrayList<>();
         hostPorts.add(PortBinding.of(host, hostPort));

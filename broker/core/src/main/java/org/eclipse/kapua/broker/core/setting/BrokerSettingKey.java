@@ -64,7 +64,11 @@ public enum BrokerSettingKey implements SettingKey {
     /**
      * Broker name (used also for the vm connector name)
      */
-    BROKER_NAME("broker.name");
+    BROKER_NAME("broker.name"),
+    /**
+     * Jaxb context provider class name
+     */
+    JAXB_CONTEXT_CLASS_NAME("broker.jaxb_context_class_name");
 
     private String key;
 

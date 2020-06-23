@@ -9,14 +9,14 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.consumer.commons;
+package org.eclipse.kapua.consumer.lifecycle;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.util.ClassUtil;
 import org.eclipse.kapua.commons.util.xml.JAXBContextProvider;
 import org.eclipse.kapua.commons.util.xml.XmlUtil;
-import org.eclipse.kapua.consumer.commons.setting.ConsumerSetting;
-import org.eclipse.kapua.consumer.commons.setting.ConsumerSettingKey;
+import org.eclipse.kapua.consumer.lifecycle.setting.LifecycleConsumerSetting;
+import org.eclipse.kapua.consumer.lifecycle.setting.LifecycleConsumerSettingKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,23 +24,23 @@ import org.slf4j.LoggerFactory;
  * Jaxb context loader
  *
  */
-public class JAXBContextLoader {
+public class LifecycleJAXBContextLoader {
 
-    protected static final Logger logger = LoggerFactory.getLogger(JAXBContextLoader.class);
+    protected static final Logger logger = LoggerFactory.getLogger(LifecycleJAXBContextLoader.class);
 
     private static final String JAXB_CONTEXT_CLASS_NAME;
 
     static {
-        ConsumerSetting config = ConsumerSetting.getInstance();
-        JAXB_CONTEXT_CLASS_NAME = config.getString(ConsumerSettingKey.JAXB_CONTEXT_CLASS_NAME);
+        LifecycleConsumerSetting config = LifecycleConsumerSetting.getInstance();
+        JAXB_CONTEXT_CLASS_NAME = config.getString(LifecycleConsumerSettingKey.JAXB_CONTEXT_CLASS_NAME);
     }
 
-    public JAXBContextLoader() throws KapuaException {
+    public LifecycleJAXBContextLoader() throws KapuaException {
     }
 
     public void init() throws KapuaException {
         logger.info(">>> Jaxb context loader... load context");
-        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME, DefaultJAXBContextProvider.class);
+        JAXBContextProvider jaxbContextProvider = ClassUtil.newInstance(JAXB_CONTEXT_CLASS_NAME, null);
         XmlUtil.setContextProvider(jaxbContextProvider);
         logger.info(">>> Jaxb context loader... load context DONE");
     }

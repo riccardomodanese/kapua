@@ -9,26 +9,22 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.consumer.commons.setting;
+package org.eclipse.kapua.consumer.lifecycle.setting;
 
 import org.eclipse.kapua.commons.setting.SettingKey;
 
 /**
  * Settings
  */
-public enum ConsumerSettingKey implements SettingKey {
+public enum LifecycleConsumerSettingKey implements SettingKey {
     /**
-     * Allow disabling the default connector descriptor
+     * Jaxb context provider class name
      */
-    DISABLE_DEFAULT_PROTOCOL_DESCRIPTOR("protocol_descriptor.default.disable"),
-    /**
-     * A URI to a configuration file for providing additional {@link ConnectorDescriptor} configurations
-     */
-    CONFIGURATION_URI("protocol_descriptor.configuration.uri");
+    JAXB_CONTEXT_CLASS_NAME("consumer_lifecycle.jaxb_context_class_name");
 
     private String key;
 
-    private ConsumerSettingKey(String key) {
+    private LifecycleConsumerSettingKey(String key) {
         this.key = key;
     }
 

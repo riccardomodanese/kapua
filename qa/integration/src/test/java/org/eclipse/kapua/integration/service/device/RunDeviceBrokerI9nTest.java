@@ -43,6 +43,5 @@ import cucumber.api.CucumberOptions;
 @CucumberProperty(key="commons.db.connection.host", value="localhost")
 @CucumberProperty(key="commons.db.connection.port", value="3306")
 @CucumberProperty(key="datastore.index.prefix", value="")
-@CucumberProperty(key="commons.settings.hotswap", value="true")
 public class RunDeviceBrokerI9nTest {}
 

@@ -9,31 +9,32 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.consumer.commons.setting;
+package org.eclipse.kapua.consumer.telemetry.setting;
 
 import org.eclipse.kapua.commons.setting.AbstractKapuaSetting;
+import org.eclipse.kapua.consumer.commons.setting.ConsumerSettingKey;
 
 /**
  * Broker setting implementation.<br>
  * This class handles settings for the {@link ConsumerSettingKey}.
  */
-public final class ConsumerSetting extends AbstractKapuaSetting<ConsumerSettingKey> {
+public final class TelemetryConsumerSetting extends AbstractKapuaSetting<TelemetryConsumerSettingKey> {
 
-    private static final String CONFIG_RESOURCE_NAME = "kapua-consumer-setting.properties";
+    private static final String CONFIG_RESOURCE_NAME = "kapua-telemetry-consumer-setting.properties";
 
-    private static ConsumerSetting instance;
+    private static TelemetryConsumerSetting instance;
 
-    private ConsumerSetting() {
+    private TelemetryConsumerSetting() {
         super(CONFIG_RESOURCE_NAME);
     }
 
     /**
      * Return the broker setting instance (singleton)
      */
-    public static ConsumerSetting getInstance() {
-        synchronized (ConsumerSetting.class) {
+    public static TelemetryConsumerSetting getInstance() {
+        synchronized (TelemetryConsumerSetting.class) {
             if (instance == null) {
-                instance = new ConsumerSetting();
+                instance = new TelemetryConsumerSetting();
             }
             return instance;
         }
@@ -51,7 +52,7 @@ public final class ConsumerSetting extends AbstractKapuaSetting<ConsumerSettingK
      * </p>
      */
     public static void resetInstance() {
-        synchronized (ConsumerSetting.class) {
+        synchronized (TelemetryConsumerSetting.class) {
             instance = null;
         }
     }

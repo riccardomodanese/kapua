@@ -780,6 +780,7 @@
       And I wait 1 second
       Then Device status is "CONNECTED"
       When KuraMock is disconnected
+      And I wait 1 second
       Then Device status is "DISCONNECTED"
       And I select account "kapua-sys"
       And I get the KuraMock devices after 5 seconds
@@ -976,6 +977,7 @@
       Then Device status is "CONNECTED"
       And I wait 1 second
       When KuraMock is disconnected
+      And I wait 1 second
       Then Device status is "DISCONNECTED"
       And I select account "kapua-sys"
       And I get the KuraMock devices after 5 seconds

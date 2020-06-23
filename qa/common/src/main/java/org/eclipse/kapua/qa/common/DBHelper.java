@@ -153,15 +153,18 @@ public class DBHelper {
 
     public void dropAll() throws SQLException {
 
-        String[] types = {"TABLE"};
-        ResultSet sqlResults = connection.getMetaData().getTables(null, null, "%", types);
+        if (!connection.isClosed()) {
+            String[] types = {"TABLE"};
 
-        while (sqlResults.next()) {
-            String sqlStatement = String.format("DROP TABLE %s", sqlResults.getString("TABLE_NAME").toUpperCase());
-            connection.prepareStatement(sqlStatement).execute();
+            ResultSet sqlResults = connection.getMetaData().getTables(null, null, "%", types);
+
+            while (sqlResults.next()) {
+                String sqlStatement = String.format("DROP TABLE %s", sqlResults.getString("TABLE_NAME").toUpperCase());
+                connection.prepareStatement(sqlStatement).execute();
+            }
+
+            this.close();
         }
-
-        this.close();
         KapuaCacheManager.invalidateAll();
     }
 }
