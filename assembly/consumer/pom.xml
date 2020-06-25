@@ -31,6 +31,7 @@
     <modules>
         <module>telemetry</module>
         <module>lifecycle</module>
+        <module>log</module>
     </modules>
 
     <dependencyManagement>
