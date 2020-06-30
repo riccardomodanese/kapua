@@ -53,6 +53,10 @@ public class DomainImpl extends AbstractKapuaEntity implements Domain {
     @Column(name = "groupable", nullable = false, updatable = false)
     private boolean groupable;
 
+    @Basic
+    @Column(name = "servicename", nullable = false, updatable = false)
+    private String serviceName;
+
     /**
      * Constructor.
      *
@@ -114,6 +118,16 @@ public class DomainImpl extends AbstractKapuaEntity implements Domain {
     @Override
     public void setActions(Set<Actions> actions) {
         this.actions = actions;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     @Override

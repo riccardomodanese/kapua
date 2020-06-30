@@ -31,6 +31,7 @@ public class TestDomain extends AbstractKapuaEntity implements Domain, org.eclip
     private String name = "test";
     private Set<Actions> actions = new HashSet<>(Lists.newArrayList(Actions.read, Actions.delete, Actions.write));
     private boolean groupable;
+    private String serviceName;
 
     public TestDomain() {}
 
@@ -66,5 +67,15 @@ public class TestDomain extends AbstractKapuaEntity implements Domain, org.eclip
     @Override
     public void setGroupable(boolean groupable) {
         this.groupable = groupable;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 }

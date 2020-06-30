@@ -545,8 +545,8 @@ Feature: User Permission tests
     When I count the domain entries in the database
     Then I count 21
     And I create the domain
-      | name          | actions             |
-      | test_domain   | read, write, delete |
+      | name           | actions             | serviceName                          |
+      | test_domain    | read, write, delete | org.eclipse.kapua.service.TestDomain |
     When I search for the last created domain
     Then The domain matches the creator
     When I count the domain entries in the database
@@ -582,8 +582,8 @@ Feature: User Permission tests
     When I login as user with name "kapua-a" and password "ToManySecrets123#"
     Given I expect the exception "SubjectUnauthorizedException" with the text "User does not have permission"
     When I create the domain
-      | name           | actions             |
-      | test_domain1   | read, write, delete |
+      | name           | actions             | serviceName                          |
+      | test_domain1   | read, write, delete | org.eclipse.kapua.service.TestDomain |
     Then An exception was thrown
     Given I expect the exception "KapuaIllegalNullArgumentException" with the text "An illegal null value was provided"
     When I search for the last created domain
@@ -594,8 +594,8 @@ Feature: User Permission tests
     When I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"
     And I create the domain
-      | name           | actions             |
-      | test_domain2   | read, write, delete |
+      | name           | actions             | serviceName                          |
+      | test_domain2   | read, write, delete | org.eclipse.kapua.service.TestDomain |
     When I count the domain entries in the database
     Then I count 22
     Then I logout

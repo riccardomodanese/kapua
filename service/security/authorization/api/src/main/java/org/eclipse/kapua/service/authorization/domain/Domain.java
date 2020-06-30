@@ -131,4 +131,9 @@ public interface Domain extends KapuaEntity {//, org.eclipse.kapua.model.domain.
             }
         };
     }
+
+    @XmlElement(name = "servicename")
+    String getServiceName();
+
+    void setServiceName(String serviceName);
 }

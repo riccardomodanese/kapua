@@ -31,6 +31,7 @@ public class DomainCreatorImpl extends AbstractKapuaEntityCreator<Domain> implem
     private String name;
     private Set<Actions> actions;
     private boolean groupable;
+    private String serviceName;
 
     /**
      * Constructor
@@ -72,6 +73,16 @@ public class DomainCreatorImpl extends AbstractKapuaEntityCreator<Domain> implem
     @Override
     public void setGroupable(boolean groupable) {
         this.groupable = groupable;
+    }
+
+    @Override
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    @Override
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
 }
