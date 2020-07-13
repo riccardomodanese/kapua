@@ -20,7 +20,6 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.ListNetworksFilterParam;
 import com.spotify.docker.client.DockerClient.RemoveContainerParam;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.exceptions.NetworkNotFoundException;
 import com.spotify.docker.client.messages.Container;
@@ -125,12 +124,9 @@ public class DockerSteps {
     @Before
     public void setupDockerClient() {
         logger.info("Creating docker client.");
-        try {
-            docker = DefaultDockerClient.fromEnv().build();
-        } catch (DockerCertificateException e) {
-            logger.error("Could not connect to docker.");
-            throw new RuntimeException("Cannot initialize docker client!", e);
-        }
+        logger.info("Creating docker client...");
+        docker = new DefaultDockerClient("unix:///var/run/docker.sock");
+        logger.info("Creating docker client... DONE");
     }
 
     @Given("^Create mqtt \"(.*)\" client for broker \"(.*)\" on port (\\d+) with user \"(.*)\" and pass \"(.*)\"$")
@@ -224,7 +220,7 @@ public class DockerSteps {
         int loops = 0;
         while (!areConsumersReady()) {
             if (loops++ > WAIT_COUNT) {
-                throw new DockerException("Timeout waiting for cluster sgtartup reached!");
+                throw new DockerException("Timeout waiting for cluster startup reached!");
             }
             synchronized (this) {
                 this.wait(WAIT_STEP);
