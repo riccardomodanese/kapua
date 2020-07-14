@@ -17,7 +17,8 @@
 Feature: Device lifecycle scenarios
 
   Scenario: Start docker environment
-    Given Reset test shutdown
+    Given Set test type as "integration"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment

@@ -18,7 +18,8 @@ Feature: Tenant service with Service Events
   being trigered on create, update and delete action on Account and User service.
 
 Scenario: Initialize test environment
-    Given Reset test shutdown
+    Given Set test type as "unit"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
 

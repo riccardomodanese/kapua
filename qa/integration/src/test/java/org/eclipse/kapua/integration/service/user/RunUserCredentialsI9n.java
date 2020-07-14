@@ -31,7 +31,8 @@ import cucumber.api.CucumberOptions;
         },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="test.type", value="unit")
+@CucumberProperty(key="test.name", value="RunUserCredentialsI9n")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="5")
 @CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="5")
 public class RunUserCredentialsI9n {

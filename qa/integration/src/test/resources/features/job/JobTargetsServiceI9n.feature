@@ -17,8 +17,9 @@ Feature: Job Target service CRUD tests
     The Job service is responsible for maintaining a list of job targets.
 
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-    And Init Jaxb Context
+  Given Set test type as "unit"
+  And Reset test shutdown
+  And Init Jaxb Context
   And Init Security Context
 
 Scenario: Regular target creation

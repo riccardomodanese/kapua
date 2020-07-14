@@ -17,7 +17,8 @@ Feature: User Service Integration
   User Service integration scenarios
 
 Scenario: Initialize test environment
-    Given Reset test shutdown
+    Given Set test type as "integration_minimal"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start Event Broker

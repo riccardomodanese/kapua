@@ -38,7 +38,8 @@ import cucumber.api.CucumberOptions;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="test.type", value="unit")
+@CucumberProperty(key="test.name", value="RunAuthorizationServiceI9nTest")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="commons.db.schema", value="kapuadb")
 @CucumberProperty(key="commons.db.schema.update", value="true")
 public class RunAuthorizationServiceI9nTest {}

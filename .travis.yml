@@ -22,8 +22,8 @@ install:
 - ls /usr/lib/jvm
 - ls
 - cp build-tools/src/main/toolchains/travis-ci.xml ~/.m2/toolchains.xml
-- echo ==== Setting up Maven 3.3 for Travis ====
-- wget -T 30 -t 3 -O maven.tar.gz http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz || wget -T 30 -t 3 -O maven.tar.gz http://www-us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+- echo ==== Setting up Maven 3.6.3 for Travis ====
+- wget -T 30 -t 3 -O maven.tar.gz http://www-eu.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz || wget -T 30 -t 3 -O maven.tar.gz http://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
 - mkdir maven
 - cd maven ; tar --strip-components 1 -xzf ../maven.tar.gz ; cd ..
 - chmod a+x maven/bin/mvn
@@ -41,7 +41,9 @@ jobs:
   - stage: build
     script:
     - $M2_HOME/bin/mvn -v
+    - docker images
     - $M2_HOME/bin/mvn -B ${BUILD_OPTS} -DskipTests clean install -Pdocker
+    - docker images
   - stage: test
     script:
     - ./travis.sh $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -Dgroups='!org.eclipse.kapua.qa.markers.junit.JUnitTests' -Dcucumber.options="--tags @brokerAcl" verify
@@ -50,7 +52,10 @@ jobs:
     - ./travis.sh $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -Dgroups='!org.eclipse.kapua.qa.markers.junit.JUnitTests' -Dcucumber.options="--tags @tag" verify
   - stage: test
     script:
-    - ./travis.sh $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -Dgroups='!org.eclipse.kapua.qa.markers.junit.JUnitTests' -Dcucumber.options="--tags @broker" verify
+    - docker images
+    - $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -f assembly/pom.xml -Pdocker
+    - docker images
+    - $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -Dgroups='!org.eclipse.kapua.qa.markers.junit.JUnitTests' -Dcucumber.options="--tags @broker" verify
   - stage: test
     script:
     - $M2_HOME/bin/mvn -B ${BUILD_OPTS} ${CONFIG_OVERRIDES} -Dgroups='!org.eclipse.kapua.qa.markers.junit.JUnitTests' -Dcucumber.options="--tags @device" verify

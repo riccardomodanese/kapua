@@ -17,7 +17,8 @@ Feature: Device Broker connection ip not set
   Device Service integration scenarios with running broker service.
 
   Scenario: Start full docker environment
-    Given Reset test shutdown
+    Given Set test type as "integration"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And System property "broker.ip" with value "null"

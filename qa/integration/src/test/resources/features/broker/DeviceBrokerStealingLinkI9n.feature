@@ -20,7 +20,8 @@ Feature: Device Broker Cluster tests
     Tests also include connecting client with same id.
 
   Scenario: Start full docker environment
-    Given Reset test shutdown
+    Given Set test type as "integration"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment

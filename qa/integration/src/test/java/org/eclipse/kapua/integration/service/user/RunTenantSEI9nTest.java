@@ -29,7 +29,8 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="test.type", value="unit")
+@CucumberProperty(key="test.name", value="RunTenantSEI9nTest")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="1")
 @CucumberProperty(key="org.eclipse.kapua.qa.broker.extraStartupDelay", value="1")
 public class RunTenantSEI9nTest {}

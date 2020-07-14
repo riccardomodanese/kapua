@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.ListNetworksFilterParam;
@@ -31,7 +30,6 @@ import com.spotify.docker.client.messages.Network;
 import com.spotify.docker.client.messages.NetworkConfig;
 import com.spotify.docker.client.messages.NetworkCreation;
 import com.spotify.docker.client.messages.PortBinding;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -93,7 +91,6 @@ public class DockerSteps {
         DEFAULT_DEPLOYMENT_CONTAINERS_NAME.add("db");
     }
 
-    private DockerClient docker;
     private NetworkConfig networkConfig;
     private String networkId;
     private boolean debug;
@@ -106,7 +103,6 @@ public class DockerSteps {
 
     @Inject
     public DockerSteps(StepData stepData) {
-
         this.stepData = stepData;
         containerMap = new HashMap<>();
     }
@@ -119,14 +115,6 @@ public class DockerSteps {
     @Given("^Disable debug$")
     public void disableDebug() {
         this.debug = false;
-    }
-
-    @Before
-    public void setupDockerClient() {
-        logger.info("Creating docker client.");
-        logger.info("Creating docker client...");
-        docker = new DefaultDockerClient("unix:///var/run/docker.sock");
-        logger.info("Creating docker client... DONE");
     }
 
     @Given("^Create mqtt \"(.*)\" client for broker \"(.*)\" on port (\\d+) with user \"(.*)\" and pass \"(.*)\"$")
@@ -188,46 +176,54 @@ public class DockerSteps {
     }
 
     @Given("^Start full docker environment$")
-    public void startFullDockerEnvironment() throws DockerException, InterruptedException, JsonParseException, JsonMappingException, IOException {
-        pullImage(ES_IMAGE);
-        stopFullDockerEnvironment();
-        removeNetwork();
-        createNetwork();
+    public void startFullDockerEnvironment() throws Exception {
+        logger.info("Starting full docker environment...");
+        try {
+            pullImage(ES_IMAGE);
+            stopFullDockerEnvironment();
+            removeNetwork();
+            createNetwork();
 
-        startDBContainer("db");
-        synchronized (this) {
-            this.wait(WAIT_FOR_DB);
-        }
-
-        startESContainer("es");
-        synchronized (this) {
-            this.wait(WAIT_FOR_ES);
-        }
-
-        startEventBrokerContainer("events-broker");
-        synchronized (this) {
-            this.wait(WAIT_FOR_EVENTS_BROKER);
-        }
-
-        startMessageBrokerContainer("message-broker");
-        synchronized (this) {
-            this.wait(WAIT_FOR_BROKER);
-        }
-
-        startLifecycleConsumerContainer("lifecycle-consumer");
-        startTelemetryConsumerContainer("telemetry-consumer");
-        //wait until consumers are ready
-        int loops = 0;
-        while (!areConsumersReady()) {
-            if (loops++ > WAIT_COUNT) {
-                throw new DockerException("Timeout waiting for cluster startup reached!");
-            }
+            startDBContainer("db");
             synchronized (this) {
-                this.wait(WAIT_STEP);
+                this.wait(WAIT_FOR_DB);
             }
-            logger.info("Consumers not ready after {}s... wait", (loops * WAIT_STEP / 1000));
+
+            startESContainer("es");
+            synchronized (this) {
+                this.wait(WAIT_FOR_ES);
+            }
+
+            startEventBrokerContainer("events-broker");
+            synchronized (this) {
+                this.wait(WAIT_FOR_EVENTS_BROKER);
+            }
+
+            startMessageBrokerContainer("message-broker");
+            synchronized (this) {
+                this.wait(WAIT_FOR_BROKER);
+            }
+
+            startLifecycleConsumerContainer("lifecycle-consumer");
+            startTelemetryConsumerContainer("telemetry-consumer");
+            logger.info("Starting full docker environment... DONE (waiting for containers to be ready)");
+            //wait until consumers are ready
+            int loops = 0;
+            while (!areConsumersReady()) {
+                if (loops++ > WAIT_COUNT) {
+                    throw new DockerException("Timeout waiting for cluster startup reached!");
+                }
+                synchronized (this) {
+                    this.wait(WAIT_STEP);
+                }
+                logger.info("Consumers not ready after {}s... wait", (loops * WAIT_STEP / 1000));
+            }
+            logger.info("Consumers ready");
         }
-        logger.info("Consumers ready");
+        catch (Exception e) {
+            logger.error("Error while starting full docker environment: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     private boolean areConsumersReady() throws JsonParseException, JsonMappingException, IOException {
@@ -314,20 +310,20 @@ public class DockerSteps {
     @Given("^Create network$")
     public void createNetwork() throws DockerException, InterruptedException {
         networkConfig = NetworkConfig.builder().name(NETWORK_PREFIX).build();
-        NetworkCreation networkCreation = docker.createNetwork(networkConfig);
+        NetworkCreation networkCreation = DockerUtil.getDockerClient().createNetwork(networkConfig);
         networkId = networkCreation.id();
     }
 
     @Given("^Remove network$")
     public void removeNetwork() throws DockerException, InterruptedException {
-        List<Network> networkList = docker.listNetworks(ListNetworksFilterParam.byNetworkName(NETWORK_PREFIX));
+        List<Network> networkList = DockerUtil.getDockerClient().listNetworks(ListNetworksFilterParam.byNetworkName(NETWORK_PREFIX));
         if (networkList != null) {
             for (Network network : networkList) {
                 String networkId = network.id();
                 String networkName = network.name();
                 logger.info("Removing network id {} - name {}...", networkId, networkName);
                 try {
-                    docker.removeNetwork(networkId);
+                    DockerUtil.getDockerClient().removeNetwork(networkId);
                 } catch (NetworkNotFoundException e) {
                     //no error!
                     logger.warn("Cannot remove network id {}... network not found!", networkId);
@@ -339,12 +335,12 @@ public class DockerSteps {
 
     @Given("^Pull image \"(.*)\"$")
     public void pullImage(String image) throws DockerException, InterruptedException {
-        docker.pull(image);
+        DockerUtil.getDockerClient().pull(image);
     }
 
     @Given("^List images by name \"(.*)\"$")
     public void listImages(String imageName) throws Exception {
-        List<Image> images = docker.listImages(DockerClient.ListImagesParam.byName(imageName));
+        List<Image> images = DockerUtil.getDockerClient().listImages(DockerClient.ListImagesParam.byName(imageName));
         if ((images != null) && (images.size() > 0)) {
             for (Image image : images) {
                 logger.info("Image: " + image);
@@ -358,11 +354,11 @@ public class DockerSteps {
     public void startDBContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting DB container...");
         ContainerConfig dbConfig = getDbContainerConfig();
-        ContainerCreation dbContainerCreation = docker.createContainer(dbConfig, name);
+        ContainerCreation dbContainerCreation = DockerUtil.getDockerClient().createContainer(dbConfig, name);
         String containerId = dbContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put("db", containerId);
         logger.info("DB container started: {}", containerId);
     }
@@ -371,11 +367,11 @@ public class DockerSteps {
     public void startESContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting ES container...");
         ContainerConfig esConfig = getEsContainerConfig();
-        ContainerCreation esContainerCreation = docker.createContainer(esConfig, name);
+        ContainerCreation esContainerCreation = DockerUtil.getDockerClient().createContainer(esConfig, name);
         String containerId = esContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put("es", containerId);
         logger.info("ES container started: {}", containerId);
     }
@@ -384,11 +380,11 @@ public class DockerSteps {
     public void startEventBrokerContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting EventBroker container...");
         ContainerConfig ebConfig = getEventBrokerContainerConfig();
-        ContainerCreation ebContainerCreation = docker.createContainer(ebConfig, name);
+        ContainerCreation ebContainerCreation = DockerUtil.getDockerClient().createContainer(ebConfig, name);
         String containerId = ebContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put(name, containerId);
         logger.info("EventBroker container started: {}", containerId);
     }
@@ -398,11 +394,11 @@ public class DockerSteps {
 //        BrokerConfigData bcData = brokerConfigDataList.get(0);
         logger.info("Starting Message Broker container {}...", name);
         ContainerConfig mbConfig = getBrokerContainerConfig("message-broker", 1883, 1883, 1893, 1893, 8883, 8883, 8161, 8161, 5005, 5005, "kapua/kapua-broker:" + KAPUA_VERSION);
-        ContainerCreation mbContainerCreation = docker.createContainer(mbConfig, name);
+        ContainerCreation mbContainerCreation = DockerUtil.getDockerClient().createContainer(mbConfig, name);
         String containerId = mbContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put(name, containerId);
         logger.info("Message Broker {} container started: {}", name, containerId);
     }
@@ -410,11 +406,11 @@ public class DockerSteps {
     @And("^Start TelemetryConsumer container with name \"(.*)\"$")
     public void startTelemetryConsumerContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting Telemetry Consumer container {}...", name);
-        ContainerCreation mbContainerCreation = docker.createContainer(getTelemetryConsumerConfig(8080, 8091, 8001, 8002), name);
+        ContainerCreation mbContainerCreation = DockerUtil.getDockerClient().createContainer(getTelemetryConsumerConfig(8080, 8091, 8001, 8002), name);
         String containerId = mbContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put(name, containerId);
         logger.info("Telemetry Consumer {} container started: {}", name, containerId);
     }
@@ -422,11 +418,11 @@ public class DockerSteps {
     @And("^Start LifecycleConsumer container with name \"(.*)\"$")
     public void startLifecycleConsumerContainer(String name) throws DockerException, InterruptedException {
         logger.info("Starting Lifecycle Consumer container {}...", name);
-        ContainerCreation mbContainerCreation = docker.createContainer(getLifecycleConsumerConfig(8080, 8090, 8001, 8001), name);
+        ContainerCreation mbContainerCreation = DockerUtil.getDockerClient().createContainer(getLifecycleConsumerConfig(8080, 8090, 8001, 8001), name);
         String containerId = mbContainerCreation.id();
 
-        docker.startContainer(containerId);
-        docker.connectToNetwork(containerId, networkId);
+        DockerUtil.getDockerClient().startContainer(containerId);
+        DockerUtil.getDockerClient().connectToNetwork(containerId, networkId);
         containerMap.put(name, containerId);
         logger.info("Lifecycle Consumer {} container started: {}", name, containerId);
     }
@@ -436,7 +432,7 @@ public class DockerSteps {
         for (String name : names) {
             logger.info("Stopping container {}...", name);
             String containerId = containerMap.get(name);
-            docker.stopContainer(containerId, 3);
+            DockerUtil.getDockerClient().stopContainer(containerId, 3);
             logger.info("Container {} stopped.", name);
         }
     }
@@ -445,13 +441,13 @@ public class DockerSteps {
     public void removeContainer(List<String> names) throws DockerException, InterruptedException {
         for (String name : names) {
             logger.info("Removing container {}...", name);
-            List<Container> containers = docker.listContainers(ListContainersParam.filter("name", name));
+            List<Container> containers = DockerUtil.getDockerClient().listContainers(ListContainersParam.filter("name", name));
             if (containers.isEmpty()) {
                 logger.info("No docker images found. Cannot remove container {}. (Container not found!)", name);
             } else {
                 containers.forEach(container -> {
                     try {
-                        docker.removeContainer(container.id(), new RemoveContainerParam("force", "true"));
+                        DockerUtil.getDockerClient().removeContainer(container.id(), new RemoveContainerParam("force", "true"));
                     } catch (DockerException | InterruptedException e) {
                         //test fails since the environment is no cleaned up
                         Assert.fail("Cannot remove container!");

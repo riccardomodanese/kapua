@@ -15,7 +15,8 @@
 Feature: JobEngineService tests for restarting job with offline device
 
   Scenario: Start full full docker environment
-    Given Reset test shutdown
+    Given Set test type as "integration"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment

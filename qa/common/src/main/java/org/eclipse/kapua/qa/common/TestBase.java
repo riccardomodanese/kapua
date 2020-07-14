@@ -99,6 +99,8 @@ public class TestBase extends Assert {
         this.scenario = scenario;
         locator = KapuaLocator.getInstance();
         stepData.clear();
+        logger.warn("########################### test: {} - type: {} - is unit {} - is minimal {} ########################### sys {} - env {}",
+            System.getProperty("test.name"), testType, isUnitTest(), isIntegrationMinimalTest(), System.getProperty("test.type"), System.getenv("test.type"));
         if (isUnitTest() || isIntegrationMinimalTest()) {
             database.setup();
             // Create KapuaSession using KapuaSecurtiyUtils and kapua-sys user as logged in user.

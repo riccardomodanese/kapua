@@ -34,9 +34,9 @@ import cucumber.api.CucumberOptions;
         },
         strict = true,
         monochrome = true )
-@CucumberProperty(key="test.type", value="integration")
-@CucumberProperty(key="broker.ip", value="localhost")
+@CucumberProperty(key="test.name", value="RunDeviceBrokerI9nTest")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
+@CucumberProperty(key="broker.ip", value="localhost")
 @CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
 @CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
 @CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")

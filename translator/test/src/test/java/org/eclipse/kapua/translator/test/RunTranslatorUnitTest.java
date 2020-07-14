@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
         monochrome = true)
 @CucumberProperty(key="locator.class.impl", value="org.eclipse.kapua.qa.common.MockedLocator")
 @CucumberProperty(key="test.type", value="unit")
+@CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="commons.db.schema", value="kapuadb")
 @CucumberProperty(key="commons.db.schema.update", value="true")
 public class RunTranslatorUnitTest {

@@ -45,14 +45,25 @@ public class BasicSteps extends TestBase {
         }
     }
 
+    @When("Set test type as \"(.+)\"$")
+    public void setTestType(String testType) {
+        logger.info("Setting test.type as {}", testType);
+        System.setProperty("test.type", testType);
+        logger.info("Setting test.type as {} DONE", System.getProperty("test.type"));
+    }
+
     @When("Set test shutdown")
     public void setShutdown() {
+        logger.info("Set test shutdown...");
         shutdown = Boolean.TRUE;
+        logger.info("Set test shutdown... DONE");
     }
 
     @When("Reset test shutdown")
     public void resetShutdown() {
+        logger.info("Reset test shutdown...");
         shutdown = Boolean.FALSE;
+        logger.info("Reset test shutdown... DONE");
     }
 
     @Given("A placeholder step")

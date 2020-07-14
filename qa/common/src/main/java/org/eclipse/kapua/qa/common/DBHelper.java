@@ -63,30 +63,11 @@ public class DBHelper {
     private Connection connection;
 
     public void setup() {
-        boolean h2TestServer = Boolean.parseBoolean(System.getProperty("test.h2.server", "false"))
-                || Boolean.parseBoolean(System.getenv("test.h2.server"));
-
+        logger.warn("########################### Called DBHelper ###########################");
         if (isSetup) {
             return;
         }
-
         isSetup = true;
-
-        if (h2TestServer) {
-            // Start external server to provide access to in mem H2 database
-            if ((webServer == null) && (server == null)) {
-                if (h2TestServer) {
-                    try {
-                        webServer = Server.createWebServer("-webAllowOthers", "-webPort", "8082").start();
-                        server = Server.createTcpServer("-tcpAllowOthers", "-tcpPort", "9092").start();
-                        logger.info("H2 TCP and Web server started.");
-                    } catch (SQLException e) {
-                        logger.warn("Error setting up H2 web server.", e);
-                    }
-                }
-            }
-        }
-
         logger.info("Setting up embedded database");
 
         System.setProperty(SystemSettingKey.DB_JDBC_CONNECTION_URL_RESOLVER.key(), "H2");

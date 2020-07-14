@@ -16,8 +16,9 @@ Feature: Endpoint Info Service Integration Tests
   Integration test scenarios for Endpoint Info service
 
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-    And Init Jaxb Context
+  Given Set test type as "unit"
+  And Reset test shutdown
+  And Init Jaxb Context
   And Init Security Context
 
   Scenario: Creating Valid Endpoint

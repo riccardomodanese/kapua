@@ -42,7 +42,8 @@ Feature: Broker ACL tests
   ACL_CTRL_ACC_NOTIFY = $EDC.{0}.*.*.NOTIFY.{1}.>
 
   Scenario: Start full docker environment
-    Given Reset test shutdown
+    Given Set test type as "integration"
+    And Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment

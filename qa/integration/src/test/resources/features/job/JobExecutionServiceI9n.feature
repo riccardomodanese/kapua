@@ -17,8 +17,9 @@ Feature: Job Execution service CRUD tests
     The Job service is responsible for maintaining the status of the target step executions.
 
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-    And Init Jaxb Context
+  Given Set test type as "unit"
+  And Reset test shutdown
+  And Init Jaxb Context
   And Init Security Context
 
 Scenario: Regular job execution creation
