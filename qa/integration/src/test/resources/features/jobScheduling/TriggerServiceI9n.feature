@@ -12,6 +12,7 @@
 @jobs
 @triggerService
 @integration
+@env_none
 
 Feature: Trigger service tests
 

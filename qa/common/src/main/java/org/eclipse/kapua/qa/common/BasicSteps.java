@@ -12,30 +12,40 @@
  *******************************************************************************/
 package org.eclipse.kapua.qa.common;
 
+import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
+
+import org.apache.shiro.SecurityUtils;
+import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Singleton;
 
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Date;
 
-@ScenarioScoped
+@Singleton
 public class BasicSteps extends TestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicSteps.class);
 
     private static final double WAIT_MULTIPLIER = Double.parseDouble(System.getProperty("org.eclipse.kapua.qa.waitMultiplier", "1.0"));
 
+    private DBHelper database;
+
     @Inject
-    public BasicSteps(StepData stepData) {
+    public BasicSteps(StepData stepData, DBHelper database) {
         super(stepData);
+        this.database = database;
     }
 
     @Before
@@ -43,6 +53,72 @@ public class BasicSteps extends TestBase {
         if (WAIT_MULTIPLIER != 1.0d) {
             logger.info("Wait multiplier active: {}", WAIT_MULTIPLIER);
         }
+    }
+
+    @Before(value="@env_docker", order=0)
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        beforeCommon(scenario);
+    }
+
+    @Before(value="@env_embedded_minimal", order=0)
+    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
+        beforeCommon(scenario);
+        beforeNoDocker();
+    }
+
+    @Before(value="@env_none", order=0)
+    public void beforeScenarioNone(Scenario scenario) {
+        beforeCommon(scenario);
+        beforeNoDocker();
+    }
+
+    @After(value="@env_docker", order=0)
+    public void afterScenarioDockerFull(Scenario scenario) {
+        afterScenarioDocker(scenario);
+    }
+
+    @After(value="@env_embedded_minimal", order=0)
+    public void afterScenarioEmbeddedMinimal(Scenario scenario) {
+        afterScenarioNoDocker(scenario);
+    }
+
+    @After(value="@env_none", order=0)
+    public void afterScenarioNone(Scenario scenario) {
+        afterScenarioNoDocker(scenario);
+    }
+
+    protected void beforeCommon(Scenario scenario) {
+        this.scenario = scenario;
+        stepData.clear();
+    }
+
+    protected void beforeNoDocker() {
+        database.setup();
+        // Create KapuaSession using KapuaSecurtiyUtils and kapua-sys user as logged in user.
+        // All operations on database are performed using system user.
+        // Only for unit tests. Integration tests assume that a real logon is performed.
+        KapuaSession kapuaSession = new KapuaSession(null, SYS_SCOPE_ID, SYS_USER_ID);
+        KapuaSecurityUtils.setSession(kapuaSession);
+    }
+
+    protected void afterScenarioDocker(Scenario scenario) {
+        logger.info("Database cleanup...");
+        database.deleteAll();
+        logger.info("Database cleanup... DONE");
+        SecurityUtils.getSubject().logout();
+        KapuaSecurityUtils.clearSession();
+    }
+
+    protected void afterScenarioNoDocker(Scenario scenario) {
+        logger.info("Database drop...");
+        try {
+            database.dropAll();
+            logger.info("Database drop... DONE");
+            database.close();
+        } catch (Exception e) {
+            logger.error("Failed execute @After", e);
+        }
+        KapuaSecurityUtils.clearSession();
     }
 
     @When("Set test shutdown")

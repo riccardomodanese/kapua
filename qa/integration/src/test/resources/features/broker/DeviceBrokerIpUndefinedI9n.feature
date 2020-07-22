@@ -12,6 +12,7 @@
 @broker
 @deviceBrokerIpUndefined
 @integration
+@env_docker
 
 Feature: Device Broker connection ip not set
   Device Service integration scenarios with running broker service.

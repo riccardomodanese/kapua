@@ -12,6 +12,7 @@
 @account
 @job
 @integration
+@env_none
 
 Feature: Account Job Service Integration Tests
 

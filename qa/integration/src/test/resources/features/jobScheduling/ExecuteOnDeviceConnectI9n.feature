@@ -12,6 +12,7 @@
 @jobs
 @triggerService
 @integration
+@env_docker
 
 Feature: JobEngineService execute job on device connect
 

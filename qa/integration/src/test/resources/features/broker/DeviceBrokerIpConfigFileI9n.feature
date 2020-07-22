@@ -12,6 +12,7 @@
 @broker
 @deviceBrokerIpConfig
 @integration
+@env_docker
 
 Feature: Device Broker connection ip with config file
   Device Service integration scenarios with running broker service.

@@ -11,6 +11,7 @@
 ###############################################################################
 @integration
 @deviceRegistry
+@env_docker
 
 Feature: Device Registry Integration
   Device Registy integration test scenarios. These scenarios test higher level device service functionality

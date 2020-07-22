@@ -12,6 +12,7 @@
 @broker
 @deviceBroker
 @integration
+@env_docker
 
 Feature: Device Broker Integration
   Device Service integration scenarios with running broker service.

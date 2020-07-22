@@ -12,6 +12,7 @@
 @security
 @roleService
 @integration
+@env_none
 
 Feature: Role Service tests
 

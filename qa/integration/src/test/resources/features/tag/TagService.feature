@@ -11,6 +11,7 @@
 ###############################################################################
 @tag
 @integration
+@env_none
 
 Feature: Tag Service
   Tag Service is responsible for CRUD operations on Tags. This service is currently

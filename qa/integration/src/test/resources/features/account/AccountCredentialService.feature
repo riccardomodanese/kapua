@@ -12,6 +12,7 @@
 @account
 @credential
 @integration
+@env_none
 
 Feature: Account Credential Service Integration Tests
 

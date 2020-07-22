@@ -12,6 +12,7 @@
 @security
 @groupService
 @integration
+@env_none
 
 Feature: Group Service tests
 

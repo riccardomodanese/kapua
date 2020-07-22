@@ -12,6 +12,7 @@
 @account
 @group
 @integration
+@env_none
 
 Feature: Account Group Service Integration Tests
 

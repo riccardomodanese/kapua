@@ -12,6 +12,7 @@
 @account
 @accountFindSelf
 @integration
+@env_none
 
 Feature: Self account find feature
   Finding self accounts require a different logic to be applied to the permission

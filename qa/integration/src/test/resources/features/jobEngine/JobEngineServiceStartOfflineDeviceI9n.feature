@@ -11,6 +11,7 @@
 ###############################################################################
 @jobEngineStartOfflineDevice
 @integration
+@env_docker
 
   Feature: JobEngineService tests for starting job with offline device
 

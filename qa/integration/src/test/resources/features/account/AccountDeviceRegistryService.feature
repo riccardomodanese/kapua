@@ -12,6 +12,7 @@
 @account
 @device
 @integration
+@env_none
 
 Feature: Account Device Registry Service Integration Tests
 

@@ -11,6 +11,7 @@
 ###############################################################################
 @account
 @integration
+@env_none
 
 Feature: Account Service Tests
 

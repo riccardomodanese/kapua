@@ -12,6 +12,7 @@
 @user
 @userService
 @integration
+@env_embedded_minimal
 
 Feature: User Service Integration
   User Service integration scenarios

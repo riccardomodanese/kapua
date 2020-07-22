@@ -12,14 +12,14 @@
 package org.eclipse.kapua.service.device.registry.steps;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Singleton;
+
 import cucumber.api.Scenario;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
@@ -121,7 +121,7 @@ import java.util.Vector;
  * services that the Device Registry services dependent on. Dependent services are: -
  * Authorization Service -
  */
-@ScenarioScoped
+@Singleton
 public class DeviceRegistrySteps extends TestBase {
 
     private static final String TEST_DEVICE_NAME = "test_name";
@@ -188,9 +188,23 @@ public class DeviceRegistrySteps extends TestBase {
     // * Setup and tear-down steps                                                        *
     // ************************************************************************************
 
-    @Before
-    public void beforeScenario(Scenario scenario) {
-        super.beforeScenario(scenario);
+    @Before(value="@env_docker", order=10)
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    @Before(value="@env_embedded_minimal", order=10)
+    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    @Before(value="@env_none", order=10)
+    public void beforeScenarioNone(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    private void beforeInternal(Scenario scenario) {
+        updateScenario(scenario);
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);
 
@@ -218,11 +232,6 @@ public class DeviceRegistrySteps extends TestBase {
         groupFactory = locator.getFactory(GroupFactory.class);
 
         aclCreator = new AclCreator();
-    }
-
-    @After
-    public void afterScenario() {
-        super.afterScenario();
     }
 
     // ************************************************************************************

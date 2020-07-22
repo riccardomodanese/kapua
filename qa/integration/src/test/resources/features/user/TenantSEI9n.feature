@@ -12,6 +12,7 @@
 @user
 @tenantSE
 @integration
+@env_none
 
 Feature: Tenant service with Service Events
   Basic workflow of Account and User creation and deletion, where Service Events are

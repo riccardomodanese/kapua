@@ -13,17 +13,12 @@ package org.eclipse.kapua.qa.common;
 
 import cucumber.api.Scenario;
 
-import org.apache.shiro.SecurityUtils;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
-import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
-import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.util.RandomUtils;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.account.Account;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -33,11 +28,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Random;
-import java.util.concurrent.Callable;
 
 public class TestBase extends Assert {
-
-    private static final Logger logger = LoggerFactory.getLogger(TestBase.class);
 
     protected static Boolean shutdown = Boolean.FALSE;
 
@@ -50,11 +42,6 @@ public class TestBase extends Assert {
      * Inter step data scratchpad.
      */
     protected StepData stepData;
-
-    /**
-     * Common database helper
-     */
-    protected DBHelper database;
 
     /**
      * Current scenario scope
@@ -79,59 +66,12 @@ public class TestBase extends Assert {
     }
 
     protected TestBase(StepData stepData, DBHelper database) {
-        this.database = database;
         this.stepData = stepData;
-    }
-
-    protected void beforeScenario(Scenario scenario) {
-        this.scenario = scenario;
         locator = KapuaLocator.getInstance();
-        stepData.clear();
-        logger.warn("##### test: {} - type: {} - is unit {} - is minimal {} ##### sys {} - env {}",
-            System.getProperty("test.name"), System.getProperty("test.type"), isUnitTest(), isIntegrationMinimalTest(), System.getProperty("test.type"), System.getenv("test.type"));
-        if (isUnitTest() || isIntegrationMinimalTest()) {
-            database.setup();
-            // Create KapuaSession using KapuaSecurtiyUtils and kapua-sys user as logged in user.
-            // All operations on database are performed using system user.
-            // Only for unit tests. Integration tests assume that a real logon is performed.
-            KapuaSession kapuaSession = new KapuaSession(null, SYS_SCOPE_ID, SYS_USER_ID);
-            KapuaSecurityUtils.setSession(kapuaSession);
-        }
     }
 
-    protected void afterScenario() {
-        afterScenario(null);
-    }
-
-    protected void afterScenario(Callable<Void> cleanUp) {
-        if (!shutdown) {
-            try {
-                if (cleanUp!=null) {
-                    cleanUp.call();
-                }
-            } catch (Exception e) {
-                logger.error("Failed execute @After", e);
-            }
-            // Clean up the database
-            try {
-                logger.info("Logging out in cleanup");
-                if (isIntegrationTest()) {
-                    logger.info("Database cleanup...");
-                    database.deleteAll();
-                    logger.info("Database cleanup... DONE");
-                    SecurityUtils.getSubject().logout();
-                } else if (isUnitTest() || isIntegrationMinimalTest()) {
-                    logger.info("Database drop...");
-                    database.dropAll();
-                    logger.info("Database drop... DONE");
-                    database.close();
-                }
-                //otherwise do nothing
-                KapuaSecurityUtils.clearSession();
-            } catch (Exception e) {
-                logger.error("Failed execute @After", e);
-            }
-        }
+    protected void updateScenario(Scenario scenario) {
+        this.scenario = scenario;
     }
 
     public KapuaId getKapuaId() {
@@ -175,18 +115,6 @@ public class TestBase extends Assert {
         } else {
             return SYS_USER_ID;
         }
-    }
-
-    private boolean isUnitTest() {
-        return "unit".equals(System.getProperty("test.type"));
-    }
-
-    private boolean isIntegrationTest() {
-        return "integration".equals(System.getProperty("test.type"));
-    }
-
-    private boolean isIntegrationMinimalTest() {
-        return "integration_minimal".equals(System.getProperty("test.type"));
     }
 
     public void primeException() {

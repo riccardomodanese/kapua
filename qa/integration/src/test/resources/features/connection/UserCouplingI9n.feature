@@ -12,6 +12,7 @@
 @connection
 @userCoupling
 @integration
+@env_docker
 
 Feature: User Coupling
 

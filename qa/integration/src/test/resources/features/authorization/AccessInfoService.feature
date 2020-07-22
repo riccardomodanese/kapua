@@ -12,6 +12,7 @@
 @security
 @accessInfoService
 @integration
+@env_none
 
 Feature: Access Info Service CRUD tests
 

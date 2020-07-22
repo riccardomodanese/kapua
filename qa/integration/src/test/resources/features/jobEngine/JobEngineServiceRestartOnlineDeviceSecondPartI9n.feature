@@ -11,6 +11,7 @@
 ###############################################################################
 @jobEngineRestartOnlineDeviceSecondPart
 @integration
+@env_docker
 
 Feature: JobEngineService restart job tests with online device - second part
 

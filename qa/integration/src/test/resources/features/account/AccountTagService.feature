@@ -12,6 +12,7 @@
 @account
 @tag
 @integration
+@env_none
 
 Feature: Account Tag Service Integration Tests
 

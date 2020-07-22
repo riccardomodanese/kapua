@@ -11,6 +11,7 @@
 ###############################################################################
 @jobEngineStartOnlineDevice
 @integration
+@env_docker
 
 Feature: JobEngineService start job tests with online device
 

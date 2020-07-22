@@ -12,6 +12,7 @@
 ###############################################################################
 @datastore
 @integration
+@env_docker
 
 Feature: Datastore tests
 

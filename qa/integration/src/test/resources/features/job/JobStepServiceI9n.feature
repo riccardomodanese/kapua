@@ -12,6 +12,7 @@
 @jobs
 @jobStepService
 @integration
+@env_none
 
 Feature: Job step service CRUD tests
     The Job Step service is responsible for maintaining job steps.

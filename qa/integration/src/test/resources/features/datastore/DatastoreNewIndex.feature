@@ -13,6 +13,7 @@
 @datastore
 @datastoreNewIndex
 @integration
+@env_docker
 
 Feature: Datastore tests
 

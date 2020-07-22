@@ -11,6 +11,7 @@
 ###############################################################################
 @integration
 @endpoint
+@env_docker
 
 Feature: Endpoint Info Service Integration Tests
   Integration test scenarios for Endpoint Info service

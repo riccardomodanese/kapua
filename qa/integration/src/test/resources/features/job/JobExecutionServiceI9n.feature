@@ -12,6 +12,7 @@
 @jobs
 @jobExecutionService
 @integration
+@env_none
 
 Feature: Job Execution service CRUD tests
     The Job service is responsible for maintaining the status of the target step executions.

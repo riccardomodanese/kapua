@@ -13,6 +13,7 @@
 @broker
 @deviceLifecycle
 @integration
+@env_docker
 
 Feature: Device lifecycle scenarios
 

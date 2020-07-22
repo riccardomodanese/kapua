@@ -12,6 +12,7 @@
 @broker
 @deviceData
 @integration
+@env_docker
 
 Feature: Device data scenarios
 

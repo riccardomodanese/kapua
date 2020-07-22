@@ -12,6 +12,7 @@
 @account
 @accountExpiration
 @integration
+@env_none
 
 Feature: Account expiration features
     Accounts have an expiration date. From this date onward the accounts are considered disabled

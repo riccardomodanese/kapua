@@ -18,9 +18,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.service.account.Account;
@@ -36,6 +34,8 @@ import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.junit.Assert;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +43,7 @@ import java.util.Map;
 /**
  * Steps for testing Access Control List functionality on Broker service.
  */
-@ScenarioScoped
+@Singleton
 public class AclSteps extends TestBase {
 
     public static final int BROKER_START_WAIT_MILLIS = 5000;
@@ -112,10 +112,23 @@ public class AclSteps extends TestBase {
         super(stepData);
     }
 
-    @Before
-    public void aclStepsBefore(Scenario scenario) {
+    @Before(value="@env_docker", order=10)
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        beforeInternal(scenario);
+    }
 
-        KapuaLocator locator = KapuaLocator.getInstance();
+    @Before(value="@env_embedded_minimal", order=10)
+    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    @Before(value="@env_none", order=10)
+    public void beforeScenarioNone(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    private void beforeInternal(Scenario scenario) {
+        updateScenario(scenario);
         authenticationService = locator.getService(AuthenticationService.class);
         credentialsFactory = locator.getFactory(CredentialsFactory.class);
         accountService = locator.getService(AccountService.class);

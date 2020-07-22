@@ -18,10 +18,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
-import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
@@ -58,6 +56,8 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
  * registering mocked Kura device registering with Kapua and issuing basic administrative
  * commands on Mocked Kura.
  */
-@ScenarioScoped
+@Singleton
 public class BrokerSteps extends TestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokerSteps.class);
@@ -148,8 +148,23 @@ public class BrokerSteps extends TestBase {
         super(stepData, dbHelper);
     }
 
-    @Before
-    public void beforeScenario(Scenario scenario) {
+    @Before(value="@env_docker", order=10)
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    @Before(value="@env_embedded_minimal", order=10)
+    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    @Before(value="@env_none", order=10)
+    public void beforeScenarioNone(Scenario scenario) {
+        beforeInternal(scenario);
+    }
+
+    private void beforeInternal(Scenario scenario) {
+        updateScenario(scenario);
         BrokerSetting.resetInstance();
         KapuaLocator locator = KapuaLocator.getInstance();
         devicePackageManagementService = locator.getService(DevicePackageManagementService.class);
@@ -163,13 +178,11 @@ public class BrokerSteps extends TestBase {
         deviceAssetManagementService = locator.getService(DeviceAssetManagementService.class);
     }
 
-    @After
+    @After(order=0)
     public void afterScenario() {
         if (kuraDevice != null) {
             this.kuraDevice.mqttClientDisconnect();
         }
-        KapuaSecurityUtils.clearSession();
-        this.stepData = null;
     }
 
     @When("^I start the Kura Mock$")

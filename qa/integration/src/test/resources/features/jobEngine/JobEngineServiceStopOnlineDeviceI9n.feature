@@ -11,6 +11,7 @@
 ###############################################################################
 @jobEngineServiceStop
 @integration
+@env_docker
 
 Feature: JobEngineService stop job tests with online device
   Job Engine Service test scenarios for stopping job. This feature file contains scenarios for stopping job with one target and one step,

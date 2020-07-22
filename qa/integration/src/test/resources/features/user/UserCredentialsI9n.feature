@@ -12,6 +12,7 @@
 @user
 @userCredentials
 @integration
+@env_none
 
 Feature: Feature file for testing Password user credential
   This feature file provides test scenarios for user password credential.

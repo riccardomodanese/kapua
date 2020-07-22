@@ -12,6 +12,7 @@
 @account
 @role
 @integration
+@env_none
 
 Feature: Account Role Service Integration Tests
 

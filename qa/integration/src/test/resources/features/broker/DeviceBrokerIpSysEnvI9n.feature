@@ -12,6 +12,7 @@
 @broker
 @deviceBrokerIpSysEvn
 @integration
+@env_docker
 
 Feature: Device Broker connection ip with System environment variable
   Device Service integration scenarios with running broker service.

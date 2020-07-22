@@ -12,6 +12,7 @@
 @security
 @domainService
 @integration
+@env_none
 
 Feature: Domain Service tests
 

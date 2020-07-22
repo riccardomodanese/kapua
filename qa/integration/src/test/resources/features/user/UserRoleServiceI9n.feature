@@ -12,6 +12,7 @@
 @user
 @userRole
 @integration
+@env_embedded_minimal
 
 Feature: User role service integration tests
 

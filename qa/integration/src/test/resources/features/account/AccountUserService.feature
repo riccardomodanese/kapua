@@ -12,6 +12,7 @@
 @account
 @user
 @integration
+@env_none
 
 Feature: Account User Service Integration Tests
 

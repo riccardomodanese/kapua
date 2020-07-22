@@ -12,6 +12,7 @@
 @broker
 @stealingLink
 @integration
+@env_docker
 
 Feature: Device Broker Cluster tests
     Test functionality for distributed Stealing link scenarios. This is case for

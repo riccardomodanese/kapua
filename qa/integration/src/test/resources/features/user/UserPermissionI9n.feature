@@ -12,6 +12,7 @@
 @user
 @userPermission
 @integration
+@env_docker
 
 Feature: User Permission tests
 
