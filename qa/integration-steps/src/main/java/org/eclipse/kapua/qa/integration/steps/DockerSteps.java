@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.inject.Singleton;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.DockerClient.ListNetworksFilterParam;
@@ -33,7 +34,6 @@ import com.spotify.docker.client.messages.PortBinding;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
-import cucumber.runtime.java.guice.ScenarioScoped;
 import org.apache.activemq.command.BrokerInfo;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -53,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ScenarioScoped
+@Singleton
 public class DockerSteps {
 
     private static final Logger logger = LoggerFactory.getLogger(DockerSteps.class);
