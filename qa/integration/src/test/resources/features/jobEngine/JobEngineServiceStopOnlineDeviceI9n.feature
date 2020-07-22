@@ -17,8 +17,7 @@ Feature: JobEngineService stop job tests with online device
   one target and multiple steps, multiple targets and one step and multiple targets and multiple steps.
 
   Scenario: Start full full docker environment
-    Given Set test type as "integration"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment

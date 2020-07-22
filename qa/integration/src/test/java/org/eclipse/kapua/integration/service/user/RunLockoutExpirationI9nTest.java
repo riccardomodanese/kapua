@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true)
+@CucumberProperty(key="test.type", value="unit")
 @CucumberProperty(key="test.name", value="RunLockoutExpirationI9nTest")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
 public class RunLockoutExpirationI9nTest {}

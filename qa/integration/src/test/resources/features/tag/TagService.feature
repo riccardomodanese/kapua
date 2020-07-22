@@ -18,8 +18,7 @@ Feature: Tag Service
   User for example.
 
 Scenario: Init Security Context for all scenarios
-  Given Set test type as "unit"
-  And Reset test shutdown
+  Given Reset test shutdown
   And Init Jaxb Context
   And Init Security Context
 

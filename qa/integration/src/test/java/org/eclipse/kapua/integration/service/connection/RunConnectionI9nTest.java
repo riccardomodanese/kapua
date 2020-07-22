@@ -34,6 +34,7 @@ import cucumber.api.CucumberOptions;
         },
         strict = true,
         monochrome = true )
+@CucumberProperty(key="test.type", value="integration")
 @CucumberProperty(key="test.name", value="RunConnectionI9nTest")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")

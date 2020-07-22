@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
                  },
         strict = true,
         monochrome = true )
+@CucumberProperty(key="test.type", value="integration")
 @CucumberProperty(key="test.name", value="RunDeviceBrokerIpSysEnvI9nTest")
 @CucumberProperty(key="test.type", value="integration")
 @CucumberProperty(key="commons.settings.hotswap", value="true")

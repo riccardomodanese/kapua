@@ -38,6 +38,7 @@ import org.junit.runner.RunWith;
         },
         strict = true,
         monochrome = true)
+@CucumberProperty(key="test.type", value="embedded")
 @CucumberProperty(key="test.name", value="RunUserRoleI9nTests")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
 @CucumberProperty(key="org.eclipse.kapua.qa.datastore.extraStartupDelay", value="5")

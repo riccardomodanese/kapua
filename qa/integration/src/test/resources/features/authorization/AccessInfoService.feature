@@ -16,8 +16,7 @@
 Feature: Access Info Service CRUD tests
 
 Scenario: Initialize test environment
-    Given Set test type as "unit"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
 

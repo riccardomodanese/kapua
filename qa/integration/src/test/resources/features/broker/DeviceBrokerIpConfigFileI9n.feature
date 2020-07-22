@@ -17,8 +17,7 @@ Feature: Device Broker connection ip with config file
   Device Service integration scenarios with running broker service.
 
   Scenario: Start full docker environment
-    Given Set test type as "integration"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And System property "broker.ip" with value "null"

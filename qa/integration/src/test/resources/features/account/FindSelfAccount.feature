@@ -17,8 +17,7 @@ Feature: Self account find feature
   Finding self accounts require a different logic to be applied to the permission
 
 Scenario: Initialize test environment
-    Given Set test type as "unit"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
 

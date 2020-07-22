@@ -62,12 +62,6 @@ public class TestBase extends Assert {
     protected Scenario scenario;
 
     /**
-     * Current test type
-     * Either unit or integration
-     */
-    private String testType;
-
-    /**
      * Random number generator
      */
     public Random random = RandomUtils.getInstance();
@@ -87,20 +81,14 @@ public class TestBase extends Assert {
     protected TestBase(StepData stepData, DBHelper database) {
         this.database = database;
         this.stepData = stepData;
-        testType = System.getProperty("test.type");
-        if (testType != null) {
-            testType = testType.trim().toLowerCase();
-        } else {
-            testType = "";
-        }
     }
 
     protected void beforeScenario(Scenario scenario) {
         this.scenario = scenario;
         locator = KapuaLocator.getInstance();
         stepData.clear();
-        logger.warn("########################### test: {} - type: {} - is unit {} - is minimal {} ########################### sys {} - env {}",
-            System.getProperty("test.name"), testType, isUnitTest(), isIntegrationMinimalTest(), System.getProperty("test.type"), System.getenv("test.type"));
+        logger.warn("##### test: {} - type: {} - is unit {} - is minimal {} ##### sys {} - env {}",
+            System.getProperty("test.name"), System.getProperty("test.type"), isUnitTest(), isIntegrationMinimalTest(), System.getProperty("test.type"), System.getenv("test.type"));
         if (isUnitTest() || isIntegrationMinimalTest()) {
             database.setup();
             // Create KapuaSession using KapuaSecurtiyUtils and kapua-sys user as logged in user.
@@ -190,15 +178,15 @@ public class TestBase extends Assert {
     }
 
     private boolean isUnitTest() {
-        return testType.equals("unit");
+        return "unit".equals(System.getProperty("test.type"));
     }
 
     private boolean isIntegrationTest() {
-        return testType.isEmpty() || testType.equals("integration");
+        return "integration".equals(System.getProperty("test.type"));
     }
 
     private boolean isIntegrationMinimalTest() {
-        return testType.isEmpty() || testType.equals("integration_minimal");
+        return "integration_minimal".equals(System.getProperty("test.type"));
     }
 
     public void primeException() {

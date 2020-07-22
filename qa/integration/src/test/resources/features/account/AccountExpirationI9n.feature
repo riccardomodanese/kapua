@@ -18,8 +18,7 @@ Feature: Account expiration features
     and cannot be logged into anymore.
 
 Scenario: Initialize test environment
-    Given Set test type as "unit"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
 

@@ -16,8 +16,7 @@
 Feature: Device data scenarios
 
   Scenario: Start docker environment
-    Given Set test type as "integration"
-    And Reset test shutdown
+    Given Reset test shutdown
     And Init Jaxb Context
     And Init Security Context
     And Start full docker environment
