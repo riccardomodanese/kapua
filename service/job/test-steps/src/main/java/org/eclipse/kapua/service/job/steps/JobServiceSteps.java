@@ -25,7 +25,6 @@ import org.eclipse.kapua.job.engine.JobStartOptions;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate.Operator;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.cucumber.CucConfig;
@@ -114,8 +113,8 @@ public class JobServiceSteps extends TestBase {
 
     // Default constructor
     @Inject
-    public JobServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public JobServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // ************************************************************************************

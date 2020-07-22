@@ -9,9 +9,10 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@unit
 @jobs
 @jobStepDefinition
+@env_none
+
 Feature: Job step definition service CRUD tests
     The Job Step Definition service is responsible for maintaining job step definitions.
     During regular runtime the step definitions are automatically extracted from the various

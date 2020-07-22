@@ -9,9 +9,10 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@unit
 @jobs
 @jobService
+@env_none
+
 Feature: Job service CRUD tests
   The Job service is responsible for maintaining jobs.
 

@@ -16,6 +16,7 @@
 
 Feature: Account Group Service Integration Tests
 
+@setup
 Scenario: Initialize test environment
     Given Reset test shutdown
     And Init Jaxb Context
@@ -125,6 +126,7 @@ Scenario: Initialize test environment
     Then No exception was thrown
     And I logout
 
+@teardown
 Scenario: Reset Security Context for all scenarios
   Given Set test shutdown
     And Reset Security Context

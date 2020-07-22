@@ -9,8 +9,9 @@
 # Contributors:
 #     Eurotech
 ###############################################################################
-@unit
 @scheduler
+@env_none
+
 Feature: Scheduler Service
 
   Scenario: Create scheduler with valid schedule name

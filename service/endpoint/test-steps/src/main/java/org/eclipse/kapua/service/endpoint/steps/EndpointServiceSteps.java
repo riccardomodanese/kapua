@@ -19,7 +19,6 @@ import cucumber.api.java.en.When;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalNullArgumentException;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.service.endpoint.EndpointInfo;
@@ -51,8 +50,8 @@ public class EndpointServiceSteps extends TestBase {
 
     // Default constructor
     @Inject
-    public EndpointServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public EndpointServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // ************************************************************************************

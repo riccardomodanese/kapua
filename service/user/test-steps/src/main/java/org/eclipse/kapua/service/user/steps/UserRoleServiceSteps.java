@@ -18,7 +18,6 @@ import cucumber.api.java.en.Then;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.StepData;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.service.authorization.access.AccessRoleService;
 import org.eclipse.kapua.service.authorization.access.AccessRoleFactory;
 import org.eclipse.kapua.service.authorization.access.AccessInfo;
@@ -39,8 +38,8 @@ public class UserRoleServiceSteps extends TestBase {
     private AccessRoleFactory accessRoleFactory;
 
     @Inject
-    public UserRoleServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public UserRoleServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     @Before(value="@env_docker", order=10)

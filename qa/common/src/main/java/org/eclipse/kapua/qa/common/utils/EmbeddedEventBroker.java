@@ -34,11 +34,9 @@ import org.elasticsearch.common.UUIDs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import com.google.inject.Singleton;
 
-import cucumber.runtime.java.guice.ScenarioScoped;
-
-@ScenarioScoped
+@Singleton
 public class EmbeddedEventBroker {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedEventBroker.class);
@@ -54,18 +52,12 @@ public class EmbeddedEventBroker {
 
     private static EmbeddedJMS jmsServer;
 
-    @Inject
-    public EmbeddedEventBroker(final DBHelper database) {
-        this.database = database;
-    }
-
     @Given("^Start Event Broker$")
     public void start() {
         //set a default value if not set
         if (StringUtils.isEmpty(System.getProperty(SystemSettingKey.EVENT_BUS_URL.key()))) {
             System.setProperty(SystemSettingKey.EVENT_BUS_URL.key(), "amqp://127.0.0.1:5672");
         }
-        database.setup();
 
         logger.info("Starting new instance of Event Broker");
         try {

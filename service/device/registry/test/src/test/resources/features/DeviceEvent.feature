@@ -9,9 +9,11 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@unit
 @deviceRegistry
 @deviceEvents
+@env_none
+
+
 Feature: Device Event CRUD tests
     The Device Event service is responsible for handling the incoming device
     events.

@@ -32,7 +32,6 @@ import org.eclipse.kapua.message.device.data.KapuaDataMessage;
 import org.eclipse.kapua.message.device.data.KapuaDataMessageFactory;
 import org.eclipse.kapua.message.device.data.KapuaDataPayload;
 import org.eclipse.kapua.model.id.KapuaId;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.Session;
 import org.eclipse.kapua.qa.common.SimulatedDevice;
 import org.eclipse.kapua.qa.common.SimulatedDeviceApplication;
@@ -268,8 +267,8 @@ public class DatastoreSteps extends TestBase {
     private String currentApplication;
 
     @Inject
-    public DatastoreSteps(final SimulatedDevice currentDevice, final Session session, StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public DatastoreSteps(final SimulatedDevice currentDevice, final Session session, StepData stepData) {
+        super(stepData);
         this.currentDevice = currentDevice;
         this.session = session;
     }

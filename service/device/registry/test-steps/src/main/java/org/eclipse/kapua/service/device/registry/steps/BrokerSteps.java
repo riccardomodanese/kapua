@@ -21,10 +21,8 @@ import cucumber.api.java.en.When;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.locator.KapuaLocator;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
-import org.eclipse.kapua.qa.common.utils.EmbeddedBroker;
 import org.eclipse.kapua.service.device.management.asset.internal.DeviceAssetsImpl;
 import org.eclipse.kapua.service.device.management.asset.DeviceAsset;
 import org.eclipse.kapua.service.device.management.asset.DeviceAssetChannel;
@@ -144,8 +142,8 @@ public class BrokerSteps extends TestBase {
     private ArrayList<KuraDevice> kuraDevices = kuraDevices = new ArrayList<>();
 
     @Inject
-    public BrokerSteps(/* dependency */ EmbeddedBroker broker, DBHelper dbHelper, StepData stepData) {
-        super(stepData, dbHelper);
+    public BrokerSteps(StepData stepData) {
+        super(stepData);
     }
 
     @Before(value="@env_docker", order=10)

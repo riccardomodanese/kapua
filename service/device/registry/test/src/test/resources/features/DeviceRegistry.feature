@@ -9,9 +9,10 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@unit
 @deviceRegistry
 @device
+@env_none
+
 Feature: Device Registry CRUD tests
     The Device registry Service is responsible for CRUD operations for devices in the Kapua
     database.

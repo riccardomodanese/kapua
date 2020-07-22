@@ -14,6 +14,7 @@
 @integration
 @env_none
 
+@setup
 Feature: Account expiration features
     Accounts have an expiration date. From this date onward the accounts are considered disabled
     and cannot be logged into anymore.
@@ -516,6 +517,7 @@ Scenario: Initialize test environment
     Then An exception was thrown
     And I logout
 
+@teardown
 Scenario: Reset Security Context for all scenarios
   Given Set test shutdown
     And Reset Security Context

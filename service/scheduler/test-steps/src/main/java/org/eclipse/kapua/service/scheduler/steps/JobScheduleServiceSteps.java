@@ -18,7 +18,6 @@ import cucumber.api.java.en.Then;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.cucumber.CucTriggerProperty;
@@ -68,8 +67,8 @@ public class JobScheduleServiceSteps extends TestBase {
 
     // Default constructor
     @Inject
-    public JobScheduleServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public JobScheduleServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // ************************************************************************************

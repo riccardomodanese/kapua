@@ -10,7 +10,8 @@
 #     Eurotech
 ###############################################################################
 @role
-@unit
+@env_none
+
 Feature: Role Service
   Role Service is responsible for CRUD operations on Roles. This service is currently
   used to attach roles to Users.

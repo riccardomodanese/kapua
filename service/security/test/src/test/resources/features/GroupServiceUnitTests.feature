@@ -10,7 +10,8 @@
 #     Eurotech
 ###############################################################################
 @group
-@unit
+@env_none
+
 Feature: Access Groups
   This feature file contains Unit tests for Access Groups (CRUD tests).
 

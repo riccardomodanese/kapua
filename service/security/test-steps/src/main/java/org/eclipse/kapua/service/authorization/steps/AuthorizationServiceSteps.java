@@ -22,7 +22,6 @@ import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.model.domain.Actions;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.TestDomain;
@@ -126,8 +125,8 @@ public class AuthorizationServiceSteps extends TestBase {
     private UserFactory userFactory;
 
     @Inject
-    public AuthorizationServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public AuthorizationServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     @Before(value="@env_docker", order=10)

@@ -31,7 +31,6 @@ import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.cucumber.CucAccount;
@@ -75,8 +74,8 @@ public class AccountServiceSteps extends TestBase {
 
     // Default constructor
     @Inject
-    public AccountServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public AccountServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // *************************************

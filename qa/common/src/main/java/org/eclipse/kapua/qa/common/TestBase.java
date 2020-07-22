@@ -62,10 +62,6 @@ public class TestBase extends Assert {
     protected static final KapuaId DEFAULT_ID = new KapuaEid(BigInteger.valueOf(DEFAULT_SCOPE_ID));
 
     protected TestBase(StepData stepData) {
-        this(stepData, null);
-    }
-
-    protected TestBase(StepData stepData, DBHelper database) {
         this.stepData = stepData;
         locator = KapuaLocator.getInstance();
     }

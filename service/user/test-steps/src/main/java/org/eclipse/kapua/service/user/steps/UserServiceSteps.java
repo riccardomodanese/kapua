@@ -26,7 +26,6 @@ import org.eclipse.kapua.model.domain.Domain;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.cucumber.CucConfig;
@@ -117,8 +116,8 @@ public class UserServiceSteps extends TestBase {
     private DomainRegistryService domainRegistryService;
 
     @Inject
-    public UserServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public UserServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // *************************************

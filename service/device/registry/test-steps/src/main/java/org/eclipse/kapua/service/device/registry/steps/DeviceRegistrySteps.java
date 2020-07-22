@@ -42,7 +42,6 @@ import org.eclipse.kapua.model.domain.Actions;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.SortOrder;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.TestDomain;
@@ -174,8 +173,8 @@ public class DeviceRegistrySteps extends TestBase {
 
     // Default constructor
     @Inject
-    public DeviceRegistrySteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public DeviceRegistrySteps(StepData stepData) {
+        super(stepData);
     }
 
     // ************************************************************************************

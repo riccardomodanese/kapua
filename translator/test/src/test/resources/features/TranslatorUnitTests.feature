@@ -9,8 +9,8 @@
 # Contributors:
 #     Eurotech
 ###############################################################################
-@unit
 @translator
+@env_none
 
 Feature: Translator Service
   The Translator Service is responsible for messaging operations between Kura and Kapua.

@@ -9,9 +9,10 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@unit
 @deviceRegistry
 @deviceConnection
+@env_none
+
 Feature: Device Registry Connection tests
     The Device Registry Connection service is responsible for performing CRUD operations
     regarding device connections on the Kapua database.

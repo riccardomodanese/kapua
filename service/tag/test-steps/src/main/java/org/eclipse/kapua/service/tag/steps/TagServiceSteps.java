@@ -20,7 +20,6 @@ import cucumber.api.java.en.When;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.qa.common.cucumber.CucConfig;
@@ -56,8 +55,8 @@ public class TagServiceSteps extends TestBase {
     private TagFactory tagFactory;
 
     @Inject
-    public TagServiceSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public TagServiceSteps(StepData stepData) {
+        super(stepData);
     }
 
     // *************************************

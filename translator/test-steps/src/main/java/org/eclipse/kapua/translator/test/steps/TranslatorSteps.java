@@ -18,7 +18,6 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.eclipse.kapua.KapuaException;
-import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
 import org.eclipse.kapua.service.device.call.message.kura.KuraPayload;
@@ -59,8 +58,8 @@ public class TranslatorSteps extends TestBase {
     private TranslatorDataKuraJms translatorDataKuraJms;
 
     @Inject
-    public TranslatorSteps(StepData stepData, DBHelper dbHelper) {
-        super(stepData, dbHelper);
+    public TranslatorSteps(StepData stepData) {
+        super(stepData);
     }
 
     // *************************************
