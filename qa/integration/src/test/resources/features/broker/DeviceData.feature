@@ -11,14 +11,13 @@
 ###############################################################################
 @broker
 @deviceData
-@integration
 @env_docker
 
 Feature: Device data scenarios
 
+@setup
   Scenario: Start docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -68,6 +67,6 @@ Scenario: Connect to the system and publish some data
   Then Device sim-1 for account kapua-sys is not registered after 5 seconds
   And I delete the messages for this device
 
+@teardown
   Scenario: Stop docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

@@ -121,14 +121,6 @@ public class BasicSteps extends TestBase {
         KapuaSecurityUtils.clearSession();
     }
 
-    @When("Set test shutdown")
-    public void setShutdown() {
-    }
-
-    @When("Reset test shutdown")
-    public void resetShutdown() {
-    }
-
     @Given("A placeholder step")
     public void doNothing() {
 

@@ -10,7 +10,6 @@
 #     Eurotech
 ###############################################################################
 @tag
-@integration
 @env_none
 
 Feature: Tag Service
@@ -18,9 +17,9 @@ Feature: Tag Service
   used to attach tags to Devices, but could be used to tag eny kapua entity, like
   User for example.
 
+@setup
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-  And Init Jaxb Context
+  Given Init Jaxb Context
   And Init Security Context
 
   Scenario: Creating Unique Tag Without Description
@@ -862,6 +861,6 @@ Scenario: Init Security Context for all scenarios
     Then An exception was thrown
     Then I logout
 
+@teardown
   Scenario: Reset Security Context for all scenarios
-    Given Set test shutdown
-    And Reset Security Context
+    Given Reset Security Context

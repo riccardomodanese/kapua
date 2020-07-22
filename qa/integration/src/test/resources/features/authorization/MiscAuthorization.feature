@@ -11,7 +11,6 @@
 ###############################################################################
 @security
 @miscAuthorization
-@integration
 @env_none
 
 Feature: Misc Authorization functionality CRUD tests

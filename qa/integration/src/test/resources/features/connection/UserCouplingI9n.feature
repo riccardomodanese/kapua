@@ -11,14 +11,13 @@
 ###############################################################################
 @connection
 @userCoupling
-@integration
 @env_docker
 
 Feature: User Coupling
 
+@setup
   Scenario: Start docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -1665,6 +1664,6 @@ Feature: User Coupling
     Then I stop the simulator
     And I wait for 2 seconds
 
+@teardown
   Scenario: Stop docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

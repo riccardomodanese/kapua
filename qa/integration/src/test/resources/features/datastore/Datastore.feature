@@ -11,14 +11,13 @@
 #
 ###############################################################################
 @datastore
-@integration
 @env_docker
 
 Feature: Datastore tests
 
+@setup
   Scenario: Start full full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -970,6 +969,6 @@ Feature: Datastore tests
     Then An assertion error was thrown
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

@@ -11,7 +11,6 @@
 ###############################################################################
 @broker
 @deviceBroker
-@integration
 @env_docker
 
 Feature: Device Broker Integration
@@ -19,9 +18,9 @@ Feature: Device Broker Integration
   Each Scenario starts with BIRTH of device and then the communication over MQTT
   between device and Kapua.
 
+@setup
   Scenario: Start full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -44,6 +43,6 @@ Feature: Device Broker Integration
     And I logout
     And Device death message is sent
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

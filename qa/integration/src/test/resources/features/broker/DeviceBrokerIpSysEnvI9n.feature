@@ -11,15 +11,14 @@
 ###############################################################################
 @broker
 @deviceBrokerIpSysEvn
-@integration
 @env_docker
 
 Feature: Device Broker connection ip with System environment variable
   Device Service integration scenarios with running broker service.
 
+@setup
   Scenario: Start full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And System property "broker.ip" with value "localhost"
     And Start full docker environment
@@ -37,6 +36,6 @@ Feature: Device Broker connection ip with System environment variable
     And I logout
     And Device death message is sent
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

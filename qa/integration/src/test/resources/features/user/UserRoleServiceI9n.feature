@@ -11,14 +11,13 @@
 ###############################################################################
 @user
 @userRole
-@integration
 @env_embedded_minimal
 
 Feature: User role service integration tests
 
+@setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start Datastore
     And Start Event Broker
@@ -1638,8 +1637,8 @@ Scenario: Initialize test environment
     And No exception was thrown
     And I logout
 
+@teardown
   Scenario: Stop test environment
-    Given Set test shutdown
-    And Stop Event Broker
+    Given Stop Event Broker
     And Stop Datastore
     And Reset Security Context

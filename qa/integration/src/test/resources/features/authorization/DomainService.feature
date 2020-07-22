@@ -11,14 +11,13 @@
 ###############################################################################
 @security
 @domainService
-@integration
 @env_none
 
 Feature: Domain Service tests
 
+@setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Count domains in a blank database
@@ -142,6 +141,6 @@ Scenario: Initialize test environment
     When I query for domains with the name "test_name_2"
     Then I count 1
 
+@teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

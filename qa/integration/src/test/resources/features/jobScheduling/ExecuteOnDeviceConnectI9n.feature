@@ -11,14 +11,13 @@
 ###############################################################################
 @jobs
 @triggerService
-@integration
 @env_docker
 
 Feature: JobEngineService execute job on device connect
 
+@setup
   Scenario: Start full full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -330,6 +329,6 @@ Feature: JobEngineService execute job on device connect
     And The type of the last event is "BIRTH"
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

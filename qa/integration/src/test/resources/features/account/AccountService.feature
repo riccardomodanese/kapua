@@ -10,15 +10,13 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @account
-@integration
 @env_none
 
 Feature: Account Service Tests
 
 @setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Creating A Valid Account
@@ -394,5 +392,4 @@ Scenario: Initialize test environment
 
 @teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

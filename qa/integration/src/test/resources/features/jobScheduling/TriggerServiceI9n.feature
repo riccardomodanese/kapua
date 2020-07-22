@@ -11,14 +11,13 @@
 ###############################################################################
 @jobs
 @triggerService
-@integration
 @env_none
 
 Feature: Trigger service tests
 
+@setup
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-  And Init Jaxb Context
+  Given Init Jaxb Context
   And Init Security Context
 
   Scenario: Adding "Device Connect" Schedule With All Valid Parameters
@@ -783,6 +782,6 @@ Scenario: Init Security Context for all scenarios
     And There is no trigger with the name "schedule0" in the database
     Then I logout
 
+@teardown
   Scenario: Reset Security Context for all scenarios
-    Given Set test shutdown
-    And Reset Security Context
+    Given Reset Security Context

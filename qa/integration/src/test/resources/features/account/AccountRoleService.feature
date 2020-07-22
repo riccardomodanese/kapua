@@ -11,15 +11,13 @@
 ###############################################################################
 @account
 @role
-@integration
 @env_none
 
 Feature: Account Role Service Integration Tests
 
 @setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Creating Roles Under Account That Allows Infinite Child Roles
@@ -129,5 +127,4 @@ Scenario: Initialize test environment
 
 @teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

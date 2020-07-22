@@ -11,7 +11,6 @@
 ###############################################################################
 @account
 @accountFindSelf
-@integration
 @env_none
 
 Feature: Self account find feature
@@ -19,8 +18,7 @@ Feature: Self account find feature
 
 @setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Find self account by id
@@ -103,5 +101,4 @@ Scenario: Initialize test environment
 
 @teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

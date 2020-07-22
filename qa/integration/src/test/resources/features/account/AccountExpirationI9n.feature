@@ -11,7 +11,6 @@
 ###############################################################################
 @account
 @accountExpiration
-@integration
 @env_none
 
 Feature: Account expiration features
@@ -20,8 +19,7 @@ Feature: Account expiration features
 
 @setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    GivenInit Jaxb Context
     And Init Security Context
 
   Scenario: Account with future expiration date
@@ -519,5 +517,4 @@ Scenario: Initialize test environment
 
 @teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

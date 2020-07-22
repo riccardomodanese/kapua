@@ -33,8 +33,6 @@ import org.junit.runner.RunWith;
                    "json:target/cucumber.json" },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="test.type", value="unit")
-@CucumberProperty(key="test.name", value="RunJobServiceI9nTest")
 @CucumberProperty(key="commons.settings.hotswap", value="true")
 public class RunJobServiceI9nTest {
 }

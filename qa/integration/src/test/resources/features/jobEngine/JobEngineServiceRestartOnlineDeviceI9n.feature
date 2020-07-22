@@ -10,14 +10,13 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @jobEngineRestartOnlineDevice
-@integration
 @env_docker
 
 Feature: JobEngineService restart job tests with online device
 
+@setup
   Scenario: Start full full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -1127,6 +1126,6 @@ Feature: JobEngineService restart job tests with online device
     And KuraMock is disconnected
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

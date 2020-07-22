@@ -9,7 +9,6 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@integration
 @deviceRegistry
 @env_docker
 
@@ -17,9 +16,9 @@ Feature: Device Registry Integration
   Device Registy integration test scenarios. These scenarios test higher level device service functionality
   with all services live.
 
+@setup
   Scenario: Start full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -1529,6 +1528,6 @@ Feature: Device Registry Integration
     Then I find 0 devices
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

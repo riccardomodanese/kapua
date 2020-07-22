@@ -11,15 +11,14 @@
 ###############################################################################
 @jobs
 @jobService
-@integration
 @env_none
 
 Feature: Job service CRUD tests
   The Job service is responsible for executing scheduled actions on various targets.
 
+@setup
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-  And Init Jaxb Context
+  Given Init Jaxb Context
   And Init Security Context
 
   Scenario: Regular job creation
@@ -258,6 +257,6 @@ Scenario: Init Security Context for all scenarios
     When I test the sanity of the job factory
     Then No exception was thrown
 
+@teardown
   Scenario: Reset Security Context for all scenarios
-    Given Set test shutdown
-    And Reset Security Context
+    Given Reset Security Context

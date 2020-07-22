@@ -10,7 +10,6 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @brokerAcl
-@integration
 @env_docker
 
 Feature: Broker ACL tests
@@ -43,9 +42,9 @@ Feature: Broker ACL tests
   ACL_DATA_ACC_CLI = {0}.{1}.>
   ACL_CTRL_ACC_NOTIFY = $EDC.{0}.*.*.NOTIFY.{1}.>
 
+@setup
   Scenario: Start full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -602,6 +601,6 @@ Feature: Broker ACL tests
       And clients are disconnected
       And Mqtt Device is stoped
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

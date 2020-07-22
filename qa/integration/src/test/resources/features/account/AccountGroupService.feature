@@ -11,15 +11,13 @@
 ###############################################################################
 @account
 @group
-@integration
 @env_none
 
 Feature: Account Group Service Integration Tests
 
 @setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Creating Groups Under Account That Allows Infinite Child Groups
@@ -128,5 +126,4 @@ Scenario: Initialize test environment
 
 @teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

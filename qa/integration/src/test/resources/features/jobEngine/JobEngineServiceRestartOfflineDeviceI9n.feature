@@ -10,14 +10,13 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @jobEngineRestartOfflineDevice
-@integration
 @env_docker
 
 Feature: JobEngineService tests for restarting job with offline device
 
+@setup
   Scenario: Start full full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -1111,6 +1110,6 @@ Feature: JobEngineService tests for restarting job with offline device
     And I confirm the step index is 0 and status is "PROCESS_FAILED"
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

@@ -11,14 +11,13 @@
 ###############################################################################
 @security
 @accessInfoService
-@integration
 @env_none
 
 Feature: Access Info Service CRUD tests
 
+@setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Simple create
@@ -725,6 +724,6 @@ Scenario: Initialize test environment
     Then I can compare access role objects
     Then I can compare access permission objects
 
+@teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

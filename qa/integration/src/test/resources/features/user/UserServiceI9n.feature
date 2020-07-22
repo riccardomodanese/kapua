@@ -11,15 +11,14 @@
 ###############################################################################
 @user
 @userService
-@integration
 @env_embedded_minimal
 
 Feature: User Service Integration
   User Service integration scenarios
 
+@setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start Event Broker
 
@@ -212,7 +211,7 @@ Scenario: Initialize test environment
     Then An exception was thrown
     And I logout
 
+@teardown
   Scenario: Stop test environment
-    Given Set test shutdown
-    And Stop Event Broker
+    Given Stop Event Broker
     And Reset Security Context

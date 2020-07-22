@@ -13,6 +13,7 @@
 Feature: REST API tests for User
   REST API test of Kapua User API.
 
+@setup
   Scenario: Start event broker for all scenarios
     Given Start Event Broker
     And Start Jetty Server on host "127.0.0.1" at port "8081"
@@ -127,6 +128,7 @@ Feature: REST API tests for User
     And REST GET call at "/v1/$accountBCompactId$/users/$lastUserCompactId$"
     Then REST response code is 404
 
+@teardown
   Scenario: Stop Jetty server for all scenarios
     Given Stop Jetty Server
     And Stop Event Broker

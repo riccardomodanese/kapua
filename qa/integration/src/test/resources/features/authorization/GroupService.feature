@@ -11,14 +11,13 @@
 ###############################################################################
 @security
 @groupService
-@integration
 @env_none
 
 Feature: Group Service tests
 
+@setup
 Scenario: Initialize test environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
 
   Scenario: Count groups in a blank database
@@ -1052,6 +1051,6 @@ Scenario: Initialize test environment
     And No exception was thrown
     And I logout
 
+@teardown
 Scenario: Reset Security Context for all scenarios
-  Given Set test shutdown
-    And Reset Security Context
+  Given Reset Security Context

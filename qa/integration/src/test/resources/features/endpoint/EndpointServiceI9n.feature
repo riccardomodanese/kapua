@@ -9,16 +9,15 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@integration
 @endpoint
 @env_docker
 
 Feature: Endpoint Info Service Integration Tests
   Integration test scenarios for Endpoint Info service
 
+@setup
 Scenario: Init Security Context for all scenarios
-  Given Reset test shutdown
-  And Init Jaxb Context
+  Given Init Jaxb Context
   And Init Security Context
 
   Scenario: Creating Valid Endpoint
@@ -756,6 +755,6 @@ Scenario: Init Security Context for all scenarios
     And I delete endpoint with schema "Schema2", domain "abc.com" and port 2222
     And I logout
 
+@teardown
   Scenario: Reset Security Context for all scenarios
-    Given Set test shutdown
-    And Reset Security Context
+    Given Reset Security Context

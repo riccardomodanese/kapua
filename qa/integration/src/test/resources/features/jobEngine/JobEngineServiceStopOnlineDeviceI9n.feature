@@ -10,16 +10,15 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @jobEngineServiceStop
-@integration
 @env_docker
 
 Feature: JobEngineService stop job tests with online device
   Job Engine Service test scenarios for stopping job. This feature file contains scenarios for stopping job with one target and one step,
   one target and multiple steps, multiple targets and one step and multiple targets and multiple steps.
 
+@setup
   Scenario: Start full full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -531,6 +530,6 @@ Feature: JobEngineService stop job tests with online device
     Then KuraMock is disconnected
     And I logout
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

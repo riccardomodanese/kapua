@@ -12,14 +12,13 @@
 ###############################################################################
 @broker
 @deviceLifecycle
-@integration
 @env_docker
 
 Feature: Device lifecycle scenarios
 
+@setup
   Scenario: Start docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -73,6 +72,6 @@ Scenario: Installing a package
   When I fetch the package states
   Then Package "foo.bar" with version 1.2.3 is installed and has 10 mock bundles
 
+@teardown
   Scenario: Stop docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment

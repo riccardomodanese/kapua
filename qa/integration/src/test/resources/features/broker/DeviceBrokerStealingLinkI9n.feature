@@ -11,7 +11,6 @@
 ###############################################################################
 @broker
 @stealingLink
-@integration
 @env_docker
 
 Feature: Device Broker Cluster tests
@@ -20,9 +19,9 @@ Feature: Device Broker Cluster tests
     others in cluster and by this disconnecting client form other brokers.
     Tests also include connecting client with same id.
 
+@setup
   Scenario: Start full docker environment
-    Given Reset test shutdown
-    And Init Jaxb Context
+    Given Init Jaxb Context
     And Init Security Context
     And Start full docker environment
 
@@ -94,6 +93,6 @@ Feature: Device Broker Cluster tests
     Then Disconnect client with name "client-1-1"
         And Disconnect client with name "client-1-2"
 
+@teardown
   Scenario: Stop full docker environment
-    Given Set test shutdown
-    And Stop full docker environment
+    Given Stop full docker environment
