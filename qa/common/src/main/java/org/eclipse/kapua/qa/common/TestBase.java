@@ -31,8 +31,6 @@ import java.util.Random;
 
 public class TestBase extends Assert {
 
-    protected static Boolean shutdown = Boolean.FALSE;
-
     /**
      * Common locator instance
      */

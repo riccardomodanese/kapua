@@ -14,11 +14,11 @@
 @integration
 @env_none
 
-@setup
 Feature: Account expiration features
     Accounts have an expiration date. From this date onward the accounts are considered disabled
     and cannot be logged into anymore.
 
+@setup
 Scenario: Initialize test environment
     Given Reset test shutdown
     And Init Jaxb Context

@@ -55,34 +55,34 @@ public class BasicSteps extends TestBase {
         }
     }
 
-    @Before(value="@env_docker", order=0)
+    @Before(value="@env_docker and not (@setup or @teardown)", order=0)
     public void beforeScenarioDockerFull(Scenario scenario) {
         beforeCommon(scenario);
     }
 
-    @Before(value="@env_embedded_minimal and @setup", order=0)
+    @Before(value="@env_embedded_minimal and not (@setup or @teardown)", order=0)
     public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
         beforeCommon(scenario);
         beforeNoDocker();
     }
 
-    @Before(value="@env_none and @setup", order=0)
+    @Before(value="@env_none and not (@setup or @teardown)", order=0)
     public void beforeScenarioNone(Scenario scenario) {
         beforeCommon(scenario);
         beforeNoDocker();
     }
 
-    @After(value="@env_docker", order=0)
+    @After(value="@env_docker and not (@setup or @teardown)", order=0)
     public void afterScenarioDockerFull(Scenario scenario) {
         afterScenarioDocker(scenario);
     }
 
-    @After(value="@env_embedded_minimal and not (@setup and @teardown)", order=0)
+    @After(value="@env_embedded_minimal and not (@setup or @teardown)", order=0)
     public void afterScenarioEmbeddedMinimal(Scenario scenario) {
         afterScenarioNoDocker(scenario);
     }
 
-    @After(value="@env_none and not (@setup and @teardown)", order=0)
+    @After(value="@env_none and not (@setup or @teardown)", order=0)
     public void afterScenarioNone(Scenario scenario) {
         afterScenarioNoDocker(scenario);
     }
@@ -102,41 +102,31 @@ public class BasicSteps extends TestBase {
     }
 
     protected void afterScenarioDocker(Scenario scenario) {
-        if (!shutdown) {
-            logger.info("Database cleanup...");
-            database.deleteAll();
-            logger.info("Database cleanup... DONE");
-            SecurityUtils.getSubject().logout();
-            KapuaSecurityUtils.clearSession();
-        }
+        logger.info("Database cleanup...");
+        database.deleteAll();
+        logger.info("Database cleanup... DONE");
+        SecurityUtils.getSubject().logout();
+        KapuaSecurityUtils.clearSession();
     }
 
     protected void afterScenarioNoDocker(Scenario scenario) {
-        if (!shutdown) {
-            logger.info("Database drop...");
-            try {
-                database.dropAll();
-                logger.info("Database drop... DONE");
-                database.close();
-            } catch (Exception e) {
-                logger.error("Failed execute @After", e);
-            }
-            KapuaSecurityUtils.clearSession();
+        logger.info("Database drop...");
+        try {
+            database.dropAll();
+            logger.info("Database drop... DONE");
+            database.close();
+        } catch (Exception e) {
+            logger.error("Failed execute @After", e);
         }
+        KapuaSecurityUtils.clearSession();
     }
 
     @When("Set test shutdown")
     public void setShutdown() {
-        logger.info("Set test shutdown...");
-        shutdown = Boolean.TRUE;
-        logger.info("Set test shutdown... DONE");
     }
 
     @When("Reset test shutdown")
     public void resetShutdown() {
-        logger.info("Reset test shutdown...");
-        shutdown = Boolean.FALSE;
-        logger.info("Reset test shutdown... DONE");
     }
 
     @Given("A placeholder step")
