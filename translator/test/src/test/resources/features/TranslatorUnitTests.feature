@@ -17,6 +17,11 @@ Feature: Translator Service
 
   #KapuaTranslatorApi
 
+@setup
+  Scenario: Initialize test environment
+    Given Init Jaxb Context
+    And Init Security Context
+
   Scenario: Translating "CommandRequestMessage" to "KuraRequestMessage"
   Trying to make translation from CommandRequestMessage to KuraRequestMessage.
 
@@ -153,3 +158,7 @@ Feature: Translator Service
     And I try to translate kura data message to mqtt message
     Then I get mqtt message with channel with scope "kapua-sys", client id "rpione3" and non empty body
     And No exception was thrown
+
+@teardown
+  Scenario: Reset Security Context for all scenarios
+    Given Reset Security Context

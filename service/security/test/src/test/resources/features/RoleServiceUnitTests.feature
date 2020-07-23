@@ -16,6 +16,11 @@ Feature: Role Service
   Role Service is responsible for CRUD operations on Roles. This service is currently
   used to attach roles to Users.
 
+@setup
+   Scenario: Initialize test environment
+     Given Init Jaxb Context
+     And Init Security Context
+
    Scenario: Creating a valid role
      Create a role entry with specified name and description. Once created, search for it - it should have been created.
      Kapua should not return any errors.
@@ -278,3 +283,7 @@ Feature: Role Service
      But I expect the exception "KapuaEntityNotFoundException" with the text "*"
      Then I delete the role with name "roleName" and description "roleDescription"
      And An exception was thrown
+
+@teardown
+   Scenario: Reset Security Context for all scenarios
+     Given Reset Security Context

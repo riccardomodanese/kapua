@@ -17,6 +17,11 @@ Feature: Device Registry CRUD tests
     The Device registry Service is responsible for CRUD operations for devices in the Kapua
     database.
 
+@setup
+Scenario: Initialize test environment
+    Given Init Jaxb Context
+    And Init Security Context
+
 Scenario: Create a single device
     Create a single test device. The resulting device must have a unique ID assigned
     by the creation process.
@@ -251,3 +256,7 @@ Scenario: Device factory sanity checks
     that the items returned are not null.
 
     Then All device factory functions must return non null values
+
+@teardown
+Scenario: Reset Security Context for all scenarios
+    Given Reset Security Context

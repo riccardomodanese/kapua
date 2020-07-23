@@ -17,6 +17,11 @@ Feature: Tag Service
   used to attach tags to Devices, but could be used to tag eny kapua entity, like
   User for example.
 
+@setup
+  Scenario: Initialize test environment
+    Given Init Jaxb Context
+    And Init Security Context
+
   Scenario: Creating tag
     Create a tag entry, with specified name. Name is only tag specific attribute.
     Once created search for it and is should been created.
@@ -32,3 +37,7 @@ Feature: Tag Service
     Given Tag with name "tagName2"
     When Tag with name "tagName2" is searched
     Then I find and delete tag with name "tagName2"
+
+@teardown
+  Scenario: Reset Security Context for all scenarios
+    Given Reset Security Context

@@ -16,6 +16,11 @@ Feature: User Service
     User Service is responsible for CRUD operations on User objects in Kapua
     database.
 
+@setup
+Scenario: Initialize test environment
+    Given Init Jaxb Context
+    And Init Security Context
+
 Scenario: Creating user
     Create user with all User entity fields set and persist it in database. Then try to
     find it by name and check all the fields.
@@ -414,3 +419,7 @@ Scenario: Find user by its email
     And I search users with email "nemanja2@kapua.com"
     Then I find users with email "nemanja2@kapua.com"
     And No exception was thrown
+
+@teardown
+Scenario: Reset Security Context for all scenarios
+    Given Reset Security Context

@@ -15,6 +15,11 @@
 Feature: Access Groups
   This feature file contains Unit tests for Access Groups (CRUD tests).
 
+@setup
+  Scenario: Initialize test environment
+    Given Init Jaxb Context
+    And Init Security Context
+
   Scenario: Creating a valid Access Group with unique name
   Create an Access Group with valid name. Once created, search for it - it should have been created.
   Kapua should not return any errors.
@@ -373,3 +378,7 @@ Feature: Access Groups
     When I search for the group with name "NewAccessGroup"
     Then I find the group with name "NewAccessGroup"
     And No exception was thrown
+
+@teardown
+  Scenario: Reset Security Context for all scenarios
+    Given Reset Security Context
