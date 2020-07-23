@@ -40,27 +40,13 @@ public class UserRoleServiceSteps extends TestBase {
     @Inject
     public UserRoleServiceSteps(StepData stepData) {
         super(stepData);
-    }
-
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
-        updateScenario(scenario);
         accessRoleService = locator.getService(AccessRoleService.class);
         accessRoleFactory = locator.getFactory(AccessRoleFactory.class);
+    }
+
+    @Before
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        updateScenario(scenario);
     }
 
     @And("^I add access role \"([^\"]*)\" to user \"([^\"]*)\"$")

@@ -13,7 +13,6 @@
 package org.eclipse.kapua.service.account.steps;
 
 import cucumber.api.Scenario;
-import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -103,10 +102,6 @@ public class AccountServiceSteps extends TestBase {
         updateScenario(scenario);
         accountFactory = locator.getFactory(AccountFactory.class);
         accountService = locator.getService(AccountService.class);
-    }
-
-    @After
-    public void afterScenario() {
     }
 
     // The Cucumber test steps

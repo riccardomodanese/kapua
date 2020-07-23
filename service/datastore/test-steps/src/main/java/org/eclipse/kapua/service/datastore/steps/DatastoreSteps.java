@@ -100,6 +100,8 @@ import org.eclipse.kapua.service.device.registry.DeviceCreator;
 import org.eclipse.kapua.service.device.registry.DeviceFactory;
 import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
@@ -124,6 +126,8 @@ import java.util.stream.Collectors;
 
 @Singleton
 public class DatastoreSteps extends TestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatastoreSteps.class);
 
     @Then("^Number of received data messages is different than (\\d+)$")
     public void numberOfReceivedDataMessagesIsDifferentThan(int numberOfMessages) {
@@ -271,29 +275,6 @@ public class DatastoreSteps extends TestBase {
         super(stepData);
         this.currentDevice = currentDevice;
         this.session = session;
-    }
-
-    // *************************************
-    // Definition of Cucumber scenario steps
-    // *************************************
-
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
-        updateScenario(scenario);
         // Get instance of services used in different scenarios
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);
@@ -317,12 +298,23 @@ public class DatastoreSteps extends TestBase {
         dataMessageFactory = locator.getFactory(KapuaDataMessageFactory.class);
     }
 
-    @After(order=0)
+    // *************************************
+    // Definition of Cucumber scenario steps
+    // *************************************
+
+    @Before
+    public void beforeScenario(Scenario scenario) {
+        updateScenario(scenario);
+
+    }
+
+    @After(value="not (@setup or @teardown)", order=10)
     public void afterScenario() {
         try {
             deleteIndices();
         } catch (Exception e) {
-            throw new KapuaRuntimeException(KapuaErrorCodes.INTERNAL_ERROR, e);
+            //do nothing. The datastore container may be destroyed during shutdown
+            logger.warn("Error while deleting ES indeces: {}", e.getMessage());
         }
     }
 

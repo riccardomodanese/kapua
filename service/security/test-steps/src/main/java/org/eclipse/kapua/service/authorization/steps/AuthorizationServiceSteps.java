@@ -127,25 +127,6 @@ public class AuthorizationServiceSteps extends TestBase {
     @Inject
     public AuthorizationServiceSteps(StepData stepData) {
         super(stepData);
-    }
-
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
-        updateScenario(scenario);
         accessInfoService = locator.getService(AccessInfoService.class);
         accessInfoFactory = locator.getFactory(AccessInfoFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
@@ -163,6 +144,11 @@ public class AuthorizationServiceSteps extends TestBase {
         permissionFactory = locator.getFactory(PermissionFactory.class);
         userFactory = locator.getFactory(UserFactory.class);
         userService = locator.getService(UserService.class);
+    }
+
+    @Before
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        updateScenario(scenario);
     }
 
     // Cucumber test steps

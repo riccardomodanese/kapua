@@ -118,29 +118,6 @@ public class UserServiceSteps extends TestBase {
     @Inject
     public UserServiceSteps(StepData stepData) {
         super(stepData);
-    }
-
-    // *************************************
-    // Definition of Cucumber scenario steps
-    // *************************************
-
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
-        updateScenario(scenario);
         userService = locator.getService(UserService.class);
         userFactory = locator.getFactory(UserFactory.class);
         authenticationService = locator.getService(AuthenticationService.class);
@@ -152,6 +129,15 @@ public class UserServiceSteps extends TestBase {
         credentialsFactory = locator.getFactory(CredentialsFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
         domainRegistryService = locator.getService(DomainRegistryService.class);
+    }
+
+    // *************************************
+    // Definition of Cucumber scenario steps
+    // *************************************
+
+    @Before
+    public void beforeScenarioDockerFull(Scenario scenario) {
+        updateScenario(scenario);
     }
 
     @Given("^User with name \"(.*)\" in scope with id (\\d+)$")

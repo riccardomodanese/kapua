@@ -176,7 +176,7 @@ public class BrokerSteps extends TestBase {
         deviceAssetManagementService = locator.getService(DeviceAssetManagementService.class);
     }
 
-    @After(order=0)
+    @After(value="not (@setup or @teardown)", order=10)
     public void afterScenario() {
         if (kuraDevice != null) {
             this.kuraDevice.mqttClientDisconnect();

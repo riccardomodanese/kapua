@@ -69,6 +69,10 @@ public class JobScheduleServiceSteps extends TestBase {
     @Inject
     public JobScheduleServiceSteps(StepData stepData) {
         super(stepData);
+        triggerFactory = locator.getFactory(TriggerFactory.class);
+        triggerService = locator.getService(TriggerService.class);
+        triggerDefinitionFactory = locator.getFactory(TriggerDefinitionFactory.class);
+        triggerDefinitionService = locator.getService(TriggerDefinitionService.class);
     }
 
     // ************************************************************************************
@@ -81,27 +85,9 @@ public class JobScheduleServiceSteps extends TestBase {
     // * Setup and tear-down steps                                                        *
     // ************************************************************************************
 
-    @Before(value="@env_docker", order=10)
+    @Before
     public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
         updateScenario(scenario);
-        triggerFactory = locator.getFactory(TriggerFactory.class);
-        triggerService = locator.getService(TriggerService.class);
-        triggerDefinitionFactory = locator.getFactory(TriggerDefinitionFactory.class);
-        triggerDefinitionService = locator.getService(TriggerDefinitionService.class);
     }
 
     // ************************************************************************************

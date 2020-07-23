@@ -57,31 +57,17 @@ public class TagServiceSteps extends TestBase {
     @Inject
     public TagServiceSteps(StepData stepData) {
         super(stepData);
+        tagService = locator.getService(TagService.class);
+        tagFactory = locator.getFactory(TagFactory.class);
     }
 
     // *************************************
     // Definition of Cucumber scenario steps
     // *************************************
 
-    @Before(value="@env_docker", order=10)
+    @Before
     public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
-    public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
         updateScenario(scenario);
-        tagService = locator.getService(TagService.class);
-        tagFactory = locator.getFactory(TagFactory.class);
     }
 
     @Given("^I configure the tag service$")
