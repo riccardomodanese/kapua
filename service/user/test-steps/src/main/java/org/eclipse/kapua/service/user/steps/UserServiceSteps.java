@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.user.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -66,6 +67,8 @@ import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.kapua.service.user.UserStatus;
 import org.eclipse.kapua.service.user.UserAttributes;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
@@ -91,6 +94,8 @@ import java.util.Set;
  */
 @Singleton
 public class UserServiceSteps extends TestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceSteps.class);
 
     /**
      * User service by locator.
@@ -118,6 +123,11 @@ public class UserServiceSteps extends TestBase {
     @Inject
     public UserServiceSteps(StepData stepData) {
         super(stepData);
+    }
+
+    @After(value="@setup", order=10)
+    public void initResources() {
+        logParameters();
         userService = locator.getService(UserService.class);
         userFactory = locator.getFactory(UserFactory.class);
         authenticationService = locator.getService(AuthenticationService.class);
@@ -129,6 +139,18 @@ public class UserServiceSteps extends TestBase {
         credentialsFactory = locator.getFactory(CredentialsFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
         domainRegistryService = locator.getService(DomainRegistryService.class);
+    }
+
+    private void logParameters() {
+        logger.info("################### init resources!!!!!!!!");
+        logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
+        logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));
+        logger.info("\t%%%%% commons.db.connection.port: {}", System.getProperty("commons.db.connection.port"));
+        logger.info("\t%%%%% commons.db.jdbcConnectionUrlResolver: {}", System.getProperty("commons.db.jdbcConnectionUrlResolver"));
+        logger.info("\t%%%%% commons.db.jdbc.driver: {}", System.getProperty("commons.db.jdbc.driver"));
+        logger.info("\t%%%%% commons.db.connection.scheme: {}", System.getProperty("commons.db.connection.scheme"));
+        logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));
+        logger.info("\t%%%%% commons.db.connection.port: {}", System.getProperty("commons.db.connection.port"));
     }
 
     // *************************************

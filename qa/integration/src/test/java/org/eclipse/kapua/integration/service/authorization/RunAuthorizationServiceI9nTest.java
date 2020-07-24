@@ -38,7 +38,10 @@ import cucumber.api.CucumberOptions;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="commons.settings.hotswap", value="true")
-@CucumberProperty(key="commons.db.schema", value="kapuadb")
-@CucumberProperty(key="commons.db.schema.update", value="true")
+@CucumberProperty(key = "commons.settings.hotswap", value = "true")
+@CucumberProperty(key = "commons.db.connection.scheme", value = "jdbc:h2:mem;MODE=MySQL")
+@CucumberProperty(key = "commons.db.jdbcConnectionUrlResolver", value = "H2")
+@CucumberProperty(key = "commons.db.schema.update", value = "true")
+@CucumberProperty(key = "commons.db.connection.host", value = "")
+@CucumberProperty(key = "commons.db.connection.port", value = "")
 public class RunAuthorizationServiceI9nTest {}
