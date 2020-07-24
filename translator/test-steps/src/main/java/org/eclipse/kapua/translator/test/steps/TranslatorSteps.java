@@ -17,6 +17,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.runtime.java.guice.ScenarioScoped;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
@@ -38,8 +40,6 @@ import org.eclipse.kapua.transport.message.mqtt.MqttMessage;
 import org.eclipse.kapua.transport.message.mqtt.MqttPayload;
 import org.eclipse.kapua.transport.message.mqtt.MqttTopic;
 
-import com.google.inject.Singleton;
-
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * Implementation of Gherkin steps used in TranslatorUnitTests.feature scenarios.
  */
-@Singleton
+@ScenarioScoped
 public class TranslatorSteps extends TestBase {
 
     private ExampleTranslator exampleTranslator;
@@ -60,8 +60,8 @@ public class TranslatorSteps extends TestBase {
     @Inject
     public TranslatorSteps(StepData stepData) {
         super(stepData);
+        logParameters();
         exampleTranslator = new ExampleTranslator();
-
         translatorDataMqttKura = new TranslatorDataMqttKura();
         translatorResponseMqttKura = new TranslatorResponseMqttKura();
         translatorDataKuraMqtt = new TranslatorDataKuraMqtt();

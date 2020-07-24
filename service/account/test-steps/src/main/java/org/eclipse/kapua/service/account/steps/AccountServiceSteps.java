@@ -18,6 +18,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.runtime.java.guice.ScenarioScoped;
+
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalNullArgumentException;
@@ -39,8 +41,6 @@ import org.eclipse.kapua.service.account.AccountFactory;
 import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountCreator;
 import org.eclipse.kapua.service.account.Organization;
-
-import com.google.inject.Singleton;
 
 import org.eclipse.kapua.service.account.AccountQuery;
 import org.eclipse.kapua.service.account.AccountListResult;
@@ -64,7 +64,7 @@ import java.util.Properties;
  * services that the Account services dependent on. Dependent services are:
  * - Authorization Service
  */
-@Singleton
+@ScenarioScoped
 public class AccountServiceSteps extends TestBase {
 
     // Account creator object used for creating new accounts.
@@ -83,23 +83,10 @@ public class AccountServiceSteps extends TestBase {
 
     // Setup and tear-down steps
 
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
+    @Before(value="@env_docker or @env_embedded_minimal or @env_none", order=10)
     public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
         updateScenario(scenario);
+        logParameters();
         accountFactory = locator.getFactory(AccountFactory.class);
         accountService = locator.getService(AccountService.class);
     }

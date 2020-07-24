@@ -18,6 +18,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.runtime.java.guice.ScenarioScoped;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -54,8 +56,6 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Singleton;
-
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -68,7 +68,7 @@ import java.util.stream.Collectors;
  * registering mocked Kura device registering with Kapua and issuing basic administrative
  * commands on Mocked Kura.
  */
-@Singleton
+@ScenarioScoped
 public class BrokerSteps extends TestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(BrokerSteps.class);
@@ -144,6 +144,17 @@ public class BrokerSteps extends TestBase {
     @Inject
     public BrokerSteps(StepData stepData) {
         super(stepData);
+        logParameters();
+        KapuaLocator locator = KapuaLocator.getInstance();
+        devicePackageManagementService = locator.getService(DevicePackageManagementService.class);
+        deviceRegistryService = locator.getService(DeviceRegistryService.class);
+        deviceConfiguratiomManagementService = locator.getService(DeviceConfigurationManagementService.class);
+        deviceSnapshotManagementService = locator.getService(DeviceSnapshotManagementService.class);
+        deviceBundleManagementService = locator.getService(DeviceBundleManagementService.class);
+        deviceCommandManagementService = locator.getService(DeviceCommandManagementService.class);
+        deviceCommandFactory = locator.getFactory(DeviceCommandFactory.class);
+        deviceConnectionService = locator.getService(DeviceConnectionService.class);
+        deviceAssetManagementService = locator.getService(DeviceAssetManagementService.class);
     }
 
     @Before(value="@env_docker", order=10)
@@ -164,16 +175,6 @@ public class BrokerSteps extends TestBase {
     private void beforeInternal(Scenario scenario) {
         updateScenario(scenario);
         BrokerSetting.resetInstance();
-        KapuaLocator locator = KapuaLocator.getInstance();
-        devicePackageManagementService = locator.getService(DevicePackageManagementService.class);
-        deviceRegistryService = locator.getService(DeviceRegistryService.class);
-        deviceConfiguratiomManagementService = locator.getService(DeviceConfigurationManagementService.class);
-        deviceSnapshotManagementService = locator.getService(DeviceSnapshotManagementService.class);
-        deviceBundleManagementService = locator.getService(DeviceBundleManagementService.class);
-        deviceCommandManagementService = locator.getService(DeviceCommandManagementService.class);
-        deviceCommandFactory = locator.getFactory(DeviceCommandFactory.class);
-        deviceConnectionService = locator.getService(DeviceConnectionService.class);
-        deviceAssetManagementService = locator.getService(DeviceAssetManagementService.class);
     }
 
     @After(value="not (@setup or @teardown)", order=10)

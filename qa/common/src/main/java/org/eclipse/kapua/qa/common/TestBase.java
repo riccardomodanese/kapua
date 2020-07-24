@@ -19,6 +19,8 @@ import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.account.Account;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -30,6 +32,8 @@ import java.util.Date;
 import java.util.Random;
 
 public class TestBase extends Assert {
+
+    private static final Logger logger = LoggerFactory.getLogger(TestBase.class);
 
     /**
      * Common locator instance
@@ -62,6 +66,16 @@ public class TestBase extends Assert {
     protected TestBase(StepData stepData) {
         this.stepData = stepData;
         locator = KapuaLocator.getInstance();
+    }
+
+    protected void logParameters() {
+        logger.info("################### init resources");
+        logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
+        logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));
+        logger.info("\t%%%%% commons.db.connection.port: {}", System.getProperty("commons.db.connection.port"));
+        logger.info("\t%%%%% commons.db.jdbcConnectionUrlResolver: {}", System.getProperty("commons.db.jdbcConnectionUrlResolver"));
+        logger.info("\t%%%%% commons.db.jdbc.driver: {}", System.getProperty("commons.db.jdbc.driver"));
+        logger.info("\t%%%%% commons.db.connection.scheme: {}", System.getProperty("commons.db.connection.scheme"));
     }
 
     protected void updateScenario(Scenario scenario) {

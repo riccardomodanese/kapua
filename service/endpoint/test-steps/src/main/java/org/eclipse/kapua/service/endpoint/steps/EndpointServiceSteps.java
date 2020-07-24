@@ -16,6 +16,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.runtime.java.guice.ScenarioScoped;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalNullArgumentException;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
@@ -29,11 +31,9 @@ import org.eclipse.kapua.service.endpoint.EndpointInfoListResult;
 import org.eclipse.kapua.service.endpoint.EndpointInfoQuery;
 import org.eclipse.kapua.service.endpoint.EndpointInfoService;
 
-import com.google.inject.Singleton;
-
 import javax.inject.Inject;
 
-@Singleton
+@ScenarioScoped
 public class EndpointServiceSteps extends TestBase {
 
     private EndpointInfoService endpointInfoService;
@@ -52,6 +52,9 @@ public class EndpointServiceSteps extends TestBase {
     @Inject
     public EndpointServiceSteps(StepData stepData) {
         super(stepData);
+        logParameters();
+        endpointInfoService = locator.getService(EndpointInfoService.class);
+        endpointInfoFactory = locator.getFactory(EndpointInfoFactory.class);
     }
 
     // ************************************************************************************
@@ -64,25 +67,9 @@ public class EndpointServiceSteps extends TestBase {
     // * Setup and tear-down steps                                                        *
     // ************************************************************************************
 
-    @Before(value="@env_docker", order=10)
-    public void beforeScenarioDockerFull(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_embedded_minimal", order=10)
-    public void beforeScenarioEmbeddedMinimal(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    @Before(value="@env_none", order=10)
+    @Before(value="@env_docker or @env_embedded_minimal or @env_none", order=10)
     public void beforeScenarioNone(Scenario scenario) {
-        beforeInternal(scenario);
-    }
-
-    private void beforeInternal(Scenario scenario) {
         updateScenario(scenario);
-        endpointInfoService = locator.getService(EndpointInfoService.class);
-        endpointInfoFactory = locator.getFactory(EndpointInfoFactory.class);
     }
 
     // ************************************************************************************

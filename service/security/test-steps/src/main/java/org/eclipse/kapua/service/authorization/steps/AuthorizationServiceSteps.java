@@ -17,6 +17,8 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import cucumber.runtime.java.guice.ScenarioScoped;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.model.domain.Actions;
@@ -87,8 +89,6 @@ import org.eclipse.kapua.service.user.User;
 import org.eclipse.kapua.service.user.UserFactory;
 import org.eclipse.kapua.service.user.UserService;
 
-import com.google.inject.Singleton;
-
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,7 +100,7 @@ import java.util.Set;
 // Implementation of Gherkin steps used to test miscellaneous Shiro
 // authorization functionality.
 
-@Singleton
+@ScenarioScoped
 public class AuthorizationServiceSteps extends TestBase {
 
     private static final TestDomain TEST_DOMAIN = new TestDomain();
@@ -127,6 +127,7 @@ public class AuthorizationServiceSteps extends TestBase {
     @Inject
     public AuthorizationServiceSteps(StepData stepData) {
         super(stepData);
+        logParameters();
         accessInfoService = locator.getService(AccessInfoService.class);
         accessInfoFactory = locator.getFactory(AccessInfoFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
@@ -150,8 +151,6 @@ public class AuthorizationServiceSteps extends TestBase {
     public void beforeScenarioDockerFull(Scenario scenario) {
         updateScenario(scenario);
     }
-
-    // Cucumber test steps
 
     @When("^I configure the role service$")
     public void setConfigurationValue(List<CucConfig> cucConfigs)
