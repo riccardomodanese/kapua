@@ -14,6 +14,7 @@ package org.eclipse.kapua.service.device.registry.steps;
 import com.google.common.collect.Lists;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -24,6 +25,7 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.message.KapuaMessageFactory;
 import org.eclipse.kapua.message.KapuaPosition;
 import org.eclipse.kapua.message.device.lifecycle.KapuaAppsChannel;
@@ -140,6 +142,7 @@ public class DeviceRegistrySteps extends TestBase {
     private static final String CLIENT_IP = "127.1.1.10";
     private static final String SERVER_IP = "127.1.1.100";
 
+    protected KapuaLocator locator;
     // Various device registry service related references
     private DeviceRegistryService deviceRegistryService;
     private DeviceFactory deviceFactory;
@@ -192,6 +195,11 @@ public class DeviceRegistrySteps extends TestBase {
     public void beforeScenarioNone(Scenario scenario) {
         updateScenario(scenario);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);
 

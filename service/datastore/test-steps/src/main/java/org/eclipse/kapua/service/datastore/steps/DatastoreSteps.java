@@ -244,6 +244,7 @@ public class DatastoreSteps extends TestBase {
         }
     }
 
+    protected KapuaLocator locator;
     private DeviceRegistryService deviceRegistryService;
 
     private DeviceFactory deviceFactory;
@@ -277,6 +278,11 @@ public class DatastoreSteps extends TestBase {
         this.currentDevice = currentDevice;
         this.session = session;
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         // Get instance of services used in different scenarios
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);

@@ -31,7 +31,7 @@ public abstract class KapuaLocator implements KapuaServiceLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(KapuaLocator.class);
 
-    private static final KapuaLocator INSTANCE = createInstance();
+    private static KapuaLocator instance = createInstance();
 
     /**
      * {@link KapuaLocator} implementation classname specified via "System property" constants
@@ -86,7 +86,11 @@ public abstract class KapuaLocator implements KapuaServiceLoader {
      * @return
      */
     public static KapuaLocator getInstance() {
-        return INSTANCE;
+        return instance;
+    }
+
+    public static void clearInstance() {
+        instance = createInstance();
     }
 
     /**

@@ -25,6 +25,7 @@ import org.apache.shiro.SecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,11 @@ public class BasicSteps extends TestBase {
         if (WAIT_MULTIPLIER != 1.0d) {
             logger.info("Wait multiplier active: {}", WAIT_MULTIPLIER);
         }
+    }
+
+    @Before(value="@setup")
+    public void cleanLocator() {
+        KapuaLocator.clearInstance();
     }
 
     @Before(value="@env_docker and not (@setup or @teardown)", order=0)

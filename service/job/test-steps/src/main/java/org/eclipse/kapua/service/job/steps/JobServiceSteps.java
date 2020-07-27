@@ -13,6 +13,7 @@
 package org.eclipse.kapua.service.job.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -24,6 +25,7 @@ import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.job.engine.JobEngineFactory;
 import org.eclipse.kapua.job.engine.JobEngineService;
 import org.eclipse.kapua.job.engine.JobStartOptions;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate.Operator;
@@ -87,6 +89,7 @@ import java.util.Map;
 @ScenarioScoped
 public class JobServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
     // Job service objects
     private JobFactory jobFactory;
     private JobService jobService;
@@ -116,6 +119,11 @@ public class JobServiceSteps extends TestBase {
     public JobServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         jobService = locator.getService(JobService.class);
         jobFactory = locator.getFactory(JobFactory.class);
         jobStepDefinitionService = locator.getService(JobStepDefinitionService.class);

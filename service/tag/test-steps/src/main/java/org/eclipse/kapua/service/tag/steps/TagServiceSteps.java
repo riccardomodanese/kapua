@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.tag.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -20,6 +21,7 @@ import cucumber.api.java.en.When;
 import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
 import org.eclipse.kapua.qa.common.StepData;
@@ -48,6 +50,7 @@ import java.util.Set;
 @ScenarioScoped
 public class TagServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
     /**
      * Tag service.
      */
@@ -58,6 +61,11 @@ public class TagServiceSteps extends TestBase {
     public TagServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         tagService = locator.getService(TagService.class);
         tagFactory = locator.getFactory(TagFactory.class);
     }

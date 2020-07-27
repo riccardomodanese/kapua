@@ -14,8 +14,8 @@ package org.eclipse.kapua.qa.common;
 import cucumber.api.Scenario;
 
 import org.eclipse.kapua.commons.model.id.KapuaEid;
+import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.util.RandomUtils;
-import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.account.Account;
 import org.junit.Assert;
@@ -34,11 +34,6 @@ import java.util.Random;
 public class TestBase extends Assert {
 
     private static final Logger logger = LoggerFactory.getLogger(TestBase.class);
-
-    /**
-     * Common locator instance
-     */
-    protected KapuaLocator locator;
 
     /**
      * Inter step data scratchpad.
@@ -65,10 +60,10 @@ public class TestBase extends Assert {
 
     protected TestBase(StepData stepData) {
         this.stepData = stepData;
-        locator = KapuaLocator.getInstance();
     }
 
     protected void logParameters() {
+        SystemSetting.resetInstance();
         logger.info("################### init resources");
         logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
         logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));

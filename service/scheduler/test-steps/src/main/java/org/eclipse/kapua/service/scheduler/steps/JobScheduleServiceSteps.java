@@ -12,12 +12,14 @@
 package org.eclipse.kapua.service.scheduler.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
 import org.eclipse.kapua.qa.common.StepData;
@@ -49,6 +51,7 @@ import java.util.List;
 @ScenarioScoped
 public class JobScheduleServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
     private TriggerFactory triggerFactory;
     private TriggerService triggerService;
     private TriggerDefinitionFactory triggerDefinitionFactory;
@@ -70,6 +73,11 @@ public class JobScheduleServiceSteps extends TestBase {
     public JobScheduleServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         triggerFactory = locator.getFactory(TriggerFactory.class);
         triggerService = locator.getService(TriggerService.class);
         triggerDefinitionFactory = locator.getFactory(TriggerDefinitionFactory.class);

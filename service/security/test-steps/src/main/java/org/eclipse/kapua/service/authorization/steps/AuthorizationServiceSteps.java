@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.authorization.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -21,6 +22,7 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.domain.Actions;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
@@ -105,6 +107,8 @@ public class AuthorizationServiceSteps extends TestBase {
 
     private static final TestDomain TEST_DOMAIN = new TestDomain();
 
+    protected KapuaLocator locator;
+
     // Various Authorization service references
     private PermissionFactory permissionFactory;
     private AccessInfoService accessInfoService;
@@ -128,6 +132,11 @@ public class AuthorizationServiceSteps extends TestBase {
     public AuthorizationServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         accessInfoService = locator.getService(AccessInfoService.class);
         accessInfoFactory = locator.getFactory(AccessInfoFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);

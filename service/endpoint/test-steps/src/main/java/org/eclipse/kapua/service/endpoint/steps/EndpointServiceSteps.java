@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.endpoint.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -20,6 +21,7 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalNullArgumentException;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.query.predicate.AttributePredicate;
 import org.eclipse.kapua.qa.common.StepData;
 import org.eclipse.kapua.qa.common.TestBase;
@@ -36,6 +38,7 @@ import javax.inject.Inject;
 @ScenarioScoped
 public class EndpointServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
     private EndpointInfoService endpointInfoService;
     private EndpointInfoFactory endpointInfoFactory;
 
@@ -53,6 +56,11 @@ public class EndpointServiceSteps extends TestBase {
     public EndpointServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         endpointInfoService = locator.getService(EndpointInfoService.class);
         endpointInfoFactory = locator.getFactory(EndpointInfoFactory.class);
     }

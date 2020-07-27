@@ -37,6 +37,9 @@ import org.junit.runner.RunWith;
 @CucumberProperty(key="certificate.jwt.certificate", value= "certificates/certificate.pem")
 @CucumberProperty(key="commons.db.schema", value="kapuadb")
 @CucumberProperty(key="commons.db.schema.update", value="true")
+@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
+@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
+@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
 @CucumberProperty(key="commons.db.connection.host", value="localhost")
 @CucumberProperty(key="commons.db.connection.port", value="3306")
 public class RunRestUserTest {

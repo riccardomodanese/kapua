@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.user.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -22,6 +23,7 @@ import cucumber.runtime.java.guice.ScenarioScoped;
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.model.domain.Actions;
 import org.eclipse.kapua.model.domain.Domain;
@@ -92,6 +94,8 @@ import java.util.Set;
 @ScenarioScoped
 public class UserServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
+
     /**
      * User service by locator.
      */
@@ -119,6 +123,15 @@ public class UserServiceSteps extends TestBase {
     public UserServiceSteps(StepData stepData) {
         super(stepData);
         logParameters();
+    }
+
+    // *************************************
+    // Definition of Cucumber scenario steps
+    // *************************************
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         userService = locator.getService(UserService.class);
         userFactory = locator.getFactory(UserFactory.class);
         authenticationService = locator.getService(AuthenticationService.class);
@@ -131,10 +144,6 @@ public class UserServiceSteps extends TestBase {
         accessPermissionService = locator.getService(AccessPermissionService.class);
         domainRegistryService = locator.getService(DomainRegistryService.class);
     }
-
-    // *************************************
-    // Definition of Cucumber scenario steps
-    // *************************************
 
     @Before
     public void beforeScenarioDockerFull(Scenario scenario) {

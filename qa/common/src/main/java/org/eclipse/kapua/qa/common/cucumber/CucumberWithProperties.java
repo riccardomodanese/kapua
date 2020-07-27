@@ -29,6 +29,7 @@ public class CucumberWithProperties extends Cucumber {
 
     public CucumberWithProperties(Class<?> clazz) throws InitializationError, IOException {
         super(clazz);
+        logger.info("############################\n############################ called by: {}", clazz);
 
         CucumberProperty[] systemProperties = getProperties(clazz);
         for (CucumberProperty property : systemProperties) {

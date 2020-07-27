@@ -13,6 +13,7 @@
 package org.eclipse.kapua.service.account.steps;
 
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -28,6 +29,7 @@ import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
+import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.config.metatype.KapuaTocd;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.model.query.KapuaQuery;
@@ -67,6 +69,7 @@ import java.util.Properties;
 @ScenarioScoped
 public class AccountServiceSteps extends TestBase {
 
+    protected KapuaLocator locator;
     // Account creator object used for creating new accounts.
     private AccountService accountService;
     private AccountFactory accountFactory;
@@ -87,6 +90,11 @@ public class AccountServiceSteps extends TestBase {
     public void beforeScenarioNone(Scenario scenario) {
         updateScenario(scenario);
         logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
         accountFactory = locator.getFactory(AccountFactory.class);
         accountService = locator.getService(AccountService.class);
     }
