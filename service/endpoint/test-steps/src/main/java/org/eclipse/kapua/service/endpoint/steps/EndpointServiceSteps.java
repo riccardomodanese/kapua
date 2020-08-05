@@ -17,7 +17,6 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.KapuaIllegalNullArgumentException;
@@ -33,9 +32,11 @@ import org.eclipse.kapua.service.endpoint.EndpointInfoListResult;
 import org.eclipse.kapua.service.endpoint.EndpointInfoQuery;
 import org.eclipse.kapua.service.endpoint.EndpointInfoService;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 
-@ScenarioScoped
+@Singleton
 public class EndpointServiceSteps extends TestBase {
 
     protected KapuaLocator locator;

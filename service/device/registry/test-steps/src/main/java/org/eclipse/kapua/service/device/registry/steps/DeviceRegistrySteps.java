@@ -12,6 +12,7 @@
 package org.eclipse.kapua.service.device.registry.steps;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Singleton;
 
 import cucumber.api.Scenario;
 import cucumber.api.java.After;
@@ -20,7 +21,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
@@ -123,7 +123,7 @@ import java.util.Vector;
  * services that the Device Registry services dependent on. Dependent services are: -
  * Authorization Service -
  */
-@ScenarioScoped
+@Singleton
 public class DeviceRegistrySteps extends TestBase {
 
     private static final String TEST_DEVICE_NAME = "test_name";
@@ -142,7 +142,6 @@ public class DeviceRegistrySteps extends TestBase {
     private static final String CLIENT_IP = "127.1.1.10";
     private static final String SERVER_IP = "127.1.1.100";
 
-    protected KapuaLocator locator;
     // Various device registry service related references
     private DeviceRegistryService deviceRegistryService;
     private DeviceFactory deviceFactory;
@@ -199,7 +198,7 @@ public class DeviceRegistrySteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         deviceRegistryService = locator.getService(DeviceRegistryService.class);
         deviceFactory = locator.getFactory(DeviceFactory.class);
 

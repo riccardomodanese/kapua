@@ -19,7 +19,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaEntityNotFoundException;
 import org.eclipse.kapua.KapuaException;
@@ -43,6 +42,10 @@ import org.eclipse.kapua.service.account.AccountFactory;
 import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountCreator;
 import org.eclipse.kapua.service.account.Organization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Singleton;
 
 import org.eclipse.kapua.service.account.AccountQuery;
 import org.eclipse.kapua.service.account.AccountListResult;
@@ -66,8 +69,10 @@ import java.util.Properties;
  * services that the Account services dependent on. Dependent services are:
  * - Authorization Service
  */
-@ScenarioScoped
+@Singleton
 public class AccountServiceSteps extends TestBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountServiceSteps.class);
 
     protected KapuaLocator locator;
     // Account creator object used for creating new accounts.
@@ -78,6 +83,14 @@ public class AccountServiceSteps extends TestBase {
     @Inject
     public AccountServiceSteps(StepData stepData) {
         super(stepData);
+        logParameters();
+    }
+
+    @After(value="@setup")
+    public void setServices() {
+        locator = KapuaLocator.getInstance();
+        accountFactory = locator.getFactory(AccountFactory.class);
+        accountService = locator.getService(AccountService.class);
     }
 
     // *************************************
@@ -89,14 +102,6 @@ public class AccountServiceSteps extends TestBase {
     @Before(value="@env_docker or @env_embedded_minimal or @env_none", order=10)
     public void beforeScenarioNone(Scenario scenario) {
         updateScenario(scenario);
-        logParameters();
-    }
-
-    @After(value="@setup")
-    public void setServices() {
-        locator = KapuaLocator.getInstance();
-        accountFactory = locator.getFactory(AccountFactory.class);
-        accountService = locator.getService(AccountService.class);
     }
 
     // The Cucumber test steps

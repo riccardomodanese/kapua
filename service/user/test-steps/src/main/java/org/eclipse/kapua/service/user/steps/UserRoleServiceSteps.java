@@ -16,7 +16,6 @@ import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -30,13 +29,14 @@ import org.eclipse.kapua.service.authorization.access.AccessRole;
 import org.eclipse.kapua.service.authorization.role.Role;
 import org.eclipse.kapua.service.user.User;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 
-@ScenarioScoped
+@Singleton
 public class UserRoleServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
     private AccessRoleService accessRoleService;
     private AccessRoleFactory accessRoleFactory;
 
@@ -48,7 +48,7 @@ public class UserRoleServiceSteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         accessRoleService = locator.getService(AccessRoleService.class);
         accessRoleFactory = locator.getFactory(AccessRoleFactory.class);
     }

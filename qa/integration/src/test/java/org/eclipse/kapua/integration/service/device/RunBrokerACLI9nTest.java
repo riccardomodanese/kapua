@@ -12,15 +12,16 @@
 package org.eclipse.kapua.integration.service.device;
 
 import cucumber.api.CucumberOptions;
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = {"classpath:features/broker/acl/BrokerACLI9n.feature"
         },
-        glue = {"org.eclipse.kapua.qa.common",
+        glue = {"org.eclipse.kapua.integration.common",
+                "org.eclipse.kapua.qa.common",
                 "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
                 "org.eclipse.kapua.service.user.steps",
@@ -33,14 +34,5 @@ import org.junit.runner.RunWith;
         },
         strict = true,
         monochrome = true )
-@CucumberProperty(key="commons.settings.hotswap", value="true")
-@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
-@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
-@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
-@CucumberProperty(key="commons.db.connection.host", value="localhost")
-@CucumberProperty(key="commons.db.connection.port", value="3306")
-@CucumberProperty(key="datastore.index.prefix", value="")
-@CucumberProperty(key="certificate.jwt.private.key", value= "")
-@CucumberProperty(key="certificate.jwt.certificate", value= "")
 public class RunBrokerACLI9nTest {
 }

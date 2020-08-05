@@ -16,7 +16,6 @@ import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -36,6 +35,8 @@ import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionQ
 import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinition;
 import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerProperty;
 
+import com.google.inject.Singleton;
+
 import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionAttributes;
 import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionFactory;
 import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionService;
@@ -48,10 +49,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@ScenarioScoped
+@Singleton
 public class JobScheduleServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
     private TriggerFactory triggerFactory;
     private TriggerService triggerService;
     private TriggerDefinitionFactory triggerDefinitionFactory;
@@ -77,7 +77,7 @@ public class JobScheduleServiceSteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         triggerFactory = locator.getFactory(TriggerFactory.class);
         triggerService = locator.getService(TriggerService.class);
         triggerDefinitionFactory = locator.getFactory(TriggerDefinitionFactory.class);

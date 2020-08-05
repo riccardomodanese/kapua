@@ -18,7 +18,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -38,6 +37,8 @@ import org.eclipse.kapua.service.tag.TagQuery;
 import org.eclipse.kapua.service.tag.TagService;
 import org.junit.Assert;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
@@ -47,10 +48,9 @@ import java.util.Set;
 /**
  * Implementation of Gherkin steps used in TagService.feature scenarios.
  */
-@ScenarioScoped
+@Singleton
 public class TagServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
     /**
      * Tag service.
      */
@@ -65,7 +65,7 @@ public class TagServiceSteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         tagService = locator.getService(TagService.class);
         tagFactory = locator.getFactory(TagFactory.class);
     }

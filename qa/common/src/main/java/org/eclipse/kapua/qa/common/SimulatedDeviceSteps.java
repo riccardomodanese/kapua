@@ -36,7 +36,6 @@ import org.eclipse.kapua.kura.simulator.app.annotated.AnnotatedApplication;
 import org.eclipse.kapua.kura.simulator.app.command.SimpleCommandApplication;
 import org.eclipse.kapua.kura.simulator.app.deploy.SimpleDeployApplication;
 import org.eclipse.kapua.locator.KapuaLocator;
-import org.eclipse.kapua.qa.common.utils.EmbeddedBroker;
 import org.eclipse.kapua.service.authentication.CredentialsFactory;
 import org.eclipse.kapua.service.device.management.bundle.DeviceBundle;
 import org.eclipse.kapua.service.device.management.bundle.DeviceBundleManagementService;
@@ -60,6 +59,8 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 
 import cucumber.api.Scenario;
@@ -68,9 +69,8 @@ import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
-@ScenarioScoped
+@Singleton
 public class SimulatedDeviceSteps {
 
     private static final Logger logger = LoggerFactory.getLogger(SimulatedDeviceSteps.class);
@@ -95,8 +95,6 @@ public class SimulatedDeviceSteps {
 
     @Inject
     public SimulatedDeviceSteps(
-            /* dependency */ final EmbeddedBroker broker,
-            /* dependency */ final DBHelper dbHelper,
             final SimulatedDevice currentDevice,
             final Session session) {
 

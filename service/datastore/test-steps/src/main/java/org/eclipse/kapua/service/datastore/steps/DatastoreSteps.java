@@ -18,7 +18,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.kapua.KapuaErrorCodes;
@@ -105,6 +104,7 @@ import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Singleton;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
@@ -125,7 +125,7 @@ import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ScenarioScoped
+@Singleton
 public class DatastoreSteps extends TestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(DatastoreSteps.class);

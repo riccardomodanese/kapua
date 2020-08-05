@@ -18,7 +18,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
@@ -70,6 +69,10 @@ import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.kapua.service.user.UserStatus;
 import org.eclipse.kapua.service.user.UserAttributes;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Singleton;
 
 import javax.inject.Inject;
 import java.math.BigInteger;
@@ -91,10 +94,10 @@ import java.util.Set;
  * MockedLocator is used for Location Service.
  * Mockito is used to mock other services that UserService is dependent on.
  */
-@ScenarioScoped
+@Singleton
 public class UserServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceSteps.class);
 
     /**
      * User service by locator.
@@ -122,7 +125,6 @@ public class UserServiceSteps extends TestBase {
     @Inject
     public UserServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     // *************************************
@@ -131,7 +133,7 @@ public class UserServiceSteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         userService = locator.getService(UserService.class);
         userFactory = locator.getFactory(UserFactory.class);
         authenticationService = locator.getService(AuthenticationService.class);
@@ -143,10 +145,11 @@ public class UserServiceSteps extends TestBase {
         credentialsFactory = locator.getFactory(CredentialsFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
         domainRegistryService = locator.getService(DomainRegistryService.class);
+        logger.info("+++++++++++++++ UserServiceSteps called after @setup {} - {} - {}", this, userService, credentialsFactory);
     }
 
     @Before
-    public void beforeScenarioDockerFull(Scenario scenario) {
+    public void beforeScenario(Scenario scenario) {
         updateScenario(scenario);
     }
 
@@ -582,7 +585,7 @@ public class UserServiceSteps extends TestBase {
 
     @When("^I login as user with name \"(.*)\" and password \"(.*)\"$")
     public void loginUser(String userName, String password) throws Exception {
-
+        logger.info(">>>>>>>>>>>>> {} - {} - {}", this, credentialFactory, authenticationService);
         LoginCredentials credentials = credentialsFactory.newUsernamePasswordCredentials(userName, password);
         authenticationService.logout();
 

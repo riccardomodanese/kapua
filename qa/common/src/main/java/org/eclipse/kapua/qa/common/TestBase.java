@@ -14,7 +14,6 @@ package org.eclipse.kapua.qa.common;
 import cucumber.api.Scenario;
 
 import org.eclipse.kapua.commons.model.id.KapuaEid;
-import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.util.RandomUtils;
 import org.eclipse.kapua.model.id.KapuaId;
 import org.eclipse.kapua.service.account.Account;
@@ -63,7 +62,6 @@ public class TestBase extends Assert {
     }
 
     protected void logParameters() {
-        SystemSetting.resetInstance();
         logger.info("################### init resources");
         logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
         logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));

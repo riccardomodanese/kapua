@@ -19,7 +19,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.locator.KapuaLocator;
@@ -38,6 +37,8 @@ import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.junit.Assert;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +46,7 @@ import java.util.Map;
 /**
  * Steps for testing Access Control List functionality on Broker service.
  */
-@ScenarioScoped
+@Singleton
 public class AclSteps extends TestBase {
 
     public static final int BROKER_START_WAIT_MILLIS = 5000;

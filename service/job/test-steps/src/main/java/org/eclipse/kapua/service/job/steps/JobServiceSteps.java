@@ -19,7 +19,6 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.job.engine.JobEngineFactory;
@@ -72,6 +71,8 @@ import org.eclipse.kapua.service.job.targets.JobTargetService;
 import org.eclipse.kapua.service.job.targets.JobTargetStatus;
 import org.joda.time.DateTime;
 
+import com.google.inject.Singleton;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,10 +87,9 @@ import java.util.Map;
 // * - Authorization Service                                                              *
 // ****************************************************************************************
 
-@ScenarioScoped
+@Singleton
 public class JobServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
     // Job service objects
     private JobFactory jobFactory;
     private JobService jobService;
@@ -123,7 +123,7 @@ public class JobServiceSteps extends TestBase {
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         jobService = locator.getService(JobService.class);
         jobFactory = locator.getFactory(JobFactory.class);
         jobStepDefinitionService = locator.getService(JobStepDefinitionService.class);
