@@ -14,12 +14,14 @@ package org.eclipse.kapua.service.user.test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import cucumber.api.junit.Cucumber;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.config.metatype.KapuaMetatypeFactory;
 import org.eclipse.kapua.qa.common.MockedLocator;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.eclipse.kapua.service.account.AccountFactory;
 import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.account.internal.AccountFactoryImpl;
@@ -38,7 +40,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
-public class CucumberWithPropertiesForUser extends CucumberWithProperties {
+public class CucumberWithPropertiesForUser extends Cucumber {
 
     public CucumberWithPropertiesForUser(Class<?> clazz) throws InitializationError, IOException {
         super(clazz);
@@ -51,7 +53,7 @@ public class CucumberWithPropertiesForUser extends CucumberWithProperties {
      * It is based on custom MockedLocator locator that is meant for sevice unit tests.
      */
     private static void setupDI() {
-
+        System.setProperty("locator.class.impl", "org.eclipse.kapua.qa.common.MockedLocator");
         MockedLocator mockedLocator = (MockedLocator) KapuaLocator.getInstance();
 
         AbstractModule module = new AbstractModule() {

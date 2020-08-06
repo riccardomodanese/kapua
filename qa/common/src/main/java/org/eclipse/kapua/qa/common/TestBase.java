@@ -62,13 +62,13 @@ public class TestBase extends Assert {
     }
 
     protected void logParameters() {
-        logger.info("################### init resources");
-        logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
-        logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));
-        logger.info("\t%%%%% commons.db.connection.port: {}", System.getProperty("commons.db.connection.port"));
-        logger.info("\t%%%%% commons.db.jdbcConnectionUrlResolver: {}", System.getProperty("commons.db.jdbcConnectionUrlResolver"));
-        logger.info("\t%%%%% commons.db.jdbc.driver: {}", System.getProperty("commons.db.jdbc.driver"));
-        logger.info("\t%%%%% commons.db.connection.scheme: {}", System.getProperty("commons.db.connection.scheme"));
+//        logger.info("################### init resources");
+//        logger.info("\t%%%%% commons.db.schema.update: {}", System.getProperty("commons.db.schema.update"));
+//        logger.info("\t%%%%% commons.db.connection.host: {}", System.getProperty("commons.db.connection.host"));
+//        logger.info("\t%%%%% commons.db.connection.port: {}", System.getProperty("commons.db.connection.port"));
+//        logger.info("\t%%%%% commons.db.jdbcConnectionUrlResolver: {}", System.getProperty("commons.db.jdbcConnectionUrlResolver"));
+//        logger.info("\t%%%%% commons.db.jdbc.driver: {}", System.getProperty("commons.db.jdbc.driver"));
+//        logger.info("\t%%%%% commons.db.connection.scheme: {}", System.getProperty("commons.db.connection.scheme"));
     }
 
     protected void updateScenario(Scenario scenario) {

@@ -112,7 +112,8 @@ public class SimulatedDeviceSteps {
         try {
             Suppressed.closeAll(closables.values().stream().flatMap(Collection::stream));
         } catch (final Exception e) {
-            logger.warn("Error during closing of resources. This may probably be Paho complaining about already closed connections", e);
+            //suppress stack trace
+            logger.warn("Error during closing of resources. This may probably be Paho complaining about already closed connections: Error: {}", e.getMessage());
         }
         closables.clear();
 

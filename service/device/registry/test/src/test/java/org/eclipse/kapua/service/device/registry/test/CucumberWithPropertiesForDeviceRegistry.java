@@ -14,12 +14,14 @@ package org.eclipse.kapua.service.device.registry.test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import cucumber.api.junit.Cucumber;
+
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.config.metatype.KapuaMetatypeFactory;
 import org.eclipse.kapua.qa.common.MockedLocator;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
@@ -42,7 +44,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
-public class CucumberWithPropertiesForDeviceRegistry extends CucumberWithProperties {
+public class CucumberWithPropertiesForDeviceRegistry extends Cucumber {
 
     public CucumberWithPropertiesForDeviceRegistry(Class<?> clazz) throws InitializationError, IOException {
         super(clazz);
@@ -55,7 +57,7 @@ public class CucumberWithPropertiesForDeviceRegistry extends CucumberWithPropert
      * It is based on custom MockedLocator locator that is meant for sevice unit tests.
      */
     private static void setupDI() {
-
+        System.setProperty("locator.class.impl", "org.eclipse.kapua.qa.common.MockedLocator");
         MockedLocator mockedLocator = (MockedLocator) KapuaLocator.getInstance();
 
         AbstractModule module = new AbstractModule() {

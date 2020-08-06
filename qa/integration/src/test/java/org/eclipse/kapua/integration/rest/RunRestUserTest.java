@@ -12,11 +12,11 @@
 package org.eclipse.kapua.integration.rest;
 
 import cucumber.api.CucumberOptions;
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = "classpath:features/rest/user/RestUser.feature",
         glue = {"org.eclipse.kapua.qa.common",
@@ -31,16 +31,7 @@ import org.junit.runner.RunWith;
         strict = true,
         monochrome = true)
 
-@CucumberProperty(key="test.name", value="RunRestUserTest")
-@CucumberProperty(key="commons.settings.hotswap", value="true")
-@CucumberProperty(key="certificate.jwt.private.key", value= "certificates/key.pk8")
-@CucumberProperty(key="certificate.jwt.certificate", value= "certificates/certificate.pem")
-@CucumberProperty(key="commons.db.schema", value="kapuadb")
-@CucumberProperty(key="commons.db.schema.update", value="true")
-@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
-@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
-@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
-@CucumberProperty(key="commons.db.connection.host", value="localhost")
-@CucumberProperty(key="commons.db.connection.port", value="3306")
+//@CucumberProperty(key="certificate.jwt.private.key", value= "certificates/key.pk8")
+//@CucumberProperty(key="certificate.jwt.certificate", value= "certificates/certificate.pem")
 public class RunRestUserTest {
 }

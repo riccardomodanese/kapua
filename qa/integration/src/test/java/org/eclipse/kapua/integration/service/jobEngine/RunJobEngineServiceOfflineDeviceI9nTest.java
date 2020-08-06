@@ -12,12 +12,11 @@
 package org.eclipse.kapua.integration.service.jobEngine;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
 
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = {
                 "classpath:features/jobEngine/JobEngineServiceStartOfflineDeviceI9n.feature",
@@ -35,9 +34,5 @@ import org.junit.runner.RunWith;
                 "json:target/JobEngineServiceOfflineDeviceI9n_cucumber.json" },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="commons.settings.hotswap", value="true")
-@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
-@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
-@CucumberProperty(key="datastore.index.prefix", value="")
 public class RunJobEngineServiceOfflineDeviceI9nTest {
 }

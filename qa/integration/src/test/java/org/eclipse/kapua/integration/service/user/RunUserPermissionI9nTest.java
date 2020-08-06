@@ -11,13 +11,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.integration.service.user;
 
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = "classpath:features/user/UserPermissionI9n.feature",
 
@@ -39,11 +38,4 @@ import cucumber.api.CucumberOptions;
         },
         strict = true,
         monochrome = true)
-@CucumberProperty(key="commons.settings.hotswap", value="true")
-@CucumberProperty(key="commons.db.jdbcConnectionUrlResolver", value="DEFAULT")
-@CucumberProperty(key="commons.db.connection.scheme", value="jdbc:h2:tcp")
-@CucumberProperty(key="commons.db.jdbc.driver", value="org.h2.Driver")
-@CucumberProperty(key="commons.db.connection.host", value="localhost")
-@CucumberProperty(key="commons.db.connection.port", value="3306")
-@CucumberProperty(key="datastore.index.prefix", value="")
 public class RunUserPermissionI9nTest {}

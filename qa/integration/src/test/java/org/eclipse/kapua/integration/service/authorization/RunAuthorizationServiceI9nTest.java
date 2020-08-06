@@ -12,13 +12,12 @@
  *******************************************************************************/
 package org.eclipse.kapua.integration.service.authorization;
 
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
 import org.junit.runner.RunWith;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = { "classpath:features/authorization/AccessInfoService.feature",
                      "classpath:features/authorization/DomainService.feature",
@@ -38,10 +37,4 @@ import cucumber.api.CucumberOptions;
                  },
         strict = true,
         monochrome = true)
-@CucumberProperty(key = "commons.settings.hotswap", value = "true")
-@CucumberProperty(key = "commons.db.connection.scheme", value = "jdbc:h2:mem;MODE=MySQL")
-@CucumberProperty(key = "commons.db.jdbcConnectionUrlResolver", value = "H2")
-@CucumberProperty(key = "commons.db.schema.update", value = "true")
-@CucumberProperty(key = "commons.db.connection.host", value = "")
-@CucumberProperty(key = "commons.db.connection.port", value = "")
 public class RunAuthorizationServiceI9nTest {}

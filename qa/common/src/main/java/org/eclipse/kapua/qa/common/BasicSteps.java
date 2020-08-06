@@ -19,21 +19,21 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.runtime.java.guice.ScenarioScoped;
 
 import org.apache.shiro.SecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
-import org.eclipse.kapua.locator.KapuaLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Singleton;
 
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Date;
 
-@ScenarioScoped
+@Singleton
 public class BasicSteps extends TestBase {
 
     private static final Logger logger = LoggerFactory.getLogger(BasicSteps.class);
@@ -53,11 +53,6 @@ public class BasicSteps extends TestBase {
         if (WAIT_MULTIPLIER != 1.0d) {
             logger.info("Wait multiplier active: {}", WAIT_MULTIPLIER);
         }
-    }
-
-    @Before(value="@setup")
-    public void cleanLocator() {
-        KapuaLocator.clearInstance();
     }
 
     @Before(value="@env_docker and not (@setup or @teardown)", order=0)

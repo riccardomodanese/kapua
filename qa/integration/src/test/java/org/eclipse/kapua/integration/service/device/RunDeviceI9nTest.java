@@ -20,8 +20,7 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(
         features = {"classpath:features/device/DeviceServiceI9n.feature"
                    },
-        glue = {"org.eclipse.kapua.integration.common",
-                "org.eclipse.kapua.qa.common",
+        glue = {"org.eclipse.kapua.qa.common",
                 "org.eclipse.kapua.qa.integration.steps",
                 "org.eclipse.kapua.service.account.steps",
                 "org.eclipse.kapua.service.user.steps",

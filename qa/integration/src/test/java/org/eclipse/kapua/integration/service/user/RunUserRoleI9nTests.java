@@ -12,11 +12,11 @@
 package org.eclipse.kapua.integration.service.user;
 
 import cucumber.api.CucumberOptions;
-import org.eclipse.kapua.qa.common.cucumber.CucumberProperty;
-import org.eclipse.kapua.qa.common.cucumber.CucumberWithProperties;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithProperties.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = {
                 "classpath:features/user/UserRoleServiceI9n.feature"
@@ -38,13 +38,5 @@ import org.junit.runner.RunWith;
         },
         strict = true,
         monochrome = true)
-@CucumberProperty(key = "commons.settings.hotswap", value = "true")
-@CucumberProperty(key = "commons.db.connection.scheme", value = "jdbc:h2:mem;MODE=MySQL")
-@CucumberProperty(key = "commons.db.jdbcConnectionUrlResolver", value = "H2")
-@CucumberProperty(key = "commons.db.schema.update", value = "true")
-@CucumberProperty(key = "commons.db.connection.host", value = "")
-@CucumberProperty(key = "commons.db.connection.port", value = "")
-@CucumberProperty(key = "org.eclipse.kapua.qa.datastore.extraStartupDelay", value = "5")
-@CucumberProperty(key = "org.eclipse.kapua.qa.broker.extraStartupDelay", value = "5")
 public class RunUserRoleI9nTests {
 }

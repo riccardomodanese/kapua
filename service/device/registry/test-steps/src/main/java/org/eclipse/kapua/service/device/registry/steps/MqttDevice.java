@@ -231,7 +231,8 @@ public class MqttDevice {
                     s.run(mqttClient.getValue()::close);
                 }
             } catch (final Exception e) {
-                logger.warn("Failed during cleanup of client Paho resources", e);
+                //drop stacktrace
+                logger.warn("Failed during cleanup of client Paho resources", e.getMessage());
             }
         }
     }
