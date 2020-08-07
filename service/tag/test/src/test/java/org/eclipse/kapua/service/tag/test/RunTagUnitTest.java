@@ -12,14 +12,17 @@
 package org.eclipse.kapua.service.tag.test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithPropertiesForTag.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = { "classpath:features/TagService.feature"
                    },
-        glue = { "org.eclipse.kapua.service.tag.steps",
-                 "org.eclipse.kapua.qa.common"
+        glue = {"org.eclipse.kapua.service.tag.test",
+                "org.eclipse.kapua.service.tag.steps",
+                "org.eclipse.kapua.qa.common"
                },
         plugin = { "pretty", 
                    "html:target/cucumber",

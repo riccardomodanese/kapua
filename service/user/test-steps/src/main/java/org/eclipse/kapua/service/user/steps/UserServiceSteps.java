@@ -69,8 +69,6 @@ import org.eclipse.kapua.service.user.UserService;
 import org.eclipse.kapua.service.user.UserStatus;
 import org.eclipse.kapua.service.user.UserAttributes;
 import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
@@ -96,8 +94,6 @@ import java.util.Set;
  */
 @Singleton
 public class UserServiceSteps extends TestBase {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceSteps.class);
 
     /**
      * User service by locator.
@@ -145,7 +141,6 @@ public class UserServiceSteps extends TestBase {
         credentialsFactory = locator.getFactory(CredentialsFactory.class);
         accessPermissionService = locator.getService(AccessPermissionService.class);
         domainRegistryService = locator.getService(DomainRegistryService.class);
-        logger.info("+++++++++++++++ UserServiceSteps called after @setup {} - {} - {}", this, userService, credentialsFactory);
     }
 
     @Before
@@ -585,7 +580,6 @@ public class UserServiceSteps extends TestBase {
 
     @When("^I login as user with name \"(.*)\" and password \"(.*)\"$")
     public void loginUser(String userName, String password) throws Exception {
-        logger.info(">>>>>>>>>>>>> {} - {} - {}", this, credentialFactory, authenticationService);
         LoginCredentials credentials = credentialsFactory.newUsernamePasswordCredentials(userName, password);
         authenticationService.logout();
 

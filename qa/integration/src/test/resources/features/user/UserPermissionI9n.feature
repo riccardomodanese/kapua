@@ -9,7 +9,7 @@
 # Contributors:
 #     Eurotech - initial API and implementation
 ###############################################################################
-@user
+@userIntegration
 @userPermission
 @env_docker
 

@@ -60,7 +60,6 @@ public class TagServiceSteps extends TestBase {
     @Inject
     public TagServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

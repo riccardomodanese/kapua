@@ -12,13 +12,16 @@
 package org.eclipse.kapua.service.scheduler.test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithPropertiesForScheduler.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = { "classpath:features/SchedulerService.feature"
                    },
-        glue = {"org.eclipse.kapua.service.scheduler.steps",
+        glue = {"org.eclipse.kapua.service.scheduler.test",
+                "org.eclipse.kapua.service.scheduler.steps",
                 "org.eclipse.kapua.qa.common",
                 "org.eclipse.kapua.service.job.steps"
                },

@@ -19,6 +19,7 @@ Feature: Job step definition service CRUD tests
     service implementations.
 
 @setup
+@KapuaProperties("locator.class.impl=org.eclipse.kapua.qa.common.MockedLocator")
 Scenario: Initialize test environment
     Given Init Jaxb Context
     And Init Security Context

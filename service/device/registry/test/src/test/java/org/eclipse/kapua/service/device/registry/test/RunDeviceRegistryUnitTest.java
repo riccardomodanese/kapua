@@ -12,14 +12,17 @@
 package org.eclipse.kapua.service.device.registry.test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithPropertiesForDeviceRegistry.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
-        features = { "classpath:features/DeviceRegistryConnection.feature"
+        features = {"classpath:features/DeviceRegistryConnection.feature"
                    },
-        glue = { "org.eclipse.kapua.service.device.registry.steps",
-                 "org.eclipse.kapua.qa.common"
+        glue = {"org.eclipse.kapua.service.device.registry.test",
+                "org.eclipse.kapua.service.device.registry.steps",
+                "org.eclipse.kapua.qa.common"
                },
         plugin = { "pretty", 
                    "html:target/cucumber",

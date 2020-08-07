@@ -12,13 +12,15 @@
 package org.eclipse.kapua.translator.test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
+
 import org.junit.runner.RunWith;
 
-@RunWith(CucumberWithPropertiesForTranslator.class)
+@RunWith(Cucumber.class)
 @CucumberOptions(
         features = { "classpath:features/TranslatorUnitTests.feature"
         },
-        glue = { "org.eclipse.kapua.translator.test.steps",
+        glue = {"org.eclipse.kapua.translator.test",
                 "org.eclipse.kapua.qa.common",
                 "org.eclipse.kapua.service.device.registry.steps"
         },

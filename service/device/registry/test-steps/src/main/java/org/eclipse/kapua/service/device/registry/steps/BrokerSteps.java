@@ -145,7 +145,6 @@ public class BrokerSteps extends TestBase {
     @Inject
     public BrokerSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

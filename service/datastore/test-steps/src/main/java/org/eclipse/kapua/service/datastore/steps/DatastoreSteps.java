@@ -277,7 +277,6 @@ public class DatastoreSteps extends TestBase {
         super(stepData);
         this.currentDevice = currentDevice;
         this.session = session;
-        logParameters();
     }
 
     @After(value="@setup")

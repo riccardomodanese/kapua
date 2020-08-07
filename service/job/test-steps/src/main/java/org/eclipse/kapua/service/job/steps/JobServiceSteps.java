@@ -118,7 +118,6 @@ public class JobServiceSteps extends TestBase {
     @Inject
     public JobServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

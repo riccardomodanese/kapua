@@ -42,8 +42,6 @@ import org.eclipse.kapua.service.account.AccountFactory;
 import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountCreator;
 import org.eclipse.kapua.service.account.Organization;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
@@ -72,8 +70,6 @@ import java.util.Properties;
 @Singleton
 public class AccountServiceSteps extends TestBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(AccountServiceSteps.class);
-
     protected KapuaLocator locator;
     // Account creator object used for creating new accounts.
     private AccountService accountService;
@@ -83,7 +79,6 @@ public class AccountServiceSteps extends TestBase {
     @Inject
     public AccountServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

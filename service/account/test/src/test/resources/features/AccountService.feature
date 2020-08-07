@@ -18,6 +18,7 @@ Feature: User Account Service
     database.
 
 @setup
+@KapuaProperties("locator.class.impl=org.eclipse.kapua.qa.common.MockedLocator")
 Scenario: Initialize test environment
     Given Init Jaxb Context
     And Init Security Context

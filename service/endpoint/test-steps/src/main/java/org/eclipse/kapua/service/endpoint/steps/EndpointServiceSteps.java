@@ -39,7 +39,6 @@ import javax.inject.Inject;
 @Singleton
 public class EndpointServiceSteps extends TestBase {
 
-    protected KapuaLocator locator;
     private EndpointInfoService endpointInfoService;
     private EndpointInfoFactory endpointInfoFactory;
 
@@ -56,12 +55,11 @@ public class EndpointServiceSteps extends TestBase {
     @Inject
     public EndpointServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")
     public void setServices() {
-        locator = KapuaLocator.getInstance();
+        KapuaLocator locator = KapuaLocator.getInstance();
         endpointInfoService = locator.getService(EndpointInfoService.class);
         endpointInfoFactory = locator.getFactory(EndpointInfoFactory.class);
     }

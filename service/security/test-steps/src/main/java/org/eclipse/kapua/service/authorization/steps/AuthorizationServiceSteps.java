@@ -130,7 +130,6 @@ public class AuthorizationServiceSteps extends TestBase {
     @Inject
     public AuthorizationServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

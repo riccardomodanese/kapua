@@ -193,7 +193,6 @@ public class DeviceRegistrySteps extends TestBase {
     @Before(value="@env_docker or @env_embedded_minimal or @env_none", order=10)
     public void beforeScenarioNone(Scenario scenario) {
         updateScenario(scenario);
-        logParameters();
     }
 
     @After(value="@setup")

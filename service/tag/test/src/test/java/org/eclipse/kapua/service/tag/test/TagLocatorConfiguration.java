@@ -9,55 +9,45 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.device.registry.test;
+package org.eclipse.kapua.service.tag.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
-import cucumber.api.junit.Cucumber;
+import cucumber.api.java.Before;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.model.config.metatype.KapuaMetatypeFactory;
 import org.eclipse.kapua.qa.common.MockedLocator;
+import org.eclipse.kapua.service.account.AccountFactory;
+import org.eclipse.kapua.service.account.AccountService;
+import org.eclipse.kapua.service.account.internal.AccountFactoryImpl;
+import org.eclipse.kapua.service.account.internal.AccountServiceImpl;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
-import org.eclipse.kapua.service.device.registry.DeviceFactory;
-import org.eclipse.kapua.service.device.registry.DeviceRegistryService;
-import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionFactory;
-import org.eclipse.kapua.service.device.registry.connection.DeviceConnectionService;
-import org.eclipse.kapua.service.device.registry.connection.internal.DeviceConnectionFactoryImpl;
-import org.eclipse.kapua.service.device.registry.connection.internal.DeviceConnectionServiceImpl;
-import org.eclipse.kapua.service.device.registry.event.DeviceEventFactory;
-import org.eclipse.kapua.service.device.registry.event.DeviceEventService;
-import org.eclipse.kapua.service.device.registry.event.internal.DeviceEventFactoryImpl;
-import org.eclipse.kapua.service.device.registry.event.internal.DeviceEventServiceImpl;
-import org.eclipse.kapua.service.device.registry.internal.DeviceEntityManagerFactory;
-import org.eclipse.kapua.service.device.registry.internal.DeviceFactoryImpl;
-import org.eclipse.kapua.service.device.registry.internal.DeviceRegistryServiceImpl;
-import org.junit.runners.model.InitializationError;
+import org.eclipse.kapua.service.tag.TagFactory;
+import org.eclipse.kapua.service.tag.TagService;
+import org.eclipse.kapua.service.tag.internal.TagEntityManagerFactory;
+import org.eclipse.kapua.service.tag.internal.TagFactoryImpl;
+import org.eclipse.kapua.service.tag.internal.TagServiceImpl;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-
-public class CucumberWithPropertiesForDeviceRegistry extends Cucumber {
-
-    public CucumberWithPropertiesForDeviceRegistry(Class<?> clazz) throws InitializationError, IOException {
-        super(clazz);
-        setupDI();
-    }
+@Singleton
+public class TagLocatorConfiguration {
 
     /**
      * Setup DI with Google Guice DI.
      * Create mocked and non mocked service under test and bind them with Guice.
      * It is based on custom MockedLocator locator that is meant for sevice unit tests.
      */
-    private static void setupDI() {
-        System.setProperty("locator.class.impl", "org.eclipse.kapua.qa.common.MockedLocator");
+    @Before(value="@setup", order=1)
+    public void setupDI() {
         MockedLocator mockedLocator = (MockedLocator) KapuaLocator.getInstance();
 
         AbstractModule module = new AbstractModule() {
@@ -78,22 +68,20 @@ public class CucumberWithPropertiesForDeviceRegistry extends Cucumber {
                 // Set KapuaMetatypeFactory for Metatype configuration
                 bind(KapuaMetatypeFactory.class).toInstance(new KapuaMetatypeFactoryImpl());
 
-                // Inject actual Device registry service related services
-                DeviceEntityManagerFactory deviceEntityManagerFactory = DeviceEntityManagerFactory.instance();
-                bind(DeviceEntityManagerFactory.class).toInstance(deviceEntityManagerFactory);
+                // binding Account related services
+                bind(AccountService.class).toInstance(Mockito.spy(new AccountServiceImpl()));
+                bind(AccountFactory.class).toInstance(Mockito.spy(new AccountFactoryImpl()));
 
-                bind(DeviceRegistryService.class).toInstance(new DeviceRegistryServiceImpl());
-                bind(DeviceFactory.class).toInstance(new DeviceFactoryImpl());
-
-                bind(DeviceConnectionService.class).toInstance(new DeviceConnectionServiceImpl());
-                bind(DeviceConnectionFactory.class).toInstance(new DeviceConnectionFactoryImpl());
-
-                bind(DeviceEventService.class).toInstance(new DeviceEventServiceImpl());
-                bind(DeviceEventFactory.class).toInstance(new DeviceEventFactoryImpl());
+                // Inject actual Tag service related services
+                TagEntityManagerFactory tagEntityManagerFactory = TagEntityManagerFactory.getInstance();
+                bind(TagEntityManagerFactory.class).toInstance(tagEntityManagerFactory);
+                bind(TagService.class).toInstance(new TagServiceImpl());
+                bind(TagFactory.class).toInstance(new TagFactoryImpl());
             }
         };
 
         Injector injector = Guice.createInjector(module);
         mockedLocator.setInjector(injector);
+
     }
 }

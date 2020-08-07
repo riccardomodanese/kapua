@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 Eurotech and/or its affiliates and others
+ * Copyright (c) 2020 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -9,13 +9,14 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.service.user.test;
+package org.eclipse.kapua.service.scheduler.test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
-import cucumber.api.junit.Cucumber;
+import cucumber.api.java.Before;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
@@ -29,31 +30,27 @@ import org.eclipse.kapua.service.account.internal.AccountServiceImpl;
 import org.eclipse.kapua.service.authorization.AuthorizationService;
 import org.eclipse.kapua.service.authorization.permission.Permission;
 import org.eclipse.kapua.service.authorization.permission.PermissionFactory;
-import org.eclipse.kapua.service.user.UserFactory;
-import org.eclipse.kapua.service.user.UserService;
-import org.eclipse.kapua.service.user.internal.UserEntityManagerFactory;
-import org.eclipse.kapua.service.user.internal.UserFactoryImpl;
-import org.eclipse.kapua.service.user.internal.UserServiceImpl;
-import org.junit.runners.model.InitializationError;
+import org.eclipse.kapua.service.job.JobFactory;
+import org.eclipse.kapua.service.job.JobService;
+import org.eclipse.kapua.service.job.internal.JobFactoryImpl;
+import org.eclipse.kapua.service.job.internal.JobServiceImpl;
+import org.eclipse.kapua.service.scheduler.quartz.SchedulerEntityManagerFactory;
+import org.eclipse.kapua.service.scheduler.trigger.TriggerFactory;
+import org.eclipse.kapua.service.scheduler.trigger.TriggerService;
+import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionFactory;
+import org.eclipse.kapua.service.scheduler.trigger.definition.TriggerDefinitionService;
+import org.eclipse.kapua.service.scheduler.trigger.definition.quartz.TriggerDefinitionFactoryImpl;
+import org.eclipse.kapua.service.scheduler.trigger.definition.quartz.TriggerDefinitionServiceImpl;
+import org.eclipse.kapua.service.scheduler.trigger.quartz.TriggerFactoryImpl;
+import org.eclipse.kapua.service.scheduler.trigger.quartz.TriggerServiceImpl;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import java.io.IOException;
+@Singleton
+public class SchedulerLocatorConfiguration {
 
-public class CucumberWithPropertiesForUser extends Cucumber {
-
-    public CucumberWithPropertiesForUser(Class<?> clazz) throws InitializationError, IOException {
-        super(clazz);
-        setupDI();
-    }
-
-    /**
-     * Setup DI with Google Guice DI.
-     * Create mocked and non mocked service under test and bind them with Guice.
-     * It is based on custom MockedLocator locator that is meant for sevice unit tests.
-     */
-    private static void setupDI() {
-        System.setProperty("locator.class.impl", "org.eclipse.kapua.qa.common.MockedLocator");
+    @Before(value="@setup", order=1)
+    public void setupDI() {
         MockedLocator mockedLocator = (MockedLocator) KapuaLocator.getInstance();
 
         AbstractModule module = new AbstractModule() {
@@ -78,11 +75,15 @@ public class CucumberWithPropertiesForUser extends Cucumber {
                 bind(AccountService.class).toInstance(Mockito.spy(new AccountServiceImpl()));
                 bind(AccountFactory.class).toInstance(Mockito.spy(new AccountFactoryImpl()));
 
-                // Inject actual User service related services
-                UserEntityManagerFactory userEntityManagerFactory = UserEntityManagerFactory.getInstance();
-                bind(UserEntityManagerFactory.class).toInstance(userEntityManagerFactory);
-                bind(UserService.class).toInstance(new UserServiceImpl());
-                bind(UserFactory.class).toInstance(new UserFactoryImpl());
+                // Inject actual Tag service related services
+                SchedulerEntityManagerFactory schedulerEntityManagerFactory = SchedulerEntityManagerFactory.getInstance();
+                bind(SchedulerEntityManagerFactory.class).toInstance(schedulerEntityManagerFactory);
+                bind(JobService.class).toInstance(new JobServiceImpl());
+                bind(JobFactory.class).toInstance(new JobFactoryImpl());
+                bind(TriggerService.class).toInstance(new TriggerServiceImpl());
+                bind(TriggerFactory.class).toInstance(new TriggerFactoryImpl());
+                bind(TriggerDefinitionService.class).toInstance(new TriggerDefinitionServiceImpl());
+                bind(TriggerDefinitionFactory.class).toInstance(new TriggerDefinitionFactoryImpl());
             }
         };
 

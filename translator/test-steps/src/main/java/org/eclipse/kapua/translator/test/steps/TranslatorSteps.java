@@ -61,7 +61,6 @@ public class TranslatorSteps extends TestBase {
     @Inject
     public TranslatorSteps(StepData stepData) {
         super(stepData);
-        logParameters();
         exampleTranslator = new ExampleTranslator();
         translatorDataMqttKura = new TranslatorDataMqttKura();
         translatorResponseMqttKura = new TranslatorResponseMqttKura();

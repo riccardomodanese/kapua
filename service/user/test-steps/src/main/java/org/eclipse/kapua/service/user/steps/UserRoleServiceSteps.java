@@ -43,7 +43,6 @@ public class UserRoleServiceSteps extends TestBase {
     @Inject
     public UserRoleServiceSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")

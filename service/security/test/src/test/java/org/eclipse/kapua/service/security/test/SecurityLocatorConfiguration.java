@@ -14,8 +14,9 @@ package org.eclipse.kapua.service.security.test;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
-import cucumber.api.junit.Cucumber;
+import cucumber.api.java.Before;
 
 import org.eclipse.kapua.KapuaException;
 import org.eclipse.kapua.commons.configuration.metatype.KapuaMetatypeFactoryImpl;
@@ -36,26 +37,14 @@ import org.eclipse.kapua.service.authorization.role.shiro.RoleFactoryImpl;
 import org.eclipse.kapua.service.authorization.role.shiro.RolePermissionFactoryImpl;
 import org.eclipse.kapua.service.authorization.role.shiro.RoleServiceImpl;
 import org.eclipse.kapua.service.authorization.shiro.AuthorizationEntityManagerFactory;
-import org.junit.runners.model.InitializationError;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import java.io.IOException;
+@Singleton
+public class SecurityLocatorConfiguration {
 
-public class CucumberWithPropertiesForSecurity extends Cucumber {
-
-    public CucumberWithPropertiesForSecurity(Class<?> clazz) throws InitializationError, IOException {
-        super(clazz);
-        setupDI();
-    }
-
-    /**
-     * Setup DI with Google Guice DI.
-     * Create mocked and non mocked service under test and bind them with Guice.
-     * It is based on custom MockedLocator locator that is meant for sevice unit tests.
-     */
-    private static void setupDI() {
-        System.setProperty("locator.class.impl", "org.eclipse.kapua.qa.common.MockedLocator");
+    @Before(value="@setup", order=1)
+    public void setupDI() {
         MockedLocator mockedLocator = (MockedLocator) KapuaLocator.getInstance();
 
         AbstractModule module = new AbstractModule() {

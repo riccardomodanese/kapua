@@ -10,7 +10,7 @@
 #     Eurotech - initial API and implementation
 ###############################################################################
 @jobs
-@triggerService
+@triggerServiceIntegration
 @env_docker
 
 Feature: JobEngineService execute job on device connect

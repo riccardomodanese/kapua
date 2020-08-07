@@ -27,6 +27,7 @@ Feature: Datastore tests
   Index gets created when user publishes data.
 
     Given Server with host "127.0.0.1" on port "9200"
+    And I wait for 3 seconds
     When I delete all indices
     And I login as user with name "kapua-sys" and password "kapua-password"
     And I select account "kapua-sys"

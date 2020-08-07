@@ -49,7 +49,6 @@ public abstract class AbstractKapuaSetting<K extends SettingKey> extends Abstrac
     }
 
     private static DataConfiguration createCompositeSource(String configResourceName) throws ExceptionInInitializerError {
-//        LOG.error("%%%%%%%%%%%%%%%%%%%%%%%%%%%% {}", configResourceName);
         CompositeConfiguration compositeConfig = new EnvFriendlyConfiguration();
         compositeConfig.addConfiguration(new SystemConfiguration());
         compositeConfig.addConfiguration(new EnvironmentConfiguration());
@@ -68,7 +67,6 @@ public abstract class AbstractKapuaSetting<K extends SettingKey> extends Abstrac
             }
 
             // Default configuration file loading
-//            LOG.error("%%%%%%%%%%%%%%%%%%%%%%%%%%%% {}", configResourceName);
             loadConfigResource(compositeConfig, configResourceName);
         } catch (Exception e) {
             LOG.error("Error loading PropertiesConfiguration", e);
@@ -136,13 +134,11 @@ public abstract class AbstractKapuaSetting<K extends SettingKey> extends Abstrac
 
         URL configUrl = null;
         try {
-            LOG.info("=====================> |{}|", configResourceName);
             configUrl = KapuaFileUtils.getAsURL(configResourceName);
 
             compositeConfig.addConfiguration(new PropertiesConfiguration(configUrl));
             LOG.debug("Loaded configuration resource: '{}'", configResourceName);
         } catch (ConfigurationException ce) {
-            LOG.info("=====================> |{}|", configResourceName);
             throw new KapuaSettingException(KapuaSettingErrorCodes.INVALID_RESOURCE_FILE, ce, configUrl);
         }
     }

@@ -115,7 +115,6 @@ public class AclSteps extends TestBase {
     @Inject
     public AclSteps(StepData stepData) {
         super(stepData);
-        logParameters();
     }
 
     @After(value="@setup")
