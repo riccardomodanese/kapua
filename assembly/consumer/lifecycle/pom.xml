@@ -394,10 +394,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
-            <artifactId>kapua-device-management-bundle-internal</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-job-api</artifactId>
         </dependency>
         <dependency>
@@ -509,6 +505,9 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/org/apache/camel/TypeConverter</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/org/apache/camel/TypeConverterLoader</resource>
                                 </transformer>
 
                                 <!-- kapua translator -->
