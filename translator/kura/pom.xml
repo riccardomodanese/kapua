@@ -27,7 +27,6 @@
     <modules>
         <module>amqp</module>
         <module>jms</module>
-        <module>mqtt</module>
     </modules>
 
 </project>

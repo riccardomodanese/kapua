@@ -16,6 +16,9 @@ import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataChannel;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataMessage;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataPayload;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.exception.InvalidChannelException;
+import org.eclipse.kapua.translator.exception.InvalidMessageException;
+import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 import org.eclipse.kapua.translator.exception.TranslateException;
 import org.eclipse.kapua.transport.amqp.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqp.message.AmqpPayload;
@@ -31,38 +34,44 @@ import java.util.List;
 public class TranslatorDataKuraAmqp extends Translator<KuraDataMessage, AmqpMessage> {
 
     @Override
-    public AmqpMessage translate(KuraDataMessage kuraMessage)
+    public AmqpMessage translate(KuraDataMessage kuraDataMessage)
             throws TranslateException {
-        // Amqp request topic
-        AmqpTopic aqmpRequestTopic = translate(kuraMessage.getChannel());
-
-        // Amqp payload
-        AmqpPayload aqmpPayload = translate(kuraMessage.getPayload());
-
         // Return Amqp message
-        return new AmqpMessage(aqmpRequestTopic,
+        try {
+            AmqpTopic amqpRequestTopic = translate(kuraDataMessage.getChannel());
+            AmqpPayload amqpPayload = translate(kuraDataMessage.getPayload());
+            return new AmqpMessage(amqpRequestTopic,
                 new Date(),
-                aqmpPayload);
-    }
-
-    private AmqpTopic translate(KuraDataChannel kuraChannel)
-            throws TranslateException {
-        List<String> topicTokens = new ArrayList<>();
-
-        topicTokens.add(kuraChannel.getScope());
-        topicTokens.add(kuraChannel.getClientId());
-
-        if (kuraChannel.getSemanticParts() != null &&
-                !kuraChannel.getSemanticParts().isEmpty()) {
-            topicTokens.addAll(kuraChannel.getSemanticParts());
+                amqpPayload);
+        } catch (InvalidChannelException | InvalidPayloadException te) {
+            throw te;
+        } catch (Exception e) {
+            throw new InvalidMessageException(e, kuraDataMessage);
         }
-
-        return new AmqpTopic(topicTokens.toArray(new String[0]));
     }
 
-    private AmqpPayload translate(KuraDataPayload kuraPayload)
+    private AmqpTopic translate(KuraDataChannel kuraDataChannel)
             throws TranslateException {
-        return new AmqpPayload(kuraPayload.toByteArray());
+        try {
+            List<String> topicTokens = new ArrayList<>();
+            topicTokens.add(kuraDataChannel.getScope());
+            topicTokens.add(kuraDataChannel.getClientId());
+            if (!kuraDataChannel.getSemanticParts().isEmpty()) {
+                topicTokens.addAll(kuraDataChannel.getSemanticParts());
+            }
+            return new AmqpTopic(topicTokens.toArray(new String[0]));
+        } catch (Exception e) {
+            throw new InvalidChannelException(e, kuraDataChannel);
+        }
+    }
+
+    private AmqpPayload translate(KuraDataPayload kuraDataPayload)
+            throws TranslateException {
+        try {
+            return new AmqpPayload(kuraDataPayload.toByteArray());
+        } catch (Exception e) {
+            throw new InvalidPayloadException(e, kuraDataPayload);
+        }
     }
 
     @Override

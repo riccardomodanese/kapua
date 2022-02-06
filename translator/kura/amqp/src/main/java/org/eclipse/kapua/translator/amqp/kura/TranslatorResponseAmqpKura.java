@@ -12,16 +12,17 @@
  *******************************************************************************/
 package org.eclipse.kapua.translator.amqp.kura;
 
-import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
-import org.eclipse.kapua.message.internal.MessageException;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponseChannel;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponseMessage;
 import org.eclipse.kapua.service.device.call.message.kura.app.response.KuraResponsePayload;
 import org.eclipse.kapua.translator.Translator;
 import org.eclipse.kapua.translator.exception.InvalidChannelException;
+import org.eclipse.kapua.translator.exception.InvalidMessageException;
 import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 import org.eclipse.kapua.translator.exception.TranslateException;
+import org.eclipse.kapua.translator.exception.TranslatorErrorCodes;
+import org.eclipse.kapua.translator.exception.TranslatorException;
 import org.eclipse.kapua.transport.amqp.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqp.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqp.message.AmqpTopic;
@@ -37,49 +38,52 @@ public class TranslatorResponseAmqpKura extends Translator<AmqpMessage, KuraResp
     private static final String CONTROL_MESSAGE_CLASSIFIER = SystemSetting.getInstance().getMessageClassifier();
 
     @Override
-    public KuraResponseMessage translate(AmqpMessage aqmpMessage)
+    public KuraResponseMessage translate(AmqpMessage amqpMessage)
             throws TranslateException {
-        // Kura topic
-        KuraResponseChannel kuraChannel = translate(aqmpMessage.getRequestTopic());
-
-        // Kura payload
-        KuraResponsePayload kuraPayload = translate(aqmpMessage.getPayload());
-
-        // Kura message
-        return new KuraResponseMessage(kuraChannel,
-                aqmpMessage.getTimestamp(),
-                kuraPayload);
-    }
-
-    private KuraResponseChannel translate(AmqpTopic aqmpTopic)
-            throws TranslateException {
-        String[] aqmpTopicTokens = aqmpTopic.getSplittedTopic();
-
-        if (!CONTROL_MESSAGE_CLASSIFIER.equals(aqmpTopicTokens[0])) {
-            throw new InvalidChannelException(new KapuaIllegalArgumentException("topic", aqmpTopic.getTopic()), null);
-        }
-
-        KuraResponseChannel kuraResponseChannel = new KuraResponseChannel(aqmpTopicTokens[0],
-                aqmpTopicTokens[1],
-                aqmpTopicTokens[2]);
-
-        kuraResponseChannel.setAppId(aqmpTopicTokens[3]);
-        kuraResponseChannel.setReplyPart(aqmpTopicTokens[4]);
-        kuraResponseChannel.setRequestId(aqmpTopicTokens[5]);
-        return kuraResponseChannel;
-    }
-
-    private KuraResponsePayload translate(AmqpPayload aqmpPayload)
-            throws TranslateException {
-        byte[] aqmpBody = aqmpPayload.getBody();
-
-        KuraResponsePayload kuraResponsePayload = new KuraResponsePayload();
         try {
-            kuraResponsePayload.readFromByteArray(aqmpBody);
-        } catch (MessageException e) {
-            throw new InvalidPayloadException(e, aqmpPayload);
+            KuraResponseChannel kuraChannel = translate(amqpMessage.getRequestTopic());
+            KuraResponsePayload kuraPayload = translate(amqpMessage.getPayload());
+            return new KuraResponseMessage(kuraChannel, amqpMessage.getTimestamp(), kuraPayload);
+        } catch (InvalidChannelException | InvalidPayloadException te) {
+            throw te;
+        } catch (Exception e) {
+            throw new InvalidMessageException(e, amqpMessage);
         }
-        return kuraResponsePayload;
+    }
+
+    private KuraResponseChannel translate(AmqpTopic amqpTopic)
+            throws TranslateException {
+        try {
+            String[] amqpTopicTokens = amqpTopic.getSplittedTopic();
+            if (amqpTopicTokens.length != 6) {
+                throw new TranslatorException(TranslatorErrorCodes.INVALID_CHANNEL, null, (Object) amqpTopicTokens);
+            }
+            if (!CONTROL_MESSAGE_CLASSIFIER.equals(amqpTopicTokens[0])) {
+                throw new TranslatorException(TranslatorErrorCodes.INVALID_CHANNEL, null, amqpTopicTokens[0]);
+            }
+            KuraResponseChannel kuraResponseChannel = new KuraResponseChannel(amqpTopicTokens[0],
+                amqpTopicTokens[1],
+                amqpTopicTokens[2]);
+            kuraResponseChannel.setAppId(amqpTopicTokens[3]);
+            kuraResponseChannel.setReplyPart(amqpTopicTokens[4]);
+            kuraResponseChannel.setRequestId(amqpTopicTokens[5]);
+            return kuraResponseChannel;
+        } catch (Exception e) {
+            throw new InvalidChannelException(e, amqpTopic);
+        }
+    }
+
+    private KuraResponsePayload translate(AmqpPayload amqpPayload)
+            throws TranslateException {
+        try {
+            KuraResponsePayload kuraResponsePayload = new KuraResponsePayload();
+            if (amqpPayload.hasBody()) {
+                kuraResponsePayload.readFromByteArray(amqpPayload.getBody());
+            }
+            return kuraResponsePayload;
+        } catch (Exception e) {
+            throw new InvalidPayloadException(e, amqpPayload);
+        }
     }
 
     @Override

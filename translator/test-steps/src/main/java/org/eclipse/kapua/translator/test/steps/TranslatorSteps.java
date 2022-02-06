@@ -21,17 +21,17 @@ import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataChannel;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataMessage;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataPayload;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.amqp.kura.TranslatorDataAmqpKura;
+import org.eclipse.kapua.translator.amqp.kura.TranslatorResponseAmqpKura;
 import org.eclipse.kapua.translator.jms.kura.TranslatorDataJmsKura;
+import org.eclipse.kapua.translator.kura.amqp.TranslatorDataKuraAmqp;
 import org.eclipse.kapua.translator.kura.jms.TranslatorDataKuraJms;
-import org.eclipse.kapua.translator.kura.mqtt.TranslatorDataKuraMqtt;
-import org.eclipse.kapua.translator.mqtt.kura.TranslatorDataMqttKura;
-import org.eclipse.kapua.translator.mqtt.kura.TranslatorResponseMqttKura;
+import org.eclipse.kapua.transport.amqp.message.AmqpMessage;
+import org.eclipse.kapua.transport.amqp.message.AmqpPayload;
+import org.eclipse.kapua.transport.amqp.message.AmqpTopic;
 import org.eclipse.kapua.transport.message.jms.JmsMessage;
 import org.eclipse.kapua.transport.message.jms.JmsPayload;
 import org.eclipse.kapua.transport.message.jms.JmsTopic;
-import org.eclipse.kapua.transport.message.mqtt.MqttMessage;
-import org.eclipse.kapua.transport.message.mqtt.MqttPayload;
-import org.eclipse.kapua.transport.message.mqtt.MqttTopic;
 import org.junit.Assert;
 
 import com.google.inject.Singleton;
@@ -54,9 +54,9 @@ import java.util.List;
 public class TranslatorSteps extends TestBase {
 
     private ExampleTranslator exampleTranslator;
-    private TranslatorDataMqttKura translatorDataMqttKura;
-    private TranslatorResponseMqttKura translatorResponseMqttKura;
-    private TranslatorDataKuraMqtt translatorDataKuraMqtt;
+    private TranslatorDataAmqpKura translatorDataAqmpKura;
+    private TranslatorResponseAmqpKura translatorResponseAmqpKura;
+    private TranslatorDataKuraAmqp translatorDataKuraAmqp;
     private TranslatorDataJmsKura translatorDataJmsKura;
     private TranslatorDataKuraJms translatorDataKuraJms;
 
@@ -64,9 +64,9 @@ public class TranslatorSteps extends TestBase {
     public TranslatorSteps(StepData stepData) {
         super(stepData);
         exampleTranslator = new ExampleTranslator();
-        translatorDataMqttKura = new TranslatorDataMqttKura();
-        translatorResponseMqttKura = new TranslatorResponseMqttKura();
-        translatorDataKuraMqtt = new TranslatorDataKuraMqtt();
+        translatorDataAqmpKura = new TranslatorDataAmqpKura();
+        translatorResponseAmqpKura = new TranslatorResponseAmqpKura();
+        translatorDataKuraAmqp = new TranslatorDataKuraAmqp();
         translatorDataJmsKura = new TranslatorDataJmsKura();
         translatorDataKuraJms = new TranslatorDataKuraJms();
     }
@@ -105,30 +105,30 @@ public class TranslatorSteps extends TestBase {
         Assert.assertEquals(translatorName, translator.getClass().getSimpleName());
     }
 
-    @Given("I create mqtt message with (valid/invalid/empty) payload {string} and (valid/invalid) topic {string}")
-    public void creatingMqttMessage(String payload, String topic) throws Exception{
+    @Given("I create amqp message with (valid/invalid/empty) payload {string} and (valid/invalid) topic {string}")
+    public void creatingAmqpMessage(String payload, String topic) throws Exception{
         try {
             Date date = new Date();
-            MqttTopic mqttTopic = new MqttTopic(topic);
+            AmqpTopic amqpTopic = new AmqpTopic(topic);
             KuraPayload kuraPayload = new KuraPayload();
             if (payload.equals("invalidPayload") || payload.equals("")) {
                 kuraPayload.setBody(payload.getBytes());
             } else {
                 kuraPayload.getMetrics().put(payload, 200);
             }
-            MqttPayload mqttPayload = new MqttPayload(kuraPayload.toByteArray());
-            MqttMessage mqttMessage = new MqttMessage(mqttTopic, date, mqttPayload);
-            stepData.put("MqttMessage", mqttMessage);
+            AmqpPayload amqpPayload = new AmqpPayload(kuraPayload.toByteArray());
+            AmqpMessage amqpMessage = new AmqpMessage(amqpTopic, date, amqpPayload);
+            stepData.put("AmqpMessage", amqpMessage);
         } catch (Exception ex){
             verifyException(ex);
         }
     }
 
-    @When("I try to translate mqtt response")
-    public void iTryToTranslateMqttResponse() throws Exception {
-        MqttMessage mqttMessage = (MqttMessage) stepData.get("MqttMessage");
+    @When("I try to translate amqp response")
+    public void iTryToTranslateAmqpResponse() throws Exception {
+        AmqpMessage amqpMessage = (AmqpMessage) stepData.get("AmqpMessage");
         try {
-            KuraResponseMessage kuraResponseMessage = translatorResponseMqttKura.translate(mqttMessage);
+            KuraResponseMessage kuraResponseMessage = translatorResponseAmqpKura.translate(amqpMessage);
             stepData.put("KuraResponseMessage", kuraResponseMessage);
         } catch (KapuaException ex) {
             verifyException(ex);
@@ -160,27 +160,27 @@ public class TranslatorSteps extends TestBase {
         }
     }
 
-    @And("I try to translate kura data message to mqtt message")
-    public void iTryToTranslateKuraDataMessageToMqttMessage() throws Exception {
+    @And("I try to translate kura data message to amqp message")
+    public void iTryToTranslateKuraDataMessageToAmqpMessage() throws Exception {
         try {
             KuraDataMessage kuraDataMessage = (KuraDataMessage) stepData.get("KuraDataMessage");
-            MqttMessage mqttMessage = translatorDataKuraMqtt.translate(kuraDataMessage);
-            stepData.put("MqttMessage", mqttMessage);
+            AmqpMessage amqpMessage = translatorDataKuraAmqp.translate(kuraDataMessage);
+            stepData.put("AmqpMessage", amqpMessage);
         } catch (Exception ex) {
             verifyException(ex);
         }
 
     }
 
-    @Then("I get mqtt message with channel with scope {string}, client id {string} and (empty body|non empty body)")
-    public void mqttMessageWithChannelScopeClientIDAndBody(String scope, String clientId) {
-        MqttMessage mqttMessage = (MqttMessage) stepData.get("MqttMessage");
+    @Then("I get amqp message with channel with scope {string}, client id {string} and (empty body|non empty body)")
+    public void amqpMessageWithChannelScopeClientIDAndBody(String scope, String clientId) {
+        AmqpMessage amqpMessage = (AmqpMessage) stepData.get("AmqpMessage");
         String requestTopic = scope.concat("/" + clientId);
-        Assert.assertEquals(requestTopic, mqttMessage.getRequestTopic().getTopic());
-        if (mqttMessage.getPayload().getBody().length == 0) {
-            Assert.assertTrue(mqttMessage.getPayload().getBody().length == 0);
+        Assert.assertEquals(requestTopic, amqpMessage.getRequestTopic().getTopic());
+        if (amqpMessage.getPayload().getBody().length == 0) {
+            Assert.assertTrue(amqpMessage.getPayload().getBody().length == 0);
         } else {
-            Assert.assertTrue(mqttMessage.getPayload().getBody().length != 0);
+            Assert.assertTrue(amqpMessage.getPayload().getBody().length != 0);
         }
     }
 
@@ -224,11 +224,11 @@ public class TranslatorSteps extends TestBase {
         }
     }
 
-    @Given("I try to translate mqtt message to kura data message")
-    public void iTryToTranslateMqttMessageToKuraMessage() throws Exception {
+    @Given("I try to translate amqp message to kura data message")
+    public void iTryToTranslateAmqpMessageToKuraMessage() throws Exception {
         try {
-            MqttMessage mqttMessage = (MqttMessage) stepData.get("MqttMessage");
-            KuraDataMessage kuraDataMessage = translatorDataMqttKura.translate(mqttMessage);
+            AmqpMessage amqpMessage = (AmqpMessage) stepData.get("AmqpMessage");
+            KuraDataMessage kuraDataMessage = translatorDataAqmpKura.translate(amqpMessage);
             stepData.put("KuraDataMessage", kuraDataMessage);
         } catch (Exception ex) {
             verifyException(ex);
@@ -322,11 +322,11 @@ public class TranslatorSteps extends TestBase {
         }
     }
 
-    @When("I try to translate mqtt null message to kura data message")
-    public void iTryToTranslateMqttNullMessageToKuraDataMessage() throws Exception {
+    @When("I try to translate amqp null message to kura data message")
+    public void iTryToTranslateAmqpNullMessageToKuraDataMessage() throws Exception {
         try {
-            MqttMessage mqttMessage = (MqttMessage) stepData.get("MqttMessage");
-            KuraDataMessage kuraDataMessage = translatorDataMqttKura.translate((MqttMessage) null);
+            AmqpMessage amqpMessage = (AmqpMessage) stepData.get("AmqpMessage");
+            KuraDataMessage kuraDataMessage = translatorDataAqmpKura.translate((AmqpMessage) null);
             stepData.put("KuraDataMessage", kuraDataMessage);
         } catch (Exception ex){
             verifyException(ex);
@@ -351,12 +351,12 @@ public class TranslatorSteps extends TestBase {
         stepData.put("KuraDataMessage", kuraDataMessage);
     }
 
-    @And("I try to translate invalid kura data message to mqtt message")
-    public void iTryToTranslateInvalidKuraDataMessageToMqttMessage() throws Exception {
+    @And("I try to translate invalid kura data message to amqp message")
+    public void iTryToTranslateInvalidKuraDataMessageToAmqpMessage() throws Exception {
         try {
             KuraDataMessage kuraDataMessage = (KuraDataMessage) stepData.get("KuraDataMessage");
-            MqttMessage mqttMessage = translatorDataKuraMqtt.translate((KuraDataMessage) null);
-            stepData.put("MqttMessage", mqttMessage);
+            AmqpMessage amqpMessage = translatorDataKuraAmqp.translate((KuraDataMessage) null);
+            stepData.put("AmqpMessage", amqpMessage);
         } catch (Exception ex) {
             verifyException(ex);
         }

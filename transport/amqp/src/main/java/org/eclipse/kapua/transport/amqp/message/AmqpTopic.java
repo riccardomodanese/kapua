@@ -108,4 +108,14 @@ public class AmqpTopic implements TransportChannel {
         }
         return topic.split("\\" + topicSeparator);
     }
+
+    /**
+     * Gets {@link #getTopic()} for a more user-friendly output.
+     *
+     * @return The {@link #getTopic()}
+     */
+    @Override
+    public String toString() {
+        return getTopic();
+    }
 }

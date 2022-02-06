@@ -17,8 +17,12 @@ import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataChannel;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataMessage;
 import org.eclipse.kapua.service.device.call.message.kura.data.KuraDataPayload;
 import org.eclipse.kapua.translator.Translator;
+import org.eclipse.kapua.translator.exception.InvalidChannelException;
+import org.eclipse.kapua.translator.exception.InvalidMessageException;
 import org.eclipse.kapua.translator.exception.InvalidPayloadException;
 import org.eclipse.kapua.translator.exception.TranslateException;
+import org.eclipse.kapua.translator.exception.TranslatorErrorCodes;
+import org.eclipse.kapua.translator.exception.TranslatorException;
 import org.eclipse.kapua.transport.amqp.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqp.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqp.message.AmqpTopic;
@@ -29,38 +33,59 @@ import org.eclipse.kapua.transport.amqp.message.AmqpTopic;
 public class TranslatorDataAmqpKura extends Translator<AmqpMessage, KuraDataMessage> {
 
     @Override
-    public KuraDataMessage translate(AmqpMessage aqmpMessage)
+    public KuraDataMessage translate(AmqpMessage amqpMessage)
             throws TranslateException {
-        // Kura topic
-        KuraDataChannel kuraChannel = translate(aqmpMessage.getRequestTopic());
-
-        // Kura payload
-        KuraDataPayload kuraPayload = translate(aqmpMessage.getPayload());
-
-        // Return Kura message
-        return new KuraDataMessage(kuraChannel,
-                aqmpMessage.getTimestamp(),
-                kuraPayload);
-    }
-
-    private KuraDataChannel translate(AmqpTopic aqmpTopic)
-            throws TranslateException {
-        String[] aqmpTopicTokens = aqmpTopic.getSplittedTopic();
-        return new KuraDataChannel(aqmpTopicTokens[0],
-                aqmpTopicTokens[1]);
-    }
-
-    private KuraDataPayload translate(AmqpPayload aqmpPayload)
-            throws TranslateException {
-        byte[] jmsBody = aqmpPayload.getBody();
-
-        KuraDataPayload kuraPayload = new KuraDataPayload();
         try {
-            kuraPayload.readFromByteArray(jmsBody);
-        } catch (MessageException e) {
-            throw new InvalidPayloadException(e, aqmpPayload);
+            KuraDataChannel kuraChannel = translate(amqpMessage.getRequestTopic());
+            KuraDataPayload kuraPayload = translate(amqpMessage.getPayload());
+            return new KuraDataMessage(kuraChannel,
+                amqpMessage.getTimestamp(),
+                kuraPayload);
+        } catch (InvalidChannelException | InvalidPayloadException te) {
+            throw te;
+        } catch (Exception e) {
+            throw new InvalidMessageException(e, amqpMessage);
         }
-        return kuraPayload;
+    }
+
+    private KuraDataChannel translate(AmqpTopic amqpTopic)
+            throws TranslateException {
+        try {
+            String[] amqpTopicTokens = amqpTopic.getSplittedTopic();
+            if (amqpTopicTokens.length < 2) {
+                throw new TranslatorException(TranslatorErrorCodes.INVALID_CHANNEL, null, (Object) amqpTopicTokens);
+            }
+            KuraDataChannel kuraDataChannel = new KuraDataChannel();
+            kuraDataChannel.setScope(amqpTopicTokens[0]);
+            kuraDataChannel.setClientId(amqpTopicTokens[1]);
+            for (int i = 2; i < amqpTopicTokens.length; i++) {
+                kuraDataChannel.getSemanticParts().add(amqpTopicTokens[i]);
+            }
+            // Return Kura Channel
+            return kuraDataChannel;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InvalidChannelException(e, amqpTopic);
+        }
+    }
+
+    private KuraDataPayload translate(AmqpPayload amqpPayload)
+            throws TranslateException {
+        try {
+            KuraDataPayload kuraDataPayload = new KuraDataPayload();
+            if (amqpPayload.hasBody()) {
+                byte[] mqttBody = amqpPayload.getBody();
+                try {
+                    kuraDataPayload.readFromByteArray(mqttBody);
+                } catch (MessageException ex) {
+                    kuraDataPayload.setBody(mqttBody);
+                }
+            }
+            // Return Kura Payload
+            return kuraDataPayload;
+        } catch (Exception e) {
+            throw new InvalidPayloadException(e, amqpPayload);
+        }
     }
 
     @Override

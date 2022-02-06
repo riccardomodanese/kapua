@@ -18,9 +18,9 @@ import java.util.Map;
 
 import org.eclipse.kapua.service.device.call.message.kura.KuraPayload;
 import org.eclipse.kapua.service.device.call.message.kura.KuraPosition;
-import org.eclipse.kapua.transport.message.mqtt.MqttMessage;
-import org.eclipse.kapua.transport.message.mqtt.MqttPayload;
-import org.eclipse.kapua.transport.message.mqtt.MqttTopic;
+//import org.eclipse.kapua.transport.message.mqtt.MqttMessage;
+//import org.eclipse.kapua.transport.message.mqtt.MqttPayload;
+//import org.eclipse.kapua.transport.message.mqtt.MqttTopic;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -64,12 +64,12 @@ public class KapuaStartCluster {
         int qos = 1;
         boolean retained = false;
         String topicStr = "$EDC/" + accountName + "/" + mqttClient.getClientId() + "/MQTT/BIRTH";
-        MqttTopic topic = new MqttTopic(topicStr);
-        KuraPayload kuraPayload = new KuraPayload();
-        kuraPayload.setTimestamp(new Date());
-        MqttPayload payload = new MqttPayload(kuraPayload.toByteArray());
-        MqttMessage mqttMessage = new MqttMessage(topic, new Date(), payload);
-        mqttClient.publish(topicStr, mqttMessage.getPayload().getBody(), qos, retained);
+//        MqttTopic topic = new MqttTopic(topicStr);
+//        KuraPayload kuraPayload = new KuraPayload();
+//        kuraPayload.setTimestamp(new Date());
+//        MqttPayload payload = new MqttPayload(kuraPayload.toByteArray());
+//        MqttMessage mqttMessage = new MqttMessage(topic, new Date(), payload);
+//        mqttClient.publish(topicStr, mqttMessage.getPayload().getBody(), qos, retained);
     }
 
     protected static void sendMessage(MqttClient mqttClient, String topic, int waitFor) throws MqttPersistenceException, MqttException, InterruptedException {
