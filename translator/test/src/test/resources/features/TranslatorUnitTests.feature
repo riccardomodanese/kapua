@@ -68,7 +68,7 @@ Feature: Translator Service
   Creating amqp message with invalid payload and valid topic. Trying to translate it into kura data message.
   Checking if kura data message with valid channel and byte[] payload is received.
 
-    Given I create amqp message with invalid payload "invalidPayload" and valid topic "kapua-sys/rpione3/DEPLOY-V2/GET/packages"
+    Given I create amqp message with invalid payload "invalidPayload" and valid topic "kapua-sys.rpione3.DEPLOY-V2.GET.packages"
     And I try to translate amqp message to kura data message
     Then I got kura data message with "byte[]" payload body
     And I got kura data message channel with "kapua-sys" and "rpione3" data
@@ -78,7 +78,7 @@ Feature: Translator Service
   Creating amqp message with valid payload and valid topic. Trying to translate it into kura data message.
   Checking if amqp message with valid channel and proper payload metrics is received.
 
-    Given I create amqp message with valid payload "response.code" and valid topic "kapua-sys/rpione3/DEPLOY-V2/GET/packages"
+    Given I create amqp message with valid payload "response.code" and valid topic "kapua-sys.rpione3.DEPLOY-V2.GET.packages"
     And I try to translate amqp message to kura data message
     Then I got kura data message with proper payload metrics response code 200
     And I got kura data message channel with "kapua-sys" and "rpione3" data
@@ -88,7 +88,7 @@ Feature: Translator Service
   Creating amqp message with empty payload and valid topic. Trying to translate it into kura data message.
   Checking if amqp message with valid channel and empty payload is received.
 
-    Given I create amqp message with empty payload "" and valid topic "kapua-sys/rpione3/DEPLOY-V2/GET/packages"
+    Given I create amqp message with empty payload "" and valid topic "kapua-sys.rpione3.DEPLOY-V2.GET.packages"
     And I try to translate amqp message to kura data message
     Then I got kura data message with empty payload
     And I got kura data message channel with "kapua-sys" and "rpione3" data
@@ -99,8 +99,8 @@ Feature: Translator Service
   Scenario: Translation of amqp message with invalid payload and invalid topic into kura response message
   Creating amqp message with invalid payload and invalid topic. Trying to translate it into kura response message.
 
-    Given I expect the exception "InvalidChannelException" with the text "Invalid channel: DEPLOY-V2/GET/packages"
-    And I create amqp message with invalid payload "invalidPayload" and invalid topic "DEPLOY-V2/GET/packages"
+    Given I expect the exception "InvalidChannelException" with the text "Invalid channel: DEPLOY-V2.GET.packages"
+    And I create amqp message with invalid payload "invalidPayload" and invalid topic "DEPLOY-V2.GET.packages"
     When I try to translate amqp response
     Then An exception was thrown
 
@@ -108,7 +108,7 @@ Feature: Translator Service
   Creating amqp message with invalid payload and valid topic. Trying to translate it into kura response message.
   Check if kura response with byte[] body and correct channel is received.
 
-    Given I create amqp message with invalid payload "invalidPayload" and valid topic "$EDC/kapua-sys/rpione3/DEPLOY-V2/GET/packages"
+    Given I create amqp message with invalid payload "invalidPayload" and valid topic "$EDC.kapua-sys.rpione3.DEPLOY-V2.GET.packages"
     When I try to translate amqp response
     Then I got kura response message with "byte[]" payload body
     And I got kura response message channel with "GET", "packages", "DEPLOY-V2", "$EDC", "kapua-sys" and "rpione3" data
@@ -117,8 +117,8 @@ Feature: Translator Service
   Scenario: Translation of amqp message with valid payload and invalid topic into kura response message
   Creating amqp message with valid payload and invalid topic. Trying to translate it into kura response message.
 
-    Given I expect the exception "InvalidChannelException" with the text "Invalid channel: DEPLOY-V2/GET/packages"
-    And I create amqp message with valid payload "response.code" and invalid topic "DEPLOY-V2/GET/packages"
+    Given I expect the exception "InvalidChannelException" with the text "Invalid channel: DEPLOY-V2.GET.packages"
+    And I create amqp message with valid payload "response.code" and invalid topic "DEPLOY-V2.GET.packages"
     When I try to translate amqp response
     Then An exception was thrown
 
@@ -126,7 +126,7 @@ Feature: Translator Service
   Creating amqp message with valid payload and valid topic. Trying to translate it into kura response message.
   Check if kura response message with proper payload, metrics and correct channel is received.
 
-    Given I create amqp message with valid payload "response.code" and valid topic "$EDC/kapua-sys/rpione3/DEPLOY-V2/GET/packages"
+    Given I create amqp message with valid payload "response.code" and valid topic "$EDC.kapua-sys.rpione3.DEPLOY-V2.GET.packages"
     When I try to translate amqp response
     Then I got kura response message with proper payload metrics
     And I got kura response message channel with "GET", "packages", "DEPLOY-V2", "$EDC", "kapua-sys" and "rpione3" data
@@ -176,7 +176,7 @@ Feature: Translator Service
   Creating amqp message with invalid payload and invalid "null" AmqpMessage. Trying to translate it into kura data message.
   Invalid message exception should be thrown.
 
-    Given I create amqp message with valid payload "invalidPayload" and valid topic "kapua-sys/rpione3/DEPLOY-V2/GET"
+    Given I create amqp message with valid payload "invalidPayload" and valid topic "kapua-sys.rpione3.DEPLOY-V2.GET"
     And I expect the exception "InvalidMessageException" with the text "Invalid message: null"
     When I try to translate amqp null message to kura data message
     Then An exception was thrown

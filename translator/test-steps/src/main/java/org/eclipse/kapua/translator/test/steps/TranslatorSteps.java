@@ -29,6 +29,8 @@ import org.eclipse.kapua.translator.kura.jms.TranslatorDataKuraJms;
 import org.eclipse.kapua.transport.amqp.message.AmqpMessage;
 import org.eclipse.kapua.transport.amqp.message.AmqpPayload;
 import org.eclipse.kapua.transport.amqp.message.AmqpTopic;
+import org.eclipse.kapua.transport.amqp.setting.AmqpClientSetting;
+import org.eclipse.kapua.transport.amqp.setting.AmqpClientSettingKeys;
 import org.eclipse.kapua.transport.message.jms.JmsMessage;
 import org.eclipse.kapua.transport.message.jms.JmsPayload;
 import org.eclipse.kapua.transport.message.jms.JmsTopic;
@@ -52,6 +54,8 @@ import java.util.List;
  */
 @Singleton
 public class TranslatorSteps extends TestBase {
+
+    private static final String TOPIC_SEPARATOR = AmqpClientSetting.getInstance().getString(AmqpClientSettingKeys.TRANSPORT_TOPIC_SEPARATOR);
 
     private ExampleTranslator exampleTranslator;
     private TranslatorDataAmqpKura translatorDataAqmpKura;
@@ -175,7 +179,7 @@ public class TranslatorSteps extends TestBase {
     @Then("I get amqp message with channel with scope {string}, client id {string} and (empty body|non empty body)")
     public void amqpMessageWithChannelScopeClientIDAndBody(String scope, String clientId) {
         AmqpMessage amqpMessage = (AmqpMessage) stepData.get("AmqpMessage");
-        String requestTopic = scope.concat("/" + clientId);
+        String requestTopic = scope.concat(TOPIC_SEPARATOR + clientId);
         Assert.assertEquals(requestTopic, amqpMessage.getRequestTopic().getTopic());
         if (amqpMessage.getPayload().getBody().length == 0) {
             Assert.assertTrue(amqpMessage.getPayload().getBody().length == 0);
