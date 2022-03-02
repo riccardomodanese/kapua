@@ -29,7 +29,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <!-- Dependencies versions -->
-        <activemq.version>5.14.5</activemq.version>
         <camel.version>3.11.0</camel.version> <!-- latest 3.11.0 -->
         <spring.version>5.3.8</spring.version> <!-- latest 5.3.8 -->
         <spring-security.version>5.5.1</spring-security.version> <!-- latest 5.5.1 -->
@@ -499,11 +498,6 @@
             <dependency>
                 <groupId>org.eclipse.kapua</groupId>
                 <artifactId>kapua-broker-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.kapua</groupId>
-                <artifactId>kapua-broker-activemq-plugin</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -2161,18 +2155,6 @@
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>artemis-amqp-protocol</artifactId>
                 <version>${artemis.version}</version>
-            </dependency>
-
-            <!-- Activemq -->
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-client</artifactId>
-                <version>${activemq.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-camel</artifactId>
-                <version>${activemq.version}</version>
             </dependency>
 
             <!-- Camel -->
