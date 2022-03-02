@@ -39,7 +39,6 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 
-import org.apache.activemq.command.BrokerInfo;
 import org.eclipse.kapua.qa.common.BasicSteps;
 import org.eclipse.kapua.qa.common.DBHelper;
 import org.eclipse.kapua.qa.common.StepData;
@@ -120,7 +119,6 @@ public class DockerSteps {
     private List<String> envVar;
     private Map<String, String> containerMap;
     public Map<String, Integer> portMap;
-    public Map<String, BrokerInfo> brokerMap;
 
     private DBHelper database;
     private StepData stepData;
