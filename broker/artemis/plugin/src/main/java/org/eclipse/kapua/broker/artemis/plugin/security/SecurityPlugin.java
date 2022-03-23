@@ -223,6 +223,9 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 case BROWSE:
                     allowed = serverContext.getSecurityContextHandler().checkConsumerAllowed(sessionContext, address);
                     break;
+                case DELETE_DURABLE_QUEUE:
+                    allowed = true;
+                    break;
                 default:
                     allowed = serverContext.getSecurityContextHandler().checkAdminAllowed(sessionContext, address);
                     break;
