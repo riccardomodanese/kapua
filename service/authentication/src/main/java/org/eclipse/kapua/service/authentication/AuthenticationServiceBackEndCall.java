@@ -151,6 +151,7 @@ public class AuthenticationServiceBackEndCall {
         authResponse.setUsername(authRequest.getUsername());
         authResponse.setClientId(authRequest.getClientId());
         authResponse.setClientIp(authRequest.getClientIp());
+        authResponse.setConnectionId(authRequest.getConnectionId());
         return authResponse;
     }
 

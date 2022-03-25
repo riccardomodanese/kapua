@@ -184,7 +184,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         boolean noAutoCreateQueue) throws ActiveMQException {
         String address = message.getAddress();
         int messageSize = message.getEncodeSize();
-        SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContext(PluginUtility.getConnectionId(session));
+        SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(PluginUtility.getConnectionId(session));
         logger.info("Publishing message on address {} from clientId: {} - clientIp: {}", address, sessionContext.getClientId(), sessionContext.getClientIp());
         message.putStringProperty(MessageConstants.HEADER_KAPUA_CLIENT_ID, sessionContext.getClientId());
         message.putStringProperty(MessageConstants.HEADER_KAPUA_CONNECTOR_NAME, sessionContext.getConnectorName());
