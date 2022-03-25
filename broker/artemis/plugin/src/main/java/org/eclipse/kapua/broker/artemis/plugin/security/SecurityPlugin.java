@@ -84,20 +84,21 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         //Artemis does the authenticate call even when checking for authorization (publish, subscribe, manage)
         //since we keep a "Kapua session" map that is cleaned when the connection is dropped no security issues will come if this cache is used to avoid redundant login process
         String connectionId = PluginUtility.getConnectionId(remotingConnection);
-        logger.info("### authenticate user: {} - clientId: {} - connectionId: {}", username, remotingConnection.getClientID(), connectionId);
-        if (!remotingConnection.getTransportConnection().isOpen()) {
-            logger.info("Connection {} is closed (stealing link occurred?)", connectionId);
-            //TODO add metrics?
-            return null;
-        }
-        KapuaPrincipal kapuaPrincipal = serverContext.getSecurityContextHandler().getPrincipal(connectionId);
-        if (kapuaPrincipal!=null) {
-            logger.info("### authenticate user (cache found): {} - clientId: {} - connectionId: {}", username, remotingConnection.getClientID(), connectionId);
+        logger.info("### authenticate user: {} - clientId: {} - remoteIP: {} - connectionId: {} - securityDomain: {}",
+            username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId, securityDomain);
+        SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(connectionId);
+        if (sessionContext!=null && sessionContext.getPrincipal()!=null) {
+            logger.info("### authenticate user (cache found): {} - clientId: {} - remoteIP: {} - connectionId: {}", username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId);
             loginMetric.getSuccessFromCache().inc();
-            return serverContext.getSecurityContextHandler().buildFromPrincipal(kapuaPrincipal);
+            return serverContext.getSecurityContextHandler().buildFromPrincipal(sessionContext.getPrincipal());
         }
         else {
-            logger.info("### authenticate user (no cache): {} - clientId: {} - connectionId: {}", username, remotingConnection.getClientID(), connectionId);
+            logger.info("### authenticate user (no cache): {} - clientId: {} - remoteIP: {} - connectionId: {}", username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId);
+            if (!remotingConnection.getTransportConnection().isOpen()) {
+                logger.info("Connection (connectionId: {}) is closed (stealing link occurred?)", connectionId);
+                //TODO add metrics?
+                return null;
+            }
             ConnectionInfo connectionInfo = new ConnectionInfo(
                 PluginUtility.getConnectionId(remotingConnection),//connectionId
                 remotingConnection.getClientID(),//clientId
@@ -124,8 +125,9 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         else {
             try {
                 loginMetric.getInternalConnectorConnected().inc();
-                logger.info("Authenticate internal: user: {} - clientId: {} - connectionIp: {} - connectionId: {} isOpen: {}",
-                        username, connectionInfo.getClientId(), connectionInfo.getClientIp(), remotingConnection.getID(), remotingConnection.getTransportConnection().isOpen());
+                logger.info("Authenticate internal: user: {} - clientId: {} - connectionIp: {} - connectionId: {} - remoteIP: {} - isOpen: {}",
+                        username, connectionInfo.getClientId(), connectionInfo.getClientIp(), remotingConnection.getID(),
+                        remotingConnection.getTransportConnection().getRemoteAddress(), remotingConnection.getTransportConnection().isOpen());
                 //TODO double check why the client id is null once coming from AMQP connection (the Kapua connection factory with custom client id generation is called)
                 String clientId = connectionInfo.getClientId()!=null ? connectionInfo.getClientId() : connectionInfo.getClientIp();
                 KapuaPrincipal kapuaPrincipal = buildInternalKapuaPrincipal(getAdminScopeId(), clientId);
@@ -134,7 +136,8 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 remotingConnection.setClientID(fullClientId);
                 Subject subject = buildInternalSubject(kapuaPrincipal);
                 SessionContext sessionContext = new SessionContext(kapuaPrincipal, connectionInfo,
-                    serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost());
+                    serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost(),
+                    true, false);
                 serverContext.getSecurityContextHandler().setSessionContext(sessionContext, null);
                 return subject;
             }
@@ -166,7 +169,8 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             validateAuthResponse(authResponse);
             KapuaPrincipal principal = new KapuaPrincipalImpl(authResponse);
             SessionContext sessionContext = new SessionContext(principal, connectionInfo, authResponse.getKapuaConnectionId(),
-                serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost());
+                serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost(),
+                authResponse.isAdmin(), authResponse.isMissing());
             loginShiroLoginTimeContext.stop();
 
             //update client id with account|clientId (see pattern)
@@ -205,8 +209,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         if (principal!=null) {
             logger.info("### authorizing address: {} - check type: {} - clientId: {} - clientIp: {}", address, checkType.name(), principal.getClientId(), principal.getClientIp());
             if (!principal.isInternal()) {
-                SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextByClientId(
-                    Utils.getFullClientId(principal.getAccountId(), principal.getClientId()));
+                SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(principal.getConnectionId());
                 switch (checkType) {
                 case CONSUME:
                     allowed = serverContext.getSecurityContextHandler().checkConsumerAllowed(sessionContext, address);

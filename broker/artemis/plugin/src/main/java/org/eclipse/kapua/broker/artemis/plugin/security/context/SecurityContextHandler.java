@@ -48,6 +48,7 @@ public final class SecurityContextHandler {
     protected static Logger logger = LoggerFactory.getLogger(SecurityContextHandler.class);
 
     private static final String REPORT_HEADER = "################################################################################################";
+    private static final String REPORT_SEPARATOR = "------------------------------------------------------------------------------------------------";
     private enum ReportType {
         Full,
         Compact,
@@ -60,10 +61,16 @@ public final class SecurityContextHandler {
     private final int connectionTokenCacheSize = 1000;
     private final int connectionTokenCacheTTL = 60;
     private final ConnectionToken connectionTokenCacheDefValue = null;
+    private final int sessionContextCacheSize = 1000;
+    private final int sessionContextCacheTTL = 60;
+    private final SessionContext sessionContextCacheDefValue = null;
+    private final Acl aclCacheDefValue = null;
 
     //concurrency shouldn't be an issue since this set will contain the list of active connections
     private final Set<String> activeConnections = new HashSet<>();
     private final LocalCache<String, ConnectionToken> connectionTokenCache = new LocalCache<>(connectionTokenCacheSize, connectionTokenCacheTTL, connectionTokenCacheDefValue);
+    private final LocalCache<String, SessionContext> sessionContextCache = new LocalCache<>(sessionContextCacheSize, sessionContextCacheTTL, sessionContextCacheDefValue);
+    private final LocalCache<String, Acl> aclCache = new LocalCache<>(sessionContextCacheSize, sessionContextCacheTTL, aclCacheDefValue);
 
     //use string as key since some method returns DefaultChannelId as connection id, some other a string
     //the string returned by some method as connection id is the asShortText of DefaultChannelId
@@ -72,8 +79,6 @@ public final class SecurityContextHandler {
     //by connection id context
     private final Map<String, SessionContext> sessionContextMap = new ConcurrentHashMap<>();
     private final Map<String, Acl> aclMap = new ConcurrentHashMap<>();
-    //for performance reason we can remove this map since it's used only as match with the principal contained in acls. But since they are managed internally, they are the same
-    private final Map<String, KapuaPrincipal> principalMap = new ConcurrentHashMap<>();
 
     private ExecutorWrapper executorWrapper;
 
@@ -82,10 +87,6 @@ public final class SecurityContextHandler {
 
     public static SecurityContextHandler getInstance() {
         return INSTANCE;
-    }
-
-    public KapuaPrincipal getPrincipal(String connectionId) {
-        return principalMap.get(connectionId);
     }
 
     public void printReport(ActiveMQServer server, String caller, String connectionId) {
@@ -106,9 +107,9 @@ public final class SecurityContextHandler {
         switch (reportType) {
         case Full:
             appendServerContextReport(builder, server);
-            builder.append(REPORT_HEADER).append("\n");
+            builder.append(REPORT_SEPARATOR).append("\n");
             appendSessionInfoReport(builder, server);
-            builder.append(REPORT_HEADER).append("\n");
+            builder.append(REPORT_SEPARATOR).append("\n");
             appendDetailedServerContextReport(builder, caller, connectionId);
             break;
         case Compact:
@@ -157,7 +158,6 @@ public final class SecurityContextHandler {
                 logger.info("Setting session context for connection id: {}", connectionId);
                 activeConnections.add(connectionId);
                 //fill by connection id context
-                principalMap.put(connectionId, sessionContext.getPrincipal());
                 sessionContextMap.put(connectionId, sessionContext);
                 aclMap.put(connectionId, new Acl(sessionContext.getPrincipal(), authAcls));
                 //fill by full client id context
@@ -175,7 +175,7 @@ public final class SecurityContextHandler {
             //put the connection token
             connectionTokenCache.put(connectionId,
                 new ConnectionToken(SecurityAction.brokerDisconnect, KapuaDateUtils.getKapuaSysDate()));
-            logger.warn("Disconnect callback called before the connection callback");
+            logger.warn("Disconnect callback called before the connection callback for connection id: {}", connectionId);
         }
     }
 
@@ -184,10 +184,16 @@ public final class SecurityContextHandler {
         synchronized (sessionContext.getConnectionId().intern()) {
             String connectionId = sessionContext.getConnectionId();
             logger.info("Cleaning session context for connection id: {}", connectionId);
+            //cleaning context and filling cache
+            SessionContext sessionContextOld = sessionContextMap.remove(connectionId);
+            if (sessionContextOld!=null) {
+                sessionContextCache.put(connectionId, sessionContextOld);
+            }
+            Acl aclOld = aclMap.remove(connectionId);
+            if (aclOld!=null) {
+                aclCache.put(connectionId, aclOld);
+            }
             activeConnections.remove(connectionId);
-            principalMap.remove(connectionId);
-            sessionContextMap.remove(connectionId);
-            aclMap.remove(connectionId);
 
             String fullClientId = Utils.getFullClientId(sessionContext);
             SessionContext currentSessionContext = sessionContextMapByClient.get(fullClientId);
@@ -215,44 +221,51 @@ public final class SecurityContextHandler {
         return sessionContextMapByClient.get(fullClientId);
     }
 
+    public SessionContext getSessionContextWithCacheFallback(String connectionId) {
+        SessionContext sessionContext = sessionContextMap.get(connectionId);
+        if (sessionContext == null) {
+            //try from cache
+            //TODO add metric?
+            sessionContext = sessionContextCache.get(connectionId);
+            if (sessionContext!=null) {
+                logger.warn("Got sessioncontext for connectionId {} from cache!", connectionId);
+            }
+        }
+        return sessionContext;
+    }
+
     public SessionContext getSessionContext(String connectionId) {
         return sessionContextMap.get(connectionId);
     }
 
     public boolean checkPublisherAllowed(SessionContext sessionContext, String address) {
-        KapuaPrincipal principal = principalMap.get(sessionContext.getConnectionId());
-        Acl acl = aclMap.get(sessionContext.getConnectionId());
-        if (acl==null || !acl.canWrite(principal, address)) {
-            return false;
+//        KapuaPrincipal principal = principalMap.get(sessionContext.getConnectionId());
 //            throw new SecurityException("User " + principal.getName() + " not allowed to publish to " + address);
-        }
-        else {
-            return true;
-        }
+        Acl acl = getAcl(sessionContext.getConnectionId());
+        return acl!=null && acl.canWrite(sessionContext.getPrincipal(), address);
     }
 
     public boolean checkConsumerAllowed(SessionContext sessionContext, String address) {
-        KapuaPrincipal principal = principalMap.get(sessionContext.getConnectionId());
-        Acl acl = aclMap.get(sessionContext.getConnectionId());
-        if (acl==null || !acl.canRead(principal, address)) {
-            return false;
-//            throw new SecurityException("User " + principal.getName() + " not allowed to consume from " + address);
-        }
-        else {
-            return true;
-        }
+        Acl acl = getAcl(sessionContext.getConnectionId());
+        return acl!=null && acl.canRead(sessionContext.getPrincipal(), address);
     }
 
     public boolean checkAdminAllowed(SessionContext sessionContext, String address) {
-        KapuaPrincipal principal = principalMap.get(sessionContext.getConnectionId());
-        Acl acl = aclMap.get(sessionContext.getConnectionId());
-        if (acl==null || !acl.canManage(principal, address)) {
-            return false;
-//            throw new SecurityException("User " + principal.getName() + " not allowed to consume from " + address);
+        Acl acl = getAcl(sessionContext.getConnectionId());
+        return acl!=null && acl.canManage(sessionContext.getPrincipal(), address);
+    }
+
+     private Acl getAcl(String connectionId) {
+        Acl acl = aclMap.get(connectionId);
+        if (acl==null) {
+            //try from cache
+            //TODO add metric?
+            acl = aclCache.get(connectionId);
+            if (acl!=null) {
+                logger.warn("Got acl for connectionId {} from cache!", connectionId);
+            }
         }
-        else {
-            return true;
-        }
+        return acl;
     }
 
     public Subject buildFromPrincipal(KapuaPrincipal kapuaPrincipal) {
@@ -285,7 +298,6 @@ public final class SecurityContextHandler {
         builder.append("## session context: ").append(sessionContextMap.size()).append("\n");
         builder.append("## session context by client: ").append(sessionContextMapByClient.size()).append("\n");
         builder.append("## acl: ").append(aclMap.size()).append("\n");
-        builder.append("## principal: ").append(principalMap.size()).append("\n");
         builder.append("## connection: ").append(activeConnections.size()).append("\n");
     }
 
@@ -312,7 +324,5 @@ public final class SecurityContextHandler {
         sessionContextMap.forEach((key, sessionContext) -> builder.append("##\tconId: ").append(key).append(" - clientId: ").append(sessionContext.getClientId()).append(" - ip: ").append(sessionContext.getClientIp()).append("\tinternal: ").append(sessionContext.isInternal()).append("\n"));
         builder.append("## acl by connection id\n");
         aclMap.forEach((key, acl) -> builder.append("##\tconnId: ").append(key).append("\n"));
-        builder.append("## principal by connection id\n");
-        principalMap.forEach((key, principal) -> builder.append("##\tconnId: ").append(key).append(" - name: ").append(principal.getName()).append(" - clientId: ").append(principal.getClientId()).append(" - ip: ").append(principal.getClientIp()).append("\tinternal: ").append(principal.isInternal()).append("\n"));
     }
 }
