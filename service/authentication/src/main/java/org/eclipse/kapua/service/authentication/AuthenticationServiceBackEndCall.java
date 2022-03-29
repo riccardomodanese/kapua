@@ -16,15 +16,18 @@ import org.apache.shiro.util.ThreadContext;
 
 import javax.inject.Inject;
 
+import org.eclipse.kapua.KapuaIllegalArgumentException;
+import org.eclipse.kapua.client.security.ServiceClient.EntityType;
 import org.eclipse.kapua.client.security.ServiceClient.ResultCode;
-import org.eclipse.kapua.client.security.bean.AccountRequest;
-import org.eclipse.kapua.client.security.bean.AccountResponse;
+import org.eclipse.kapua.client.security.bean.EntityRequest;
+import org.eclipse.kapua.client.security.bean.EntityResponse;
 import org.eclipse.kapua.client.security.bean.AuthContext;
 import org.eclipse.kapua.client.security.bean.AuthRequest;
 import org.eclipse.kapua.client.security.bean.AuthResponse;
 import org.eclipse.kapua.client.security.metric.LoginMetric;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.locator.KapuaLocator;
+import org.eclipse.kapua.model.KapuaEntity;
 import org.eclipse.kapua.service.account.Account;
 import org.eclipse.kapua.service.account.AccountService;
 import org.eclipse.kapua.service.authentication.authentication.Authenticator;
@@ -105,13 +108,26 @@ public class AuthenticationServiceBackEndCall {
         }
     }
 
-    public AccountResponse getAccount(AccountRequest accountRequest) {
-        logger.info("Get account for user: {}", accountRequest.getUsername());
-        try {
-            User user = KapuaSecurityUtils.doPrivileged(()-> userService.findByName(accountRequest.getUsername()));
-            return buildGetAccountResponseAuthorized(accountRequest, user);
-        } catch (Exception e) {
-            return buildGetAccountResponseNotAuthorized(accountRequest, e);
+    public EntityResponse getEntity(EntityRequest entityRequest) {
+        logger.info("Get entity {} for name: {}", entityRequest.getEntity(), entityRequest.getName());
+        if (EntityType.account.name().equals(entityRequest.getEntity())) {
+            try {
+                Account account = KapuaSecurityUtils.doPrivileged(()-> accountService.findByName(entityRequest.getName()));
+                return buildGetEntityResponse(entityRequest, account);
+            } catch (Exception e) {
+                return buildGetEntityResponseError(entityRequest, e);
+            }
+        }
+        else if (EntityType.user.name().equals(entityRequest.getEntity())) {
+            try {
+                User user = KapuaSecurityUtils.doPrivileged(()-> userService.findByName(entityRequest.getName()));
+                return buildGetEntityResponse(entityRequest, user);
+            } catch (Exception e) {
+                return buildGetEntityResponseError(entityRequest, e);
+            }
+        }
+        else {
+            return buildGetEntityResponseError(entityRequest, new KapuaIllegalArgumentException("action", entityRequest.getAction()));
         }
     }
 
@@ -155,25 +171,27 @@ public class AuthenticationServiceBackEndCall {
         return authResponse;
     }
 
-    private AccountResponse buildGetAccountResponseAuthorized(AccountRequest accountRequest, User user) {
-        AccountResponse accountResponse = buildGetAccountResponse(accountRequest, ResultCode.authorized);
-        accountResponse.setScopeId(user.getScopeId().toCompactId());
-        return accountResponse;
+    private EntityResponse buildGetEntityResponse(EntityRequest entityRequest, KapuaEntity entity) {
+        EntityResponse entityResponse = buildGetEntityResponseCommon(entityRequest, ResultCode.authorized);
+        entityResponse.setId(entity.getId()!=null ? entity.getId().toCompactId() : null);
+        entityResponse.setScopeId(entity.getScopeId()!=null ? entity.getScopeId().toCompactId() : null);
+        return entityResponse;
     }
 
-    private AccountResponse buildGetAccountResponseNotAuthorized(AccountRequest accountRequest, Exception exception) {
-        AccountResponse accountResponse = buildGetAccountResponse(accountRequest, ResultCode.notAuthorized);
-        accountResponse.setErrorCode(exception.getMessage());
-        return accountResponse;
+    private EntityResponse buildGetEntityResponseError(EntityRequest entityRequest, Exception exception) {
+        EntityResponse entityResponse = buildGetEntityResponseCommon(entityRequest, ResultCode.notAuthorized);
+        entityResponse.setErrorCode(exception.getMessage());
+        return entityResponse;
     }
 
-    private AccountResponse buildGetAccountResponse(AccountRequest accountRequest, ResultCode resultCode) {
-        AccountResponse accountResponse = new AccountResponse();
-        accountResponse.setRequester(accountRequest.getRequester());
-        accountResponse.setAction(accountRequest.getAction());
-        accountResponse.setRequestId(accountRequest.getRequestId());
-        accountResponse.setUsername(accountRequest.getUsername());
-        accountResponse.setResultCode(resultCode.name());
-        return accountResponse;
+    private EntityResponse buildGetEntityResponseCommon(EntityRequest entityRequest, ResultCode resultCode) {
+        EntityResponse entityResponse = new EntityResponse();
+        entityResponse.setRequester(entityRequest.getRequester());
+        entityResponse.setAction(entityRequest.getAction());
+        entityResponse.setRequestId(entityRequest.getRequestId());
+        entityResponse.setName(entityRequest.getName());
+        entityResponse.setEntity(entityRequest.getEntity());
+        entityResponse.setResultCode(resultCode.name());
+        return entityResponse;
     }
 }
