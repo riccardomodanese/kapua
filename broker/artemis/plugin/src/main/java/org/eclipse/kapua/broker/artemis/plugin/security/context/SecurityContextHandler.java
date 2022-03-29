@@ -24,6 +24,8 @@ import javax.security.auth.Subject;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.eclipse.kapua.KapuaIllegalArgumentException;
+import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSetting;
+import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSettingKey;
 import org.eclipse.kapua.client.security.AuthErrorCodes;
 import org.eclipse.kapua.client.security.KapuaIllegalDeviceStateException;
 import org.eclipse.kapua.client.security.ServiceClient.SecurityAction;
@@ -57,32 +59,32 @@ public final class SecurityContextHandler {
 
     private static final SecurityContextHandler INSTANCE = new SecurityContextHandler();
 
-    //it's a singleton, no needing to make this fields static
-    private final int connectionTokenCacheSize = 1000;
-    private final int connectionTokenCacheTTL = 60;
-    private final ConnectionToken connectionTokenCacheDefValue = null;
-    private final int sessionContextCacheSize = 1000;
-    private final int sessionContextCacheTTL = 60;
-    private final SessionContext sessionContextCacheDefValue = null;
-    private final Acl aclCacheDefValue = null;
-
     //concurrency shouldn't be an issue since this set will contain the list of active connections
     private final Set<String> activeConnections = new HashSet<>();
-    private final LocalCache<String, ConnectionToken> connectionTokenCache = new LocalCache<>(connectionTokenCacheSize, connectionTokenCacheTTL, connectionTokenCacheDefValue);
-    private final LocalCache<String, SessionContext> sessionContextCache = new LocalCache<>(sessionContextCacheSize, sessionContextCacheTTL, sessionContextCacheDefValue);
-    private final LocalCache<String, Acl> aclCache = new LocalCache<>(sessionContextCacheSize, sessionContextCacheTTL, aclCacheDefValue);
+    private final LocalCache<String, ConnectionToken> connectionTokenCache;
+    private final LocalCache<String, SessionContext> sessionContextCache;
+    private final LocalCache<String, Acl> aclCache;
 
     //use string as key since some method returns DefaultChannelId as connection id, some other a string
     //the string returned by some method as connection id is the asShortText of DefaultChannelId
-    private final Map<String, SessionContext> sessionContextMapByClient = new ConcurrentHashMap<>();
+    private final Map<String, SessionContext> sessionContextMapByClient;
 
     //by connection id context
-    private final Map<String, SessionContext> sessionContextMap = new ConcurrentHashMap<>();
-    private final Map<String, Acl> aclMap = new ConcurrentHashMap<>();
+    private final Map<String, SessionContext> sessionContextMap;
+    private final Map<String, Acl> aclMap;
 
     private ExecutorWrapper executorWrapper;
 
     private SecurityContextHandler() {
+        connectionTokenCache = new LocalCache<>(
+            BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_CONNECTION_TOKEN_SIZE), BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_CONNECTION_TOKEN_TTL), null);
+        sessionContextCache = new LocalCache<>(
+            BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SESSION_CONTEXT_SIZE), BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SESSION_CONTEXT_TTL), null);
+        aclCache = new LocalCache<>(
+            BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SESSION_CONTEXT_SIZE), BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SESSION_CONTEXT_TTL), null);
+        sessionContextMapByClient = new ConcurrentHashMap<>();
+        sessionContextMap = new ConcurrentHashMap<>();
+        aclMap = new ConcurrentHashMap<>();
     }
 
     public static SecurityContextHandler getInstance() {

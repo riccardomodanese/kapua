@@ -28,9 +28,12 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSetting;
+import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSettingKey;
+import org.eclipse.kapua.client.security.ServiceClient.EntityType;
 import org.eclipse.kapua.client.security.ServiceClient.SecurityAction;
-import org.eclipse.kapua.client.security.bean.AccountRequest;
-import org.eclipse.kapua.client.security.bean.AccountResponse;
+import org.eclipse.kapua.client.security.bean.EntityRequest;
+import org.eclipse.kapua.client.security.bean.EntityResponse;
 import org.eclipse.kapua.client.security.bean.AuthRequest;
 import org.eclipse.kapua.client.security.bean.AuthResponse;
 import org.eclipse.kapua.client.security.bean.ConnectionInfo;
@@ -40,6 +43,7 @@ import org.eclipse.kapua.client.security.context.Utils;
 import org.eclipse.kapua.client.security.metric.LoginMetric;
 import org.eclipse.kapua.client.security.metric.PublishMetric;
 import org.eclipse.kapua.client.security.metric.SubscribeMetric;
+import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.commons.model.id.KapuaEid;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
@@ -67,14 +71,15 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
     private SubscribeMetric subscribeMetric = SubscribeMetric.getInstance();
 
     protected ServerContext serverContext;
-    protected String systemAccountName;
-    //to avoid deadlock this filed will be initialized by the first internal login call
+    //to avoid deadlock this field will be initialized by the first internal login call
     protected KapuaId adminScopeId;
+    private final LocalCache<String, KapuaId> usernameScopeIdCache;
 
     public SecurityPlugin() {
         logger.info("Initializing SecurityPlugin...");
         serverContext = ServerContext.getInstance();
-        systemAccountName = SystemSetting.getInstance().getString(SystemSettingKey.SYS_ADMIN_ACCOUNT);
+        usernameScopeIdCache = new LocalCache<>(
+                BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SCOPE_ID_SIZE), BrokerSetting.getInstance().getInt(BrokerSettingKey.CACHE_SCOPE_ID_SIZE), null);
         logger.info("Initializing SecurityPlugin... DONE");
     }
 
@@ -323,11 +328,33 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
     }
 
     private KapuaId getAdminScopeId() throws JsonProcessingException, JMSException, InterruptedException {
-        //no synchronization needed. At the worst the getScopeId will be called few times instead of just one but the overall performances will be better without synchronization
         if (adminScopeId==null) {
-            adminScopeId = getScopeId(systemAccountName);
+            adminScopeId = getAdminScopeIdNoCache();
         }
         return adminScopeId;
+    }
+
+    private KapuaId getScopeId(String username) throws JsonProcessingException, JMSException, InterruptedException {
+        KapuaId scopeId = usernameScopeIdCache.get(username);
+        //no synchronization needed. At the worst the getScopeId will be called few times instead of just one but the overall performances will be better without synchronization
+        if (scopeId==null) {
+            scopeId = getScopeIdNoCache(username);
+            usernameScopeIdCache.put(username, scopeId);
+        }
+        return scopeId;
+    }
+
+    private KapuaId getAdminScopeIdNoCache() throws JsonProcessingException, JMSException, InterruptedException {
+        EntityRequest accountRequest = new EntityRequest(
+            serverContext.getBrokerIdentity().getBrokerHost(),
+            SecurityAction.getEntity.name(),
+            EntityType.account.name(),
+            SystemSetting.getInstance().getString(SystemSettingKey.SYS_ADMIN_ACCOUNT));
+        EntityResponse accountResponse = serverContext.getAuthServiceClient().getEntity(accountRequest);
+        if (accountResponse != null) {
+            return KapuaEid.parseCompactId(accountResponse.getId());
+        }
+        throw new SecurityException("User not authorized!");
     }
 
     /**
@@ -339,11 +366,15 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
      * @throws JMSException
      * @throws JsonProcessingException
      */
-    private KapuaId getScopeId(String username) throws JsonProcessingException, JMSException, InterruptedException {
-        AccountRequest accountRequest = new AccountRequest(serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.getAccount.name(), username);
-        AccountResponse accountResponse = serverContext.getAuthServiceClient().getAccount(accountRequest);
-        if (accountResponse != null) {
-            return KapuaEid.parseCompactId(accountResponse.getScopeId());
+    private KapuaId getScopeIdNoCache(String username) throws JsonProcessingException, JMSException, InterruptedException {
+        EntityRequest userRequest = new EntityRequest(
+            serverContext.getBrokerIdentity().getBrokerHost(),
+            SecurityAction.getEntity.name(),
+            EntityType.user.name(),
+            username);
+        EntityResponse userResponse = serverContext.getAuthServiceClient().getEntity(userRequest);
+        if (userResponse != null) {
+            return KapuaEid.parseCompactId(userResponse.getScopeId());
         }
         throw new SecurityException("User not authorized!");
     }
