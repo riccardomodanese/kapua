@@ -37,45 +37,24 @@ public class MqttDevice {
 
     private static final AtomicInteger COUNT = new AtomicInteger(0);
 
-    /**
-     * Logger.
-     */
+    //I'm going to remove trivial comments/javadoc (on private fields) like the one below. There is no need to fill the code with more than trivial comments
+//    /**
+//     * Logger.
+//     */
     private static final Logger logger = LoggerFactory.getLogger(MqttDevice.class);
 
-    /**
-     * URI of mqtt broker.
-     */
-    private static final String BROKER_URI = "tcp://localhost:1883";
+    public static final String BROKER_URI = "tcp://localhost:1883";
 
     /**
      * Listening mqtt client name.
      */
     private static final java.lang.String LISTENER_NAME = "ListenerClient_";
-
-    /**
-     * System user under which Device is listening for messages.
-     */
     private static final String SYS_USER = "kapua-sys";
-
-    /**
-     * System user password while connecting to broker.
-     */
     private static final String SYS_PASSWORD = "kapua-password";
 
-    /**
-     * Default quality of service - mqtt.
-     */
     // TODO switch to qos 1????
     private static final int DEFAULT_QOS = 0;
-
-    /**
-     * Default retain flag is false.
-     */
     private static final boolean DEFAULT_RETAIN = false;
-
-    /**
-     * No filter on topic.
-     */
     private static final String NO_TOPIC_FILTER = "#";
 
     /**
