@@ -140,12 +140,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         ActiveMQServerPlugin.super.afterCreateConnection(connection);
     }
 
-    @Override
-    public void afterCreateSession(ServerSession session) throws ActiveMQException {
-        //TODO add metrics?
-        ActiveMQServerPlugin.super.afterCreateSession(session);
-    }
-
     /**
      * DISCONNECT
      */
@@ -154,17 +148,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         //TODO add metrics
         ActiveMQServerPlugin.super.afterDestroyConnection(connection);
         cleanUpConnectionData(connection, Failure.DESTROY);
-    }
-
-    @Override
-    public void beforeCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
-        //TODO add metrics?
-        ActiveMQServerPlugin.super.beforeCloseSession(session, failed);
-    }
-
-    @Override
-    public void afterCloseSession(ServerSession session, boolean failed) throws ActiveMQException {
-        ActiveMQServerPlugin.super.afterCloseSession(session, failed);
     }
 
     /**
@@ -278,27 +261,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         }).mapToInt(Integer::new).sum();
     }
 
-//  private int disconnectClient(String connectionId) {
-//      logger.info("Disconnecting client for connection: {}", connectionId);
-//      return serverContext.getServer().getRemotingService().getConnections().stream().map(remotingConnection -> {
-//          int removed = 0;
-//          String connectionIdTmp = PluginUtility.getConnectionId(remotingConnection);
-//          if (connectionId.equals(connectionIdTmp)) {
-//              logger.info("\tconnection: {} - compared to: {} ... CLOSE", connectionId, connectionIdTmp);
-//              remotingConnection.fail(new ActiveMQException(
-//                      ActiveMQExceptionType.DUPLICATE_ID_REJECTED,
-//                      "stealing link",
-//                      new KapuaIllegalDeviceStateException(AuthErrorCodes.DUPLICATE_CLIENT_ID, connectionId)));
-////              remotingConnection.destroy();
-//              removed++;
-//          }
-//          else {
-//              logger.info("\tclientId to check: {} - compared to: {} ... no action", connectionId, connectionIdTmp);
-//          }
-//          return removed;
-//      }).mapToInt(Integer::new).sum();
-//  }
-
     @Override
     public void duplicateSessionMetadataFailure(ServerSession session, String key, String data) throws ActiveMQException {
         logger.error("Duplicate session for key: {} - data: {}", key, data);
@@ -338,7 +300,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         catch (Exception e) {
             loginMetric.getFailure().inc();
             logger.error("Cleanup connection data error: {}", e.getMessage(), e);
-//            throw new ActiveMQException(ActiveMQExceptionType.SECURITY_EXCEPTION, "User not authorized!", e);
         }
     }
 

@@ -125,7 +125,6 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         if (usernameToCompare==null || !usernameToCompare.equals(username) ||
                 passToCompare==null || !passToCompare.equals(password)) {
             return null;
-//            throw new SecurityException("User not allowed!");
         }
         else {
             try {
@@ -150,7 +149,6 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 loginMetric.getFailure().inc();
                 logger.error("Authenticate internal: error: {}", e.getMessage());
                 return null;
-//                throw new ActiveMQException(ActiveMQExceptionType.SECURITY_EXCEPTION, "User not authorized!", e);
             }
         }
     }
@@ -181,11 +179,6 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             //update client id with account|clientId (see pattern)
             remotingConnection.setClientID(fullClientId);
             logger.info("Authenticate external: connectionId: {} - old: {}", sessionContext.getConnectionId(), currentSessionContext!=null ? currentSessionContext.getConnectionId() : "N/A");
-//            if (authRequest.isStealingLink()) {
-//                logger.info("======> Disconnecting client by connection id: {}", currentSessionContext!=null ? currentSessionContext.getConnectionId() : "N/A");
-//                //force client disconnection if stealing link happens
-//                disconnectClient(currentSessionContext.getConnectionId());
-//            }
             Subject subject = null;
             //this call is synchronized on sessionId value
             if (serverContext.getSecurityContextHandler().setSessionContext(sessionContext, authResponse.getAcls())) {
@@ -198,7 +191,6 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             loginMetric.getFailure().inc();
             logger.error("Authenticate external: error: {}", e.getMessage());
             return null;
-//            throw new ActiveMQException(ActiveMQExceptionType.SECURITY_EXCEPTION, "User not authorized!", e);
         }
         finally {
             loginTotalContext.stop();
