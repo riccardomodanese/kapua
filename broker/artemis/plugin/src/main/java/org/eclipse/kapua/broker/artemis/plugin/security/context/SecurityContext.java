@@ -138,19 +138,6 @@ public final class SecurityContextHandler {
         }
     }
 
-    public ConnectionToken updateConnectionTokenOnConnection(String connectionId) {
-        ConnectionToken connectionToken = connectionTokenCache.getAndRemove(connectionId);
-        if (connectionToken==null) {
-            connectionTokenCache.put(connectionId,
-                new ConnectionToken(SecurityAction.brokerConnect, KapuaDateUtils.getKapuaSysDate()));
-        }
-        else {
-            //the disconnect callback is called after the connect so nothing to add to the context
-            //TODO add metric?
-            logger.warn("Connect callback called after the disconnection callback ({} - {} - {})", connectionId, connectionToken.getAction(), connectionToken.getActionDate());
-        }
-        return connectionToken;
-    }
 
     public boolean setSessionContext(SessionContext sessionContext, List<AuthAcl> authAcls) throws KapuaIllegalArgumentException {
         logger.info("Updating session context for connection id: {}", sessionContext.getConnectionId());
@@ -170,6 +157,20 @@ public final class SecurityContextHandler {
                 return false;
             }
         }
+    }
+
+    private ConnectionToken updateConnectionTokenOnConnection(String connectionId) {
+        ConnectionToken connectionToken = connectionTokenCache.getAndRemove(connectionId);
+        if (connectionToken==null) {
+            connectionTokenCache.put(connectionId,
+                new ConnectionToken(SecurityAction.brokerConnect, KapuaDateUtils.getKapuaSysDate()));
+        }
+        else {
+            //the disconnect callback is called after the connect so nothing to add to the context
+            //TODO add metric?
+            logger.warn("Connect callback called after the disconnection callback ({} - {} - {})", connectionId, connectionToken.getAction(), connectionToken.getActionDate());
+        }
+        return connectionToken;
     }
 
     public void updateConnectionTokenOnDisconnection(String connectionId) {
@@ -227,9 +228,9 @@ public final class SecurityContextHandler {
         SessionContext sessionContext = sessionContextMap.get(connectionId);
         if (sessionContext == null) {
             //try from cache
-            //TODO add metric?
             sessionContext = sessionContextCache.get(connectionId);
             if (sessionContext!=null) {
+                //TODO add metric?
                 logger.warn("Got sessioncontext for connectionId {} from cache!", connectionId);
             }
         }
@@ -241,8 +242,6 @@ public final class SecurityContextHandler {
     }
 
     public boolean checkPublisherAllowed(SessionContext sessionContext, String address) {
-//        KapuaPrincipal principal = principalMap.get(sessionContext.getConnectionId());
-//            throw new SecurityException("User " + principal.getName() + " not allowed to publish to " + address);
         Acl acl = getAcl(sessionContext.getConnectionId());
         return acl!=null && acl.canWrite(sessionContext.getPrincipal(), address);
     }
@@ -261,9 +260,9 @@ public final class SecurityContextHandler {
         Acl acl = aclMap.get(connectionId);
         if (acl==null) {
             //try from cache
-            //TODO add metric?
             acl = aclCache.get(connectionId);
             if (acl!=null) {
+                //TODO add metric?
                 logger.warn("Got acl for connectionId {} from cache!", connectionId);
             }
         }
