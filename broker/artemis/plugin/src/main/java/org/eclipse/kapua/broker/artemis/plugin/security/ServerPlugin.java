@@ -167,7 +167,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         boolean noAutoCreateQueue) throws ActiveMQException {
         String address = message.getAddress();
         int messageSize = message.getEncodeSize();
-        SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(PluginUtility.getConnectionId(session));
+        SessionContext sessionContext = serverContext.getSecurityContext().getSessionContextWithCacheFallback(PluginUtility.getConnectionId(session));
         logger.info("Publishing message on address {} from clientId: {} - clientIp: {}", address, sessionContext.getClientId(), sessionContext.getClientIp());
         message.putStringProperty(MessageConstants.HEADER_KAPUA_CLIENT_ID, sessionContext.getClientId());
         message.putStringProperty(MessageConstants.HEADER_KAPUA_CONNECTOR_NAME, sessionContext.getConnectorName());
@@ -228,7 +228,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         return serverContext.getServer().getSessions().stream().map(session -> {
             RemotingConnection remotingConnection = session.getRemotingConnection();
             String clientIdToCheck = PluginUtility.getConnectionId(remotingConnection);
-            SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextByClientId(clientIdToCheck);
+            SessionContext sessionContext = serverContext.getSecurityContext().getSessionContextByClientId(clientIdToCheck);
             String connectionFullClientId = Utils.getFullClientId(sessionContext);
             if (fullClientId.equals(connectionFullClientId)) {
                 logger.info("\tclientId to check: {} - full client id: {}... CLOSE", clientIdToCheck, connectionFullClientId);
@@ -280,16 +280,16 @@ public class ServerPlugin implements ActiveMQServerPlugin {
     }
 
     private void cleanUpConnectionData(RemotingConnection connection, Failure reason, Exception exception) {
-        String connectionId = PluginUtility.getConnectionId(connection);
-        serverContext.getSecurityContextHandler().updateConnectionTokenOnDisconnection(connectionId);
-        logger.info("### cleanUpConnectionData connection: {} - reason: {} - Error: {}", connectionId, reason, exception!=null?exception.getMessage():"N/A");
-        logger.debug("", exception);
         try {
-            SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContext(connectionId);
+            String connectionId = PluginUtility.getConnectionId(connection);
+            serverContext.getSecurityContext().updateConnectionTokenOnDisconnection(connectionId);
+            logger.info("### cleanUpConnectionData connection: {} - reason: {} - Error: {}", connectionId, reason, exception!=null?exception.getMessage():"N/A");
+            logger.debug("", exception);
+            SessionContext sessionContext = serverContext.getSecurityContext().getSessionContext(connectionId);
             if (sessionContext!=null) {
-                SessionContext sessionContextByClient = serverContext.getSecurityContextHandler().cleanSessionContext(sessionContext);
+                SessionContext sessionContextByClient = serverContext.getSecurityContext().cleanSessionContext(sessionContext);
                 AuthRequest authRequest = new AuthRequest(serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.brokerDisconnect.name(), sessionContext, exception);
-                serverContext.getSecurityContextHandler().updateStealingLinkAndIllegalState(authRequest, connectionId, sessionContextByClient!=null ? sessionContextByClient.getConnectionId() : null);
+                serverContext.getSecurityContext().updateStealingLinkAndIllegalState(authRequest, connectionId, sessionContextByClient!=null ? sessionContextByClient.getConnectionId() : null);
                 serverContext.getAuthServiceClient().brokerDisconnect(authRequest);
             }
             else {

@@ -91,11 +91,11 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         String connectionId = PluginUtility.getConnectionId(remotingConnection);
         logger.info("### authenticate user: {} - clientId: {} - remoteIP: {} - connectionId: {} - securityDomain: {}",
             username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId, securityDomain);
-        SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(connectionId);
+        SessionContext sessionContext = serverContext.getSecurityContext().getSessionContextWithCacheFallback(connectionId);
         if (sessionContext!=null && sessionContext.getPrincipal()!=null) {
             logger.info("### authenticate user (cache found): {} - clientId: {} - remoteIP: {} - connectionId: {}", username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId);
             loginMetric.getSuccessFromCache().inc();
-            return serverContext.getSecurityContextHandler().buildFromPrincipal(sessionContext.getPrincipal());
+            return serverContext.getSecurityContext().buildFromPrincipal(sessionContext.getPrincipal());
         }
         else {
             logger.info("### authenticate user (no cache): {} - clientId: {} - remoteIP: {} - connectionId: {}", username, remotingConnection.getClientID(), remotingConnection.getTransportConnection().getRemoteAddress(), connectionId);
@@ -142,7 +142,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 SessionContext sessionContext = new SessionContext(kapuaPrincipal, connectionInfo,
                     serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost(),
                     true, false);
-                serverContext.getSecurityContextHandler().setSessionContext(sessionContext, null);
+                serverContext.getSecurityContext().setSessionContext(sessionContext, null);
                 return subject;
             }
             catch (Exception e) {
@@ -166,8 +166,8 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.brokerConnect.name(),
                 username, password, connectionInfo,
                 serverContext.getBrokerIdentity().getBrokerHost(), serverContext.getBrokerIdentity().getBrokerId());
-            SessionContext currentSessionContext = serverContext.getSecurityContextHandler().getSessionContextByClientId(fullClientId);
-            serverContext.getSecurityContextHandler().updateStealingLinkAndIllegalState(authRequest, connectionId, currentSessionContext!=null ? currentSessionContext.getConnectionId() : null);
+            SessionContext currentSessionContext = serverContext.getSecurityContext().getSessionContextByClientId(fullClientId);
+            serverContext.getSecurityContext().updateStealingLinkAndIllegalState(authRequest, connectionId, currentSessionContext!=null ? currentSessionContext.getConnectionId() : null);
             AuthResponse authResponse = serverContext.getAuthServiceClient().brokerConnect(authRequest);
             validateAuthResponse(authResponse);
             KapuaPrincipal principal = new KapuaPrincipalImpl(authResponse);
@@ -181,8 +181,8 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             logger.info("Authenticate external: connectionId: {} - old: {}", sessionContext.getConnectionId(), currentSessionContext!=null ? currentSessionContext.getConnectionId() : "N/A");
             Subject subject = null;
             //this call is synchronized on sessionId value
-            if (serverContext.getSecurityContextHandler().setSessionContext(sessionContext, authResponse.getAcls())) {
-                subject = serverContext.getSecurityContextHandler().buildFromPrincipal(sessionContext.getPrincipal());
+            if (serverContext.getSecurityContext().setSessionContext(sessionContext, authResponse.getAcls())) {
+                subject = serverContext.getSecurityContext().buildFromPrincipal(sessionContext.getPrincipal());
             }
             loginMetric.getSuccess().inc();
             return subject;
@@ -206,28 +206,28 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
         if (principal!=null) {
             logger.info("### authorizing address: {} - check type: {} - clientId: {} - clientIp: {}", address, checkType.name(), principal.getClientId(), principal.getClientIp());
             if (!principal.isInternal()) {
-                SessionContext sessionContext = serverContext.getSecurityContextHandler().getSessionContextWithCacheFallback(principal.getConnectionId());
+                SessionContext sessionContext = serverContext.getSecurityContext().getSessionContextWithCacheFallback(principal.getConnectionId());
                 switch (checkType) {
                 case CONSUME:
-                    allowed = serverContext.getSecurityContextHandler().checkConsumerAllowed(sessionContext, address);
+                    allowed = serverContext.getSecurityContext().checkConsumerAllowed(sessionContext, address);
                     if (!allowed) {
                         subscribeMetric.getNotAllowedMessages().inc();
                     }
                     break;
                 case SEND:
-                    allowed = serverContext.getSecurityContextHandler().checkPublisherAllowed(sessionContext, address);
+                    allowed = serverContext.getSecurityContext().checkPublisherAllowed(sessionContext, address);
                     if (!allowed) {
                         publishMetric.getNotAllowedMessages().inc();
                     }
                     break;
                 case BROWSE:
-                    allowed = serverContext.getSecurityContextHandler().checkConsumerAllowed(sessionContext, address);
+                    allowed = serverContext.getSecurityContext().checkConsumerAllowed(sessionContext, address);
                     break;
                 case DELETE_DURABLE_QUEUE:
                     allowed = true;
                     break;
                 default:
-                    allowed = serverContext.getSecurityContextHandler().checkAdminAllowed(sessionContext, address);
+                    allowed = serverContext.getSecurityContext().checkAdminAllowed(sessionContext, address);
                     break;
                 }
             }
