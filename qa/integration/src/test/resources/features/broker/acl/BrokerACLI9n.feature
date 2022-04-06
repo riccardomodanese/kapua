@@ -57,8 +57,7 @@ Feature: Broker ACL tests
     Given Mqtt Device is started
     When broker with clientId "client-1" and user "kapua-sys" and password "kapua-password" is listening on topic "#"
       And string "Hello world" is published to topic "/foo/bar" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello world" on topic "/foo/bar"
+    Then client "client-1" receives string "Hello world" on topic "/foo/bar" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 #
@@ -71,8 +70,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -84,8 +82,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -96,8 +93,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/CONF-V1/REPLY"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -154,8 +150,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/foo"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -200,8 +195,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "acme/client-1/foo"
       And string "Hello broker" is published to topic "acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "acme/client-1/foo"
+    Then client "client-1" receives string "Hello broker" on topic "acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -212,8 +206,7 @@ Feature: Broker ACL tests
       And broker account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/foo/bar/NOTIFY/client-1" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -249,8 +242,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -262,8 +254,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -274,8 +265,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/CONF-V1/REPLY"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -298,8 +288,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/foo"
       And string "Hello broker" is published to topic "$EDC/acme/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/foo"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -310,8 +299,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/foo"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -356,8 +344,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "acme/client-1/foo"
       And string "Hello broker" is published to topic "acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "acme/client-1/foo"
+    Then client "client-1" receives string "Hello broker" on topic "acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -368,8 +355,7 @@ Feature: Broker ACL tests
       And device account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/foo/bar/NOTIFY/client-1" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -405,8 +391,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -418,8 +403,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -430,8 +414,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/CONF-V1/REPLY"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/CONF-V1/REPLY" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/CONF-V1/REPLY" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -488,8 +471,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "$EDC/acme/client-1/foo"
       And string "Hello broker" is published to topic "$EDC/acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo"
+    Then client "client-1" receives string "Hello broker" on topic "$EDC/acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -525,8 +507,7 @@ Feature: Broker ACL tests
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic "acme/#"
       And broker with clientId "admin-1" and user "kapua-sys" and password "kapua-password" is listening on topic ""
       And string "Hello broker" is published to topic "acme/client-2" with client "admin-1"
-      And I wait 1 second
-    Then client "client-1" receives string "Hello broker" on topic "acme/client-2"
+    Then client "client-1" receives string "Hello broker" on topic "acme/client-2" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -537,8 +518,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "acme/client-1" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "acme/client-1"
+    Then Broker receives string "Hello broker" on topic "acme/client-1" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -551,8 +531,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "acme/client-1/foo" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "acme/client-1/foo"
+    Then Broker receives string "Hello broker" on topic "acme/client-1/foo" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 
@@ -574,8 +553,7 @@ Feature: Broker ACL tests
       And data view account and user are created
     When broker with clientId "client-1" and user "luise" and password "KeepCalm123." is listening on topic ""
       And string "Hello broker" is published to topic "$EDC/acme/foo/bar/NOTIFY/client-1" with client "client-1"
-      And I wait 1 second
-    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1"
+    Then Broker receives string "Hello broker" on topic "$EDC/acme/foo/bar/NOTIFY/client-1" within 3 seconds
       And clients are disconnected
       And Mqtt Device is stoped
 

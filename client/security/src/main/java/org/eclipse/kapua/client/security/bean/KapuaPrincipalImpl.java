@@ -37,6 +37,7 @@ public class KapuaPrincipalImpl implements KapuaPrincipal {
     private KapuaId userId;
     private KapuaId accountId;
     private String clientIp;
+    private String connectionId;
 
     /**
      * Create a KapuaPrincipal gathering infos from the supplied authResponse.
@@ -50,16 +51,19 @@ public class KapuaPrincipalImpl implements KapuaPrincipal {
         userId = KapuaEid.parseCompactId(authResponse.getUserId());
         accountId = KapuaEid.parseCompactId(authResponse.getScopeId());
         clientIp = authResponse.getClientIp();
+        connectionId = authResponse.getConnectionId();
     }
 
     /**
      * Create a KapuaPrincipal for internal connectors
      *
+     * @param accountId
      * @param clientId
      */
-    public KapuaPrincipalImpl(String clientId) {
+    public KapuaPrincipalImpl(KapuaId accountId, String clientId) {
         internal = true;
         this.clientId = clientId;
+        this.accountId = accountId;
     }
 
     @Override
@@ -90,6 +94,11 @@ public class KapuaPrincipalImpl implements KapuaPrincipal {
     @Override
     public String getClientId() {
         return clientId;
+    }
+
+    @Override
+    public String getConnectionId() {
+        return connectionId;
     }
 
     @Override
