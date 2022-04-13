@@ -276,6 +276,10 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
                 //TODO check if it's still valid with Artemis
                 // activeMQ-MQ will map SecurityException into a CONNECTION_REFUSED_NOT_AUTHORIZED message (see javadoc on top of this method)
                 throw new SecurityException("User not authorized!");
+            } else {
+                //KapuaAuthenticationErrorCodes.AUTHENTICATION_ERROR - ILLEGAL_ACCESS etc
+                //TODO throw other exception?
+                throw new SecurityException("User not authorized!");
             }
         }
     }
