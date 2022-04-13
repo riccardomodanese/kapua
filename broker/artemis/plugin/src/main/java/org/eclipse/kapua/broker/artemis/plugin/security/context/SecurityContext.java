@@ -295,7 +295,7 @@ public final class SecurityContext {
     private boolean isIllegalState(AuthRequest authRequest) {
         //TODO make this check based on instanceof
         //something like Class.forName(exceptionClass).. just are we sure we have the exceptionClass implementation available at runtime?
-        return KapuaIllegalDeviceStateException.class.getName().equals(authRequest.getExceptionClass()) && AuthErrorCodes.DUPLICATE_CLIENT_ID.equals(authRequest.getAuthErrorCode());
+        return KapuaIllegalDeviceStateException.class.getName().equals(authRequest.getExceptionClass()) && AuthErrorCodes.DUPLICATE_CLIENT_ID.name().equals(authRequest.getErrorCode());
     }
 
 
