@@ -16,6 +16,7 @@ import java.util.Base64;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
+import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -32,6 +33,8 @@ import org.eclipse.kapua.broker.artemis.plugin.security.event.BrokerEvent.EventT
 import org.eclipse.kapua.broker.artemis.plugin.security.event.BrokerEventHanldler;
 import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSetting;
 import org.eclipse.kapua.broker.artemis.plugin.security.setting.BrokerSettingKey;
+import org.eclipse.kapua.client.security.AuthErrorCodes;
+import org.eclipse.kapua.client.security.KapuaIllegalDeviceStateException;
 import org.eclipse.kapua.client.security.ServiceClient.SecurityAction;
 import org.eclipse.kapua.client.security.bean.AuthRequest;
 import org.eclipse.kapua.client.security.context.SessionContext;
@@ -41,6 +44,8 @@ import org.eclipse.kapua.client.security.metric.PublishMetric;
 import org.eclipse.kapua.client.security.metric.SubscribeMetric;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.model.id.KapuaId;
+import org.eclipse.kapua.service.authentication.KapuaAuthenticationErrorCodes;
+import org.eclipse.kapua.service.authentication.shiro.KapuaAuthenticationException;
 import org.eclipse.kapua.service.client.DatabaseCheckUpdate;
 import org.eclipse.kapua.service.client.message.MessageConstants;
 import org.slf4j.Logger;
@@ -288,7 +293,8 @@ public class ServerPlugin implements ActiveMQServerPlugin {
             SessionContext sessionContext = serverContext.getSecurityContext().getSessionContext(connectionId);
             if (sessionContext!=null) {
                 SessionContext sessionContextByClient = serverContext.getSecurityContext().cleanSessionContext(sessionContext);
-                AuthRequest authRequest = new AuthRequest(serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.brokerDisconnect.name(), sessionContext, exception);
+                AuthRequest authRequest = new AuthRequest(serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.brokerDisconnect.name(), sessionContext);
+                updateError(authRequest, exception);
                 serverContext.getSecurityContext().updateStealingLinkAndIllegalState(authRequest, connectionId, sessionContextByClient!=null ? sessionContextByClient.getConnectionId() : null);
                 serverContext.getAuthServiceClient().brokerDisconnect(authRequest);
             }
@@ -303,4 +309,30 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         }
     }
 
+    private void updateError(AuthRequest authRequest, Exception exception) {
+        //Exception must be not null!
+        authRequest.setExceptionClass(exception.getClass().getName());
+        String errorCode = KapuaAuthenticationErrorCodes.AUTHENTICATION_ERROR.name();
+        if (exception instanceof ActiveMQException) {
+            ActiveMQException activeMQException = (ActiveMQException) exception;
+            //analyze the exception code
+            ActiveMQExceptionType exceptionType = activeMQException.getType();
+            if (!ActiveMQExceptionType.REMOTE_DISCONNECT.equals(exceptionType)) {
+                errorCode = AuthErrorCodes.UNEXPECTED_STATUS.name();
+            }
+        }
+        else if (exception instanceof KapuaIllegalDeviceStateException) {
+            AuthErrorCodes authErrorCode = (AuthErrorCodes)((KapuaIllegalDeviceStateException) exception).getCode();
+            if (authErrorCode!=null) {
+                errorCode = authErrorCode.name();
+            }
+        }
+        else if (exception instanceof KapuaAuthenticationException) {
+            KapuaAuthenticationErrorCodes authErrorCode = (KapuaAuthenticationErrorCodes)((KapuaAuthenticationException) exception).getCode();
+            if (authErrorCode!=null) {
+                errorCode = authErrorCode.name();
+            }
+        }
+        authRequest.setErrorCode(errorCode);
+    }
 }
