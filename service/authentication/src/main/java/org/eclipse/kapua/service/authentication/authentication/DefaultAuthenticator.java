@@ -112,12 +112,12 @@ public class DefaultAuthenticator implements Authenticator {
             }
             authorizationEntries = userAuthenticationLogic.connect(authContext);
             loginMetric.getUserConnected().inc();
-            Context loginSendLogingUpdateMsgTimeContext = loginMetric.getSendLoginUpdateMsgTime().time();
+            Context loginRaiseLifecycleEventTimeContext = loginMetric.getRaiseLifecycleEventTime().time();
             if (raiseLifecycleEvents) {
                 logger.info("raising connect lifecycle event for clientIs: {}", authContext.getClientId());
                 raiseLifecycleEvent(authContext, DeviceConnectionStatus.CONNECTED);
             }
-            loginSendLogingUpdateMsgTimeContext.stop();
+            loginRaiseLifecycleEventTimeContext.stop();
         }
         return authorizationEntries;
     }
@@ -150,9 +150,9 @@ public class DefaultAuthenticator implements Authenticator {
             }
             if (userAuthenticationLogic.disconnect(authContext)) {
                 logger.info("raising disconnect lifecycle event for clientIs: {}", authContext.getClientId());
-                Context loginSendLogingUpdateMsgTimeContext = loginMetric.getSendLoginUpdateMsgTime().time();
+                Context loginRaiseLifecycleEventTimeContext = loginMetric.getRaiseLifecycleEventTime().time();
                 raiseLifecycleEvent(authContext, DeviceConnectionStatus.DISCONNECTED);
-                loginSendLogingUpdateMsgTimeContext.stop();
+                loginRaiseLifecycleEventTimeContext.stop();
             }
         }
     }

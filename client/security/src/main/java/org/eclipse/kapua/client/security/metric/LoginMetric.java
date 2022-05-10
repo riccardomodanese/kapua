@@ -30,6 +30,9 @@ public class LoginMetric {
     private static final String FAILURE_CLIENT_ID = MetricsLabel.FAILURE + "_client_id";
     private static final String ATTEMPT = "attempt";
     private static final String CONNECTION_CLEANUP = "connection_cleanup";
+    private static final String CRITICAL = "critical";
+    private static final String LOGIN_CLOSED_CONNECTION = "lonig_closed_connection";
+    private static final String DUPLICATE_SESSION_METADATA = "duplicate_session_metadata";
     private static final String STEALING_LINK = "stealing_link";
     private static final String DISCONNECT_BY_EVENT = MetricsLabel.DISCONNECT + "_by_event";
     private static final String ILLEGAL_STATE = "illegal_state";
@@ -40,7 +43,7 @@ public class LoginMetric {
     private static final String FIND_DEVICE_CONNECTION = "find_device_connection";
     private static final String UPDATE_DEVICE_CONNECTION = "update_device_connection";
     private static final String LOGOUT = "logout";
-    private static final String SEND_LOGIN_UPDATE = "send_login_update";
+    private static final String RAISE_LIFECYCLE_EVENT = "raise_lifecycle_event";
     private static final String REMOVE_CONNECTION = "remove_connection";
 
     private Counter externalAttempt;
@@ -51,6 +54,11 @@ public class LoginMetric {
     private Counter internalConnectorSuccess;
     private Counter internalConnectorFailure;
     private Counter cleanupConnectionFailure;
+    //other failures
+    private Counter cleanupConnectionNullSession;
+    private Counter criticalFailure;
+    private Counter loginClosedConnectionFailure;
+    private Counter duplicateSessionMetadataFailure;
 
     private Counter userAttempt;
     private Counter userConnected;
@@ -77,7 +85,7 @@ public class LoginMetric {
     private Timer findDeviceConnectionTime;
     private Timer updateDeviceConnectionTime;
     private Timer shiroLogoutTime;
-    private Timer sendLoginUpdateMsgTime;
+    private Timer raiseLifecycleEventTime;
     private Timer removeConnectionTime;
 
     public static LoginMetric getInstance() {
@@ -95,6 +103,10 @@ public class LoginMetric {
         internalConnectorSuccess = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, INTERNAL_CONNECTOR, MetricsLabel.SUCCESS, MetricsLabel.COUNT);
         internalConnectorFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, INTERNAL_CONNECTOR, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         cleanupConnectionFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CONNECTION_CLEANUP, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        cleanupConnectionNullSession = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CONNECTION_CLEANUP, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        criticalFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CRITICAL, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        loginClosedConnectionFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, LOGIN_CLOSED_CONNECTION, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        duplicateSessionMetadataFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, DUPLICATE_SESSION_METADATA, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         //logins by user type
         userConnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, MetricsLabel.CONNECT, MetricsLabel.COUNT);
         userDisconnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, MetricsLabel.DISCONNECT, MetricsLabel.COUNT);
@@ -119,7 +131,7 @@ public class LoginMetric {
         findDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         updateDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         shiroLogoutTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        sendLoginUpdateMsgTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SEND_LOGIN_UPDATE, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        raiseLifecycleEventTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, RAISE_LIFECYCLE_EVENT, MetricsLabel.TIME, MetricsLabel.SECONDS);
         removeConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, REMOVE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
     }
 
@@ -153,6 +165,22 @@ public class LoginMetric {
 
     public Counter getCleanupConnectionFailure() {
         return cleanupConnectionFailure;
+    }
+
+    public Counter getCleanupConnectionNullSession() {
+        return cleanupConnectionNullSession;
+    }
+
+    public Counter getCriticalFailure() {
+        return criticalFailure;
+    }
+
+    public Counter getLoginClosedConnectionFailure() {
+        return loginClosedConnectionFailure;
+    }
+
+    public Counter getDuplicateSessionMetadataFailure() {
+        return duplicateSessionMetadataFailure;
     }
 
     public Counter getAdminAttempt() {
@@ -240,8 +268,8 @@ public class LoginMetric {
         return shiroLogoutTime;
     }
 
-    public Timer getSendLoginUpdateMsgTime() {
-        return sendLoginUpdateMsgTime;
+    public Timer getRaiseLifecycleEventTime() {
+        return raiseLifecycleEventTime;
     }
 
     public Timer getRemoveConnectionTime() {

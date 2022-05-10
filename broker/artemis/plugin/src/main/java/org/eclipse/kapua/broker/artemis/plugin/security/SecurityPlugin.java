@@ -106,7 +106,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             logger.info("### authenticate user (no cache): {} - clientId: {} - remoteIP: {} - connectionId: {}", username, clientId, remotingConnection.getTransportConnection().getRemoteAddress(), connectionId);
             if (!remotingConnection.getTransportConnection().isOpen()) {
                 logger.info("Connection (connectionId: {}) is closed (stealing link occurred?)", connectionId);
-                //TODO add metrics?
+                loginMetric.getLoginClosedConnectionFailure().inc();
                 return null;
             }
             ConnectionInfo connectionInfo = new ConnectionInfo(

@@ -126,7 +126,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
     /**
      * CONNECT
      */
-
     @Override
     public void afterCreateConnection(RemotingConnection connection) throws ActiveMQException {
         connection.addCloseListener(() -> cleanUpConnectionData(connection, Failure.CLOSED));
@@ -150,7 +149,6 @@ public class ServerPlugin implements ActiveMQServerPlugin {
      */
     @Override
     public void afterDestroyConnection(RemotingConnection connection) throws ActiveMQException {
-        //TODO add metrics
         ActiveMQServerPlugin.super.afterDestroyConnection(connection);
         cleanUpConnectionData(connection, Failure.DESTROY);
     }
@@ -269,14 +267,14 @@ public class ServerPlugin implements ActiveMQServerPlugin {
     @Override
     public void duplicateSessionMetadataFailure(ServerSession session, String key, String data) throws ActiveMQException {
         logger.error("Duplicate session for key: {} - data: {}", key, data);
-        //TODO add metrics?
+        loginMetric.getDuplicateSessionMetadataFailure().inc();
         ActiveMQServerPlugin.super.duplicateSessionMetadataFailure(session, key, data);
     }
 
     @Override
     public void criticalFailure(CriticalComponent components) throws ActiveMQException {
         logger.error("Critical failure on component {}", components.toString());
-        //TODO add metrics?
+        loginMetric.getCriticalFailure().inc();
         ActiveMQServerPlugin.super.criticalFailure(components);
     }
 
@@ -302,7 +300,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
             }
             else {
                 logger.warn("Cannot find any session context for connection id: {}", connectionId);
-                //TODO add metrics
+                loginMetric.getCleanupConnectionNullSession().inc();
             }
         }
         catch (Exception e) {
