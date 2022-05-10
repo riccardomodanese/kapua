@@ -16,11 +16,37 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
 
 import org.eclipse.kapua.commons.metric.MetricServiceFactory;
+import org.eclipse.kapua.commons.metric.MetricsLabel;
 import org.eclipse.kapua.commons.metric.MetricsService;
 
 public class LoginMetric {
 
     private static final LoginMetric LOGIN_METRIC = new LoginMetric();
+
+    private static final String CLIENTS = "clients";
+    private static final String KAPUASYS = "kapuasys";
+    private static final String CONNECT = "connect";
+    private static final String CONNECTED = "connected";
+    private static final String DISCONNECT = "disconnect";
+    private static final String DISCONNECTED = "disconnected";
+    private static final String INTERNAL_CONNECTOR = "internal_connector";
+    private static final String SUCCESS_FROM_CACHE = "success_from_cache";
+    private static final String FAILURE_PASSWORD = MetricsLabel.FAILURE + "_password";
+    private static final String FAILURE_CLIENT_ID = MetricsLabel.FAILURE + "_client_id";
+    private static final String NORMAL = "normal";
+    private static final String STEALING_LINK = "stealing_link";
+    private static final String ADMIN_STEALING_LINK = "admin_" + STEALING_LINK;
+    private static final String DISCONNECT_BY_EVENT = DISCONNECT + "_by_event";
+    private static final String ILLEGAL_STATE = "illegal_state";
+    private static final String ADD_CONNECTION = "add_connection";
+    private static final String USER = "user";
+    private static final String SHIRO = "shiro";
+    private static final String CHECK_ACCESS = "check_access";
+    private static final String FIND_DEVICE_CONNECTION = "find_device_connection";
+    private static final String UPDATE_DEVICE_CONNECTION = "update_device_connection";
+    private static final String LOGOUT = "logout";
+    private static final String SEND_LOGIN_UPDATE = "send_login_update";
+    private static final String REMOVE_CONNECTION = "remove_connection";
 
     private Counter attempt;
     private Counter success;
@@ -60,36 +86,36 @@ public class LoginMetric {
     private LoginMetric() {
         MetricsService metricsService = MetricServiceFactory.getInstance();
         // login
-        attempt = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_NORMAL, SecurityMetrics.METRIC_COUNT);
-        success = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_SUCCESS, SecurityMetrics.METRIC_COUNT);
-        successFromCache = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_SUCCESS_FROM_CACHE, SecurityMetrics.METRIC_COUNT);
-        failure = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_FAILURE, SecurityMetrics.METRIC_COUNT);
-        connected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_CLIENTS, SecurityMetrics.METRIC_CONNECTED, SecurityMetrics.METRIC_COUNT);
-        disconnected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_CLIENTS, SecurityMetrics.METRIC_DISCONNECTED, SecurityMetrics.METRIC_COUNT);
-        invalidUserPassword = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_FAILURE_PASSWORD, SecurityMetrics.METRIC_COUNT);
-        invalidClientId = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_FAILURE_CLIENT_ID, SecurityMetrics.METRIC_COUNT);
-        adminAttempt = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_KAPUASYS, SecurityMetrics.METRIC_COUNT);
-        adminConnected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_KAPUASYS, SecurityMetrics.METRIC_CONNECTED, SecurityMetrics.METRIC_COUNT);
-        adminDisconnected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_KAPUASYS, SecurityMetrics.METRIC_DISCONNECTED, SecurityMetrics.METRIC_COUNT);
-        internalConnectorAttempt = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_INTERNAL_CONNECTOR, SecurityMetrics.METRIC_COUNT);
-        internalConnectorConnected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_INTERNAL_CONNECTOR, SecurityMetrics.METRIC_CONNECT, SecurityMetrics.METRIC_COUNT);
-        internalConnectorDisconnected = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_INTERNAL_CONNECTOR, SecurityMetrics.METRIC_DISCONNECT, SecurityMetrics.METRIC_COUNT);
-        stealingLinkConnect = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_STEALING_LINK, SecurityMetrics.METRIC_CONNECT, SecurityMetrics.METRIC_COUNT);
-        stealingLinkDisconnect = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_STEALING_LINK, SecurityMetrics.METRIC_DISCONNECT, SecurityMetrics.METRIC_COUNT);
-        adminStealingLinkConnect = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_ADMIN_STEALING_LINK, SecurityMetrics.METRIC_CONNECT, SecurityMetrics.METRIC_COUNT);
-        adminStealingLinkDisconnect = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_ADMIN_STEALING_LINK, SecurityMetrics.METRIC_DISCONNECT, SecurityMetrics.METRIC_COUNT);
-        disconnectByEvent = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_DISCONNECT_BY_EVENT, SecurityMetrics.METRIC_DISCONNECT, SecurityMetrics.METRIC_COUNT);
-        illegalStateDisconnect = metricsService.getCounter(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_ILLEGAL_STATE, SecurityMetrics.METRIC_DISCONNECT, SecurityMetrics.METRIC_COUNT);
+        attempt = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, NORMAL, MetricsLabel.COUNT);
+        success = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.SUCCESS, MetricsLabel.COUNT);
+        successFromCache = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SUCCESS_FROM_CACHE, MetricsLabel.COUNT);
+        failure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        connected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, CONNECTED, MetricsLabel.COUNT);
+        disconnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, DISCONNECTED, MetricsLabel.COUNT);
+        invalidUserPassword = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FAILURE_PASSWORD, MetricsLabel.COUNT);
+        invalidClientId = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FAILURE_CLIENT_ID, MetricsLabel.COUNT);
+        adminAttempt = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, KAPUASYS, MetricsLabel.COUNT);
+        adminConnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, KAPUASYS, CONNECTED, MetricsLabel.COUNT);
+        adminDisconnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, KAPUASYS, DISCONNECTED, MetricsLabel.COUNT);
+        internalConnectorAttempt = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, INTERNAL_CONNECTOR, MetricsLabel.COUNT);
+        internalConnectorConnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, INTERNAL_CONNECTOR, CONNECT, MetricsLabel.COUNT);
+        internalConnectorDisconnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, INTERNAL_CONNECTOR, DISCONNECT, MetricsLabel.COUNT);
+        stealingLinkConnect = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, STEALING_LINK, CONNECT, MetricsLabel.COUNT);
+        stealingLinkDisconnect = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, STEALING_LINK, DISCONNECT, MetricsLabel.COUNT);
+        adminStealingLinkConnect = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADMIN_STEALING_LINK, CONNECT, MetricsLabel.COUNT);
+        adminStealingLinkDisconnect = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, ADMIN_STEALING_LINK, DISCONNECT, MetricsLabel.COUNT);
+        disconnectByEvent = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, DISCONNECT_BY_EVENT, DISCONNECT, MetricsLabel.COUNT);
+        illegalStateDisconnect = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ILLEGAL_STATE, DISCONNECT, MetricsLabel.COUNT);
         // login time
-        addConnectionTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_ADD_CONNECTION, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        normalUserTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_USER, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        shiroLoginTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_SHIRO, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        checkAccessTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_CHECK_ACCESS, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        findDeviceConnectionTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_FIND_DEVICE_CONNECTION, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        updateDeviceConnectionTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_UPDATE_DEVICE_CONNECTION, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        shiroLogoutTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_SHIRO, SecurityMetrics.METRIC_LOGOUT, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        sendLoginUpdateMsgTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_SEND_LOGIN_UPDATE, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
-        removeConnectionTime = metricsService.getTimer(SecurityMetrics.METRIC_MODULE_NAME, SecurityMetrics.METRIC_COMPONENT_LOGIN, SecurityMetrics.METRIC_REMOVE_CONNECTION, SecurityMetrics.METRIC_TIME, SecurityMetrics.METRIC_S);
+        addConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        normalUserTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, USER, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        shiroLoginTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        checkAccessTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CHECK_ACCESS, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        findDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        updateDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        shiroLogoutTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        sendLoginUpdateMsgTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SEND_LOGIN_UPDATE, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        removeConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, REMOVE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
     }
 
     public Counter getSuccess() {

@@ -25,6 +25,7 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.eclipse.kapua.commons.metric.MetricServiceFactory;
+import org.eclipse.kapua.commons.metric.MetricsLabel;
 import org.eclipse.kapua.commons.util.log.ConfigurationPrinter;
 import org.eclipse.kapua.service.elasticsearch.client.ElasticsearchClientProvider;
 import org.eclipse.kapua.service.elasticsearch.client.ModelContext;
@@ -149,7 +150,7 @@ public class RestElasticsearchClientProvider implements ElasticsearchClientProvi
                     .addParameter("Model Converter", modelConverter)
                     .printLog();
 
-            clientReconnectCallCounter = MetricServiceFactory.getInstance().getCounter(elasticsearchClientConfiguration.getModuleName(), "elasticsearch-client-rest", "reconnect_call", "count");
+            clientReconnectCallCounter = MetricServiceFactory.getInstance().getCounter(elasticsearchClientConfiguration.getModuleName(), "elasticsearch-client-rest", "reconnect_call", MetricsLabel.COUNT);
 
             // Close the current client if already initialized.
             close();
