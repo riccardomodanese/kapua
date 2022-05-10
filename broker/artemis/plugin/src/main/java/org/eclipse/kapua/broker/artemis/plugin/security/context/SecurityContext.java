@@ -171,9 +171,9 @@ public final class SecurityContext {
                 new ConnectionToken(SecurityAction.brokerConnect, KapuaDateUtils.getKapuaSysDate()));
         }
         else {
-            //the disconnect callback is called after the connect so nothing to add to the context
-            //TODO add metric?
-            logger.warn("Connect callback called after the disconnection callback ({} - {} - {})", connectionId, connectionToken.getAction(), connectionToken.getActionDate());
+            //the disconnect callback is called before the connect so nothing to add to the context
+            loginMetric.getDisconnectCallbackCallFailure().inc();
+            logger.warn("Connect callback called before the disconnection callback ({} - {} - {})", connectionId, connectionToken.getAction(), connectionToken.getActionDate());
         }
         return connectionToken;
     }

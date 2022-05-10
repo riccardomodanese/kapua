@@ -59,7 +59,7 @@ public class Acl {
                     aclLog.append("\n\t").append(authAcl.getMatch()).append(" - ").append(authAcl.getAction()).append(" - ").
                         append(principal.getName()).append("/").append(principal.getAccountId().toStringId()).append("/").append(principal.getClientId());
                 } catch (Exception e) {
-                    //TODO add metric
+                    loginMetric.getAclCreationFailure().inc();
                     //no security issue since in case of error no acl is added
                     logger.error("Error adding acl {}", authAcl, e);
                 }

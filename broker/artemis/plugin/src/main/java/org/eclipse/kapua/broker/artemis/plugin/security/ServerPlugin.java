@@ -306,7 +306,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
             }
         }
         catch (Exception e) {
-            loginMetric.getFailure().inc();
+            loginMetric.getCleanupConnectionFailure().inc();
             logger.error("Cleanup connection data error: {}", e.getMessage(), e);
         }
     }

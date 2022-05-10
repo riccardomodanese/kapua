@@ -62,7 +62,7 @@ public abstract class AbstractKapuaConverter {
         metricConverterJmsMessage = METRICS_SERVICE.getCounter(
                 MetricsLabel.MODULE_CONVERTER,
                 MetricsLabel.COMPONENT_KAPUA,
-                MetricsLabel.METRIC_JMS,
+                MetricsLabel.MESSAGE_FORMAT_JMS,
                 MetricsLabel.MESSAGES,
                 MetricsLabel.COUNT
         );
@@ -70,7 +70,7 @@ public abstract class AbstractKapuaConverter {
         metricConverterJmsErrorMessage = METRICS_SERVICE.getCounter(
                 MetricsLabel.MODULE_CONVERTER,
                 MetricsLabel.COMPONENT_KAPUA,
-                MetricsLabel.METRIC_JMS,
+                MetricsLabel.MESSAGE_FORMAT_JMS,
                 MetricsLabel.MESSAGES,
                 MetricsLabel.ERROR,
                 MetricsLabel.COUNT

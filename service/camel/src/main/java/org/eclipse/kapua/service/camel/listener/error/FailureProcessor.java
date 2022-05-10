@@ -31,8 +31,8 @@ public class FailureProcessor implements Processor {
 
     private static final Logger logger = LoggerFactory.getLogger(FailureProcessor.class);
 
-    private Counter unauthenticatedMessagesCount = MetricServiceFactory.getInstance().getCounter(MetricsLabel.PROCESSOR, MetricsLabel.FAILURE, MetricsLabel.UNAUTHENTICATED, MetricsLabel.MESSAGES, MetricsLabel.COUNT);
-    private Counter unauthenticatedCount = MetricServiceFactory.getInstance().getCounter(MetricsLabel.PROCESSOR, MetricsLabel.FAILURE, MetricsLabel.MESSAGES, MetricsLabel.COUNT);
+    private Counter unauthenticatedMessagesCount = MetricServiceFactory.getInstance().getCounter(MetricsLabel.COMPONENT_PROCESSOR, MetricsLabel.FAILURE, MetricsLabel.UNAUTHENTICATED, MetricsLabel.MESSAGES, MetricsLabel.COUNT);
+    private Counter unauthenticatedCount = MetricServiceFactory.getInstance().getCounter(MetricsLabel.COMPONENT_PROCESSOR, MetricsLabel.FAILURE, MetricsLabel.MESSAGES, MetricsLabel.COUNT);
 
     @Override
     public void process(Exchange exchange) throws Exception {

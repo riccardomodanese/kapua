@@ -101,9 +101,9 @@ public class DefaultAuthenticator implements Authenticator {
             loginMetric.getAdminConnected().inc();
         }
         else {
-            loginMetric.getAttempt().inc();
+            loginMetric.getUserAttempt().inc();
             if (authContext.isStealingLink()) {
-                loginMetric.getStealingLinkConnect().inc();
+                loginMetric.getUserStealingLinkConnect().inc();
                 logger.warn("Detected Stealing link for clientId: {} - account: {} - current connectionId: {} - IP: {}",
                         authContext.getClientId(),
                         authContext.getAccountName(),
@@ -111,7 +111,7 @@ public class DefaultAuthenticator implements Authenticator {
                         authContext.getClientIp());
             }
             authorizationEntries = userAuthenticationLogic.connect(authContext);
-            loginMetric.getConnected().inc();
+            loginMetric.getUserConnected().inc();
             Context loginSendLogingUpdateMsgTimeContext = loginMetric.getSendLoginUpdateMsgTime().time();
             if (raiseLifecycleEvents) {
                 logger.info("raising connect lifecycle event for clientIs: {}", authContext.getClientId());
@@ -132,18 +132,18 @@ public class DefaultAuthenticator implements Authenticator {
             adminAuthenticationLogic.disconnect(authContext);
         }
         else {
-            loginMetric.getDisconnected().inc();
+            loginMetric.getUserDisconnected().inc();
             String error = authContext.getExceptionClass();
             logger.info("Disconnecting client: connection id: {} - error: {} - isStealingLink {} - isIllegalState: {}",
                     authContext.getConnectionId(), error, authContext.isStealingLink(), authContext.isIllegalState());
             if (authContext.isStealingLink()) {
-                loginMetric.getStealingLinkDisconnect().inc();
+                loginMetric.getUserStealingLinkDisconnect().inc();
                 logger.info("Stealing link: skip device connection status update. Client id: {} - Connection id: {}",
                         authContext.getClientId(),
                         authContext.getConnectionId());
             }
             else if (authContext.isIllegalState()) {
-                loginMetric.getIllegalStateDisconnect().inc();
+                loginMetric.getUserIllegalStateDisconnect().inc();
                 logger.info("Illegal device connection status: skip device connection status update. Client id: {} - Connection id: {}",
                         authContext.getClientId(),
                         authContext.getConnectionId());

@@ -108,7 +108,7 @@ public final class MessageStoreFacade extends AbstractRegistryFacade {
         this.mediator = mediator;
 
         MetricsService metricService = MetricServiceFactory.getInstance();
-        metricMessagesAlreadyInTheDatastoreCount = metricService.getCounter(MetricsLabel.MODULE_DATASTORE, MetricsLabel.COMPONENT_DRIVER, MetricsLabel.STORE, MetricsLabel.MESSAGES, MetricsLabel.METRIC_ALREADY_IN_THE_DATASTORE, MetricsLabel.COUNT);
+        metricMessagesAlreadyInTheDatastoreCount = metricService.getCounter(MetricsLabel.MODULE_DATASTORE, MetricsLabel.COMPONENT_DRIVER, MetricsLabel.STORE, MetricsLabel.MESSAGES, MetricsLabel.ALREADY_IN_THE_STORE, MetricsLabel.COUNT);
     }
 
     /**
