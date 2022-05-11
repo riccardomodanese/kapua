@@ -15,11 +15,13 @@ package org.eclipse.kapua.commons.metric;
 public class MetricsLabel {
 
     public static final String MODULE_CONVERTER = "converter";
+    public static final String MODULE_CORE = "core";
     public static final String MODULE_DATASTORE = "datastore";
     public static final String MODULE_SECURITY = "security";
 
     public static final String COMPONENT_DATASTORE = "datastore";
     public static final String COMPONENT_DRIVER = "driver";
+    public static final String COMPONENT_EVENT = "event";
     public static final String COMPONENT_LOGIN = "login";
     public static final String COMPONENT_PUBLISH = "publish";
     public static final String COMPONENT_REST_CLIENT = "rest-client";
@@ -53,6 +55,9 @@ public class MetricsLabel {
     public static final String DISCONNECT = "disconnect";
     public static final String REQUEST = "request";
     public static final String STORE = "store";
+    public static final String ENQUEUED_EVENT = "enqueued_event";
+    public static final String DEQUEUED_EVENT = "dequeued_event";
+    public static final String PROCESSED_EVENT = "processed_event";
 
     public static final String OK = "ok";
     public static final String ERROR = "error";

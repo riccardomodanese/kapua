@@ -10,7 +10,7 @@
  * Contributors:
  *     Eurotech - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kapua.localevent;
+package org.eclipse.kapua.commons.localevent;
 
 public interface EventProcessor<O> {
 
