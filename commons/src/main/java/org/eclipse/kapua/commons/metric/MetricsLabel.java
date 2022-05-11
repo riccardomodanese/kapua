@@ -47,6 +47,8 @@ public class MetricsLabel {
     public static final String LOG = "log";
 
     //action
+    public static final String LOGIN = "login";
+    public static final String LOGOUT = "logout";
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
     public static final String REQUEST = "request";

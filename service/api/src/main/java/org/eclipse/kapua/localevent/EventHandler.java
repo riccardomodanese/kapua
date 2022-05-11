@@ -53,7 +53,7 @@ public abstract class EventHandler<O> {
                 }
                 catch (Exception e) {
                     //do nothing
-                    logger.error("Error while synchronizing routes: {}", e.getMessage(), e);
+                    logger.error("Error while processing event: {}", e.getMessage(), e);
                     //TODO add metric?
                 }
             }

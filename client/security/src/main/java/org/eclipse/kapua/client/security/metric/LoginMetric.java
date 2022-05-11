@@ -26,7 +26,7 @@ public class LoginMetric {
     private static final String CLIENTS = "clients";
     private static final String INTERNAL_CONNECTOR = "internal_connector";
     private static final String SUCCESS_FROM_CACHE = "success_from_cache";
-    private static final String PASSWORD =  "password";
+    private static final String PASSWORD = "password";
     private static final String CLIENT_ID = "client_id";
     private static final String CONNECTION_CLEANUP = "connection_cleanup";
     private static final String CRITICAL = "critical";
@@ -44,11 +44,12 @@ public class LoginMetric {
     private static final String ADMIN = "admin";
     private static final String SHIRO = "shiro";
     private static final String CHECK_ACCESS = "check_access";
-    private static final String FIND_DEVICE_CONNECTION = "find_device_connection";
-    private static final String UPDATE_DEVICE_CONNECTION = "update_device_connection";
-    private static final String LOGOUT = "logout";
+    private static final String FIND_DEVICE_ON_CONNECTION = "find_device_on_connection";
+    private static final String UPDATE_DEVICE_ON_CONNECTION = "update_device_on_connection";
     private static final String RAISE_LIFECYCLE_EVENT = "raise_lifecycle_event";
     private static final String REMOVE_CONNECTION = "remove_connection";
+    private static final String FIND_DEVICE = "find_device";
+    private static final String BROKER_HOST = "broker_host";
 
     private Counter externalAttempt;
     private Counter externalSuccess;
@@ -85,6 +86,10 @@ public class LoginMetric {
     private Counter adminStealingLinkDisconnect;
 
     private Counter disconnectByEvent;
+    private Counter authServiceLogoutFailure;
+    private Counter authServiceDisconnectFailure;
+    private Counter authServiceFindDeviceConnectionFailure;
+    private Counter authServiceBrokerHostFailure;
 
     private Timer externalAddConnectionTimeTotal;
     private Timer externalAddConnectionTimeShiroLogin;
@@ -135,15 +140,19 @@ public class LoginMetric {
         invalidUserPassword = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, PASSWORD, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         invalidClientId = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENT_ID, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         disconnectByEvent = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, DISCONNECT_BY_EVENT, MetricsLabel.DISCONNECT, MetricsLabel.COUNT);
+        authServiceLogoutFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.LOGOUT, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        authServiceDisconnectFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.DISCONNECT, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        authServiceFindDeviceConnectionFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        authServiceBrokerHostFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, BROKER_HOST, MetricsLabel.FAILURE, MetricsLabel.COUNT);
 
         // login time
         externalAddConnectionTimeTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         externalAddConnectionTimeShiroLogin = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.TIME, MetricsLabel.SECONDS);
         externalAddConnectionTimeUserTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, USER, MetricsLabel.TIME, MetricsLabel.SECONDS);
         externalAddConnectionTimeUserTotalCheckAccess = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CHECK_ACCESS, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        externalAddConnectionTimeUserTotalFindDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        externalAddConnectionTimeUserTotalUpdateDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        externalAddConnectionTimeShiroLogout = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotalFindDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_ON_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotalUpdateDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_ON_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeShiroLogout = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, MetricsLabel.LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
         externalAddConnectionTimeAdminTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADMIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         removeConnectionTimeTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, REMOVE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         raiseLifecycleEventTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, RAISE_LIFECYCLE_EVENT, MetricsLabel.TIME, MetricsLabel.SECONDS);
@@ -252,6 +261,38 @@ public class LoginMetric {
 
     public Counter getDisconnectByEvent() {
         return disconnectByEvent;
+    }
+
+    /**
+     * Authentication service - Failure while doing Shiro logout (Internal error)
+     * @return
+     */
+    public Counter getAuthServiceLogoutFailure() {
+        return authServiceLogoutFailure;
+    }
+
+    /**
+     * Authentication service - Failure while calling authenticator disconnect (Internal error)
+     * @return
+     */
+    public Counter getAuthServiceDisconnectFailure() {
+        return authServiceDisconnectFailure;
+    }
+
+    /**
+     * Authentication service - Failure while getting device connection (Internal error)
+     * @return
+     */
+    public Counter getAuthServiceFindDeviceConnectionFailure() {
+        return authServiceFindDeviceConnectionFailure;
+    }
+
+    /**
+     * Authentication service - Failure while getting broker host from authentication context (Internal error)
+     * @return
+     */
+    public Counter getAuthServiceBrokerHostFailure() {
+        return authServiceBrokerHostFailure;
     }
 
     /**
