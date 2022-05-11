@@ -157,13 +157,12 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
 
     private Subject authenticateExternalConn(ConnectionInfo connectionInfo, String connectionId, String username, String password, RemotingConnection remotingConnection) {
         loginMetric.getExternalAttempt().inc();
-        //do login
-        Context loginTotalContext = loginMetric.getAddConnectionTime().time();
+        Context timeTotal = loginMetric.getExternalAddConnectionTimeTotal().time();
         try {
             logger.info("Authenticate external: user: {} - clientId: {} - connectionIp: {} - connectionId: {} isOpen: {}",
                 username, connectionInfo.getClientId(), connectionInfo.getClientIp(), remotingConnection.getID(), remotingConnection.getTransportConnection().isOpen());
             String fullClientId = Utils.getFullClientId(getScopeId(username), connectionInfo.getClientId());
-            Context loginShiroLoginTimeContext = loginMetric.getShiroLoginTime().time();
+            Context timeShiroLogin = loginMetric.getExternalAddConnectionTimeShiroLogin().time();
             AuthRequest authRequest = new AuthRequest(
                 serverContext.getBrokerIdentity().getBrokerHost(), SecurityAction.brokerConnect.name(),
                 username, password, connectionInfo,
@@ -176,7 +175,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             SessionContext sessionContext = new SessionContext(principal, connectionInfo, authResponse.getKapuaConnectionId(),
                 serverContext.getBrokerIdentity().getBrokerId(), serverContext.getBrokerIdentity().getBrokerHost(),
                 authResponse.isAdmin(), authResponse.isMissing());
-            loginShiroLoginTimeContext.stop();
+            timeShiroLogin.stop();
 
             //update client id with account|clientId (see pattern)
             remotingConnection.setClientID(fullClientId);
@@ -195,7 +194,7 @@ public class SecurityPlugin implements ActiveMQSecurityManager5 {
             return null;
         }
         finally {
-            loginTotalContext.stop();
+            timeTotal.stop();
         }
     }
 

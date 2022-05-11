@@ -33,6 +33,7 @@ import org.eclipse.kapua.client.security.bean.AuthAcl;
 import org.eclipse.kapua.client.security.bean.AuthRequest;
 import org.eclipse.kapua.client.security.context.SessionContext;
 import org.eclipse.kapua.client.security.context.Utils;
+import org.eclipse.kapua.client.security.metric.LoginMetric;
 import org.eclipse.kapua.commons.cache.LocalCache;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
 import org.eclipse.kapua.localevent.ExecutorWrapper;
@@ -58,6 +59,7 @@ public final class SecurityContext {
     }
 
     private static final SecurityContext INSTANCE = new SecurityContext();
+    private LoginMetric loginMetric = LoginMetric.getInstance();
 
     //concurrency shouldn't be an issue since this set will contain the list of active connections
     private final Set<String> activeConnections = new HashSet<>();
@@ -212,7 +214,7 @@ public final class SecurityContext {
             //on a stealing link currentSessionContext could be null if the disconnect of the latest connected client happens before the others
             if (currentSessionContext==null) {
                 logger.warn("Cannot find session context by full client id: {}", fullClientId);
-                //TODO add metric?
+                loginMetric.getSessionContextByClientIdFailure().inc();
             }
             else {
                 if (connectionId.equals(currentSessionContext.getConnectionId())) {
@@ -235,12 +237,7 @@ public final class SecurityContext {
     public SessionContext getSessionContextWithCacheFallback(String connectionId) {
         SessionContext sessionContext = sessionContextMap.get(connectionId);
         if (sessionContext == null) {
-            //try from cache
             sessionContext = sessionContextCache.get(connectionId);
-            if (sessionContext!=null) {
-                //TODO add metric?
-                logger.warn("Got sessioncontext for connectionId {} from cache!", connectionId);
-            }
         }
         return sessionContext;
     }
@@ -270,7 +267,7 @@ public final class SecurityContext {
             //try from cache
             acl = aclCache.get(connectionId);
             if (acl!=null) {
-                //TODO add metric?
+                loginMetric.getAclCacheHit().inc();
                 logger.warn("Got acl for connectionId {} from cache!", connectionId);
             }
         }

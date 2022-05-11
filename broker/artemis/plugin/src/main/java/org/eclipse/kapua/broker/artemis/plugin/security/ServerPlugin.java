@@ -51,6 +51,8 @@ import org.eclipse.kapua.service.client.message.MessageConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Timer.Context;
+
 public class ServerPlugin implements ActiveMQServerPlugin {
 
     protected static Logger logger = LoggerFactory.getLogger(ServerPlugin.class);
@@ -283,6 +285,7 @@ public class ServerPlugin implements ActiveMQServerPlugin {
     }
 
     private void cleanUpConnectionData(RemotingConnection connection, Failure reason, Exception exception) {
+        Context timeTotal = loginMetric.getRemoveConnectionTimeTotal().time();
         try {
             String connectionId = PluginUtility.getConnectionId(connection);
             serverContext.getSecurityContext().updateConnectionTokenOnDisconnection(connectionId);
@@ -306,6 +309,9 @@ public class ServerPlugin implements ActiveMQServerPlugin {
         catch (Exception e) {
             loginMetric.getCleanupConnectionFailure().inc();
             logger.error("Cleanup connection data error: {}", e.getMessage(), e);
+        }
+        finally {
+            timeTotal.stop();
         }
     }
 

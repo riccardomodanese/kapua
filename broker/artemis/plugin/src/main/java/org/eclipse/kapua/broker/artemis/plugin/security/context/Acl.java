@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectReposito
 import org.eclipse.kapua.KapuaIllegalArgumentException;
 import org.eclipse.kapua.client.security.bean.AuthAcl;
 import org.eclipse.kapua.client.security.bean.AuthAcl.Action;
+import org.eclipse.kapua.client.security.metric.LoginMetric;
 import org.eclipse.kapua.service.authentication.KapuaPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class Acl {
     private static Logger logger = LoggerFactory.getLogger(Acl.class);
 
     private static final WildcardConfiguration WILDCARD_CONFIGURATION;
+    //TODO inject!
+    private static final LoginMetric loginMetric = LoginMetric.getInstance();
 
     static {
         WILDCARD_CONFIGURATION = new WildcardConfiguration();

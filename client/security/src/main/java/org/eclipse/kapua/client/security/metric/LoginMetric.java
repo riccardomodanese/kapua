@@ -26,18 +26,22 @@ public class LoginMetric {
     private static final String CLIENTS = "clients";
     private static final String INTERNAL_CONNECTOR = "internal_connector";
     private static final String SUCCESS_FROM_CACHE = "success_from_cache";
-    private static final String FAILURE_PASSWORD = MetricsLabel.FAILURE + "_password";
-    private static final String FAILURE_CLIENT_ID = MetricsLabel.FAILURE + "_client_id";
-    private static final String ATTEMPT = "attempt";
+    private static final String PASSWORD =  "password";
+    private static final String CLIENT_ID = "client_id";
     private static final String CONNECTION_CLEANUP = "connection_cleanup";
     private static final String CRITICAL = "critical";
-    private static final String LOGIN_CLOSED_CONNECTION = "lonig_closed_connection";
+    private static final String LOGIN_CLOSED_CONNECTION = "login_closed_connection";
     private static final String DUPLICATE_SESSION_METADATA = "duplicate_session_metadata";
+    private static final String CONNECT_CALLBACK_CALL = "connect_callback_call";
+    private static final String SESSION_CONTEXT_BY_CLIENT_ID = "session_context_by_client_id";
+    private static final String ACL_CACHE_HIT = "acl_cache_hit";
+    private static final String ACL_CREATION = "acl_creation";
     private static final String STEALING_LINK = "stealing_link";
     private static final String DISCONNECT_BY_EVENT = MetricsLabel.DISCONNECT + "_by_event";
     private static final String ILLEGAL_STATE = "illegal_state";
     private static final String ADD_CONNECTION = "add_connection";
     private static final String USER = "user";
+    private static final String ADMIN = "admin";
     private static final String SHIRO = "shiro";
     private static final String CHECK_ACCESS = "check_access";
     private static final String FIND_DEVICE_CONNECTION = "find_device_connection";
@@ -59,6 +63,10 @@ public class LoginMetric {
     private Counter criticalFailure;
     private Counter loginClosedConnectionFailure;
     private Counter duplicateSessionMetadataFailure;
+    private Counter disconnectCallbackCallFailure;//disconnect callback called before the connect callback (usually when a stealing link happens)
+    private Counter sessionContextByClientIdFailure;//no session context is found by client id on disconnect on cleanupConnectionData (disconnect)
+    private Counter aclCacheHit;//acl found from cache (it happens when a client id disconnected but some address related to this client id deleted after)
+    private Counter aclCreationFailure;//error while creating acl
 
     private Counter userAttempt;
     private Counter userConnected;
@@ -78,15 +86,16 @@ public class LoginMetric {
 
     private Counter disconnectByEvent;
 
-    private Timer addConnectionTime;
-    private Timer normalUserTime;
-    private Timer shiroLoginTime;
-    private Timer checkAccessTime;
-    private Timer findDeviceConnectionTime;
-    private Timer updateDeviceConnectionTime;
-    private Timer shiroLogoutTime;
+    private Timer externalAddConnectionTimeTotal;
+    private Timer externalAddConnectionTimeShiroLogin;
+    private Timer externalAddConnectionTimeUserTotal;
+    private Timer externalAddConnectionTimeUserTotalCheckAccess;
+    private Timer externalAddConnectionTimeUserTotalFindDevice;
+    private Timer externalAddConnectionTimeUserTotalUpdateDevice;
+    private Timer externalAddConnectionTimeShiroLogout;
+    private Timer externalAddConnectionTimeAdminTotal;
+    private Timer removeConnectionTimeTotal;
     private Timer raiseLifecycleEventTime;
-    private Timer removeConnectionTime;
 
     public static LoginMetric getInstance() {
         return LOGIN_METRIC;
@@ -107,6 +116,10 @@ public class LoginMetric {
         criticalFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CRITICAL, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         loginClosedConnectionFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, LOGIN_CLOSED_CONNECTION, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         duplicateSessionMetadataFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, DUPLICATE_SESSION_METADATA, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        disconnectCallbackCallFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CONNECT_CALLBACK_CALL, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        sessionContextByClientIdFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SESSION_CONTEXT_BY_CLIENT_ID, MetricsLabel.FAILURE, MetricsLabel.COUNT);
+        aclCacheHit = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ACL_CACHE_HIT, MetricsLabel.COUNT);
+        aclCreationFailure = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ACL_CREATION, MetricsLabel.FAILURE, MetricsLabel.COUNT);
         //logins by user type
         userConnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, MetricsLabel.CONNECT, MetricsLabel.COUNT);
         userDisconnected = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CLIENTS, MetricsLabel.DISCONNECT, MetricsLabel.COUNT);
@@ -124,15 +137,16 @@ public class LoginMetric {
         disconnectByEvent = metricsService.getCounter(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, DISCONNECT_BY_EVENT, MetricsLabel.DISCONNECT, MetricsLabel.COUNT);
 
         // login time
-        addConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        normalUserTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, USER, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        shiroLoginTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        checkAccessTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CHECK_ACCESS, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        findDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        updateDeviceConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        shiroLogoutTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeShiroLogin = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, MetricsLabel.COMPONENT_LOGIN, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, USER, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotalCheckAccess = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, CHECK_ACCESS, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotalFindDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, FIND_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeUserTotalUpdateDevice = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, UPDATE_DEVICE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeShiroLogout = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, SHIRO, LOGOUT, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        externalAddConnectionTimeAdminTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, ADMIN, ADD_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
+        removeConnectionTimeTotal = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, REMOVE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
         raiseLifecycleEventTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, RAISE_LIFECYCLE_EVENT, MetricsLabel.TIME, MetricsLabel.SECONDS);
-        removeConnectionTime = metricsService.getTimer(MetricsLabel.MODULE_SECURITY, MetricsLabel.COMPONENT_LOGIN, REMOVE_CONNECTION, MetricsLabel.TIME, MetricsLabel.SECONDS);
     }
 
     public Counter getExternalAttempt() {
@@ -240,40 +254,117 @@ public class LoginMetric {
         return disconnectByEvent;
     }
 
-    public Timer getAddConnectionTime() {
-        return addConnectionTime;
+    /**
+     * Disconnect callback called before the connect callback (usually when a stealing link happens)
+     * @return
+     */
+    public Counter getDisconnectCallbackCallFailure() {
+        return disconnectCallbackCallFailure;
     }
 
-    public Timer getNormalUserTime() {
-        return normalUserTime;
+    /**
+     * No session context is found by client id on disconnect on cleanupConnectionData (disconnect)
+     * It's not necessary an error or failure but the metric is classified as failure
+     * @return
+     */
+    public Counter getSessionContextByClientIdFailure() {
+        return sessionContextByClientIdFailure;
     }
 
-    public Timer getShiroLoginTime() {
-        return shiroLoginTime;
+    /**
+     * ACL found from cache (it happens when a client id disconnected but some address related to this client id deleted after)
+     * @return
+     */
+    public Counter getAclCacheHit() {
+        return aclCacheHit;
     }
 
-    public Timer getCheckAccessTime() {
-        return checkAccessTime;
+    /**
+     * Failure while creating ACL count (a failure doesn't mean all the ACL for a user aren't created but just one of the available ACLs)
+     * @return
+     */
+    public Counter getAclCreationFailure() {
+        return aclCreationFailure;
     }
 
-    public Timer getFindDeviceConnectionTime() {
-        return findDeviceConnectionTime;
+    /**
+     * External connector - Add connection total time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeTotal() {
+        return externalAddConnectionTimeTotal;
     }
 
-    public Timer getUpdateDeviceConnectionTime() {
-        return updateDeviceConnectionTime;
+    /**
+     * External connector - Add connection Shiro login time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeShiroLogin() {
+        return externalAddConnectionTimeShiroLogin;
     }
 
-    public Timer getShiroLogoutTime() {
-        return shiroLogoutTime;
+    /**
+     * External connector - Add connection user login total time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeUserTotal() {
+        return externalAddConnectionTimeUserTotal;
     }
 
+    /**
+     * External connector - Add connection user login check access time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeUserTotalCheckAccess() {
+        return externalAddConnectionTimeUserTotalCheckAccess;
+    }
+
+    /**
+     * External connector - Add connection user login find device time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeUserTotalFindDevice() {
+        return externalAddConnectionTimeUserTotalFindDevice;
+    }
+
+    /**
+     * External connector - Add connection user login update device time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeUserTotalUpdateDevice() {
+        return externalAddConnectionTimeUserTotalUpdateDevice;
+    }
+
+    /**
+     * External connector - Add connection Shiro logout time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeShiroLogout() {
+        return externalAddConnectionTimeShiroLogout;
+    }
+
+    /**
+     * External connector - Add connection admin total time
+     * @return
+     */
+    public Timer getExternalAddConnectionTimeAdminTotal() {
+        return externalAddConnectionTimeAdminTotal;
+    }
+
+    /**
+     * Remove connection total time
+     * @return
+     */
+    public Timer getRemoveConnectionTimeTotal() {
+        return removeConnectionTimeTotal;
+    }
+
+    /**
+     * Raise lifecycle event time (could be on connect or disconnect event)
+     * @return
+     */
     public Timer getRaiseLifecycleEventTime() {
         return raiseLifecycleEventTime;
-    }
-
-    public Timer getRemoveConnectionTime() {
-        return removeConnectionTime;
     }
 
 }

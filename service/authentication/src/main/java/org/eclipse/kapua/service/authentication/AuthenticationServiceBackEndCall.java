@@ -87,7 +87,7 @@ public class AuthenticationServiceBackEndCall {
             return buildLoginResponseNotAuthorized(authRequest, e);
         }
         finally {
-            Context loginShiroLogoutTimeContext = loginMetric.getShiroLogoutTime().time();
+            Context timeShiroLogout = loginMetric.getExternalAddConnectionTimeShiroLogout().time();
             try {
                 authenticationService.logout();
             } catch (Exception e) {
@@ -96,7 +96,7 @@ public class AuthenticationServiceBackEndCall {
                 //TODO add metric?
                 logger.warn("Logout error: {}", e.getMessage(), e);
             }
-            loginShiroLogoutTimeContext.stop();
+            timeShiroLogout.stop();
             ThreadContext.unbindSubject();
         }
     }
