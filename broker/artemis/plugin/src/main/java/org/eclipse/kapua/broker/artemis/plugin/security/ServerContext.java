@@ -40,8 +40,7 @@ public class ServerContext {
         brokerIdentity = BrokerIdentity.getInstance();
         brokerIdentity.init(server);
         authServiceClient = new ServiceClientMessagingImpl(brokerIdentity.getBrokerHost());
-        securityContext = SecurityContext.getInstance();
-        securityContext.init(server);
+        securityContext = new SecurityContext(server);
     }
 
     public void shutdown(ActiveMQServer server) throws KapuaException {
