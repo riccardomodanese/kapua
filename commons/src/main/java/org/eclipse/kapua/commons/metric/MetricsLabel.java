@@ -18,6 +18,7 @@ public class MetricsLabel {
     public static final String MODULE_CORE = "core";
     public static final String MODULE_DATASTORE = "datastore";
     public static final String MODULE_SECURITY = "security";
+    public static final String MODULE_BROKER = "broker";
 
     public static final String COMPONENT_DATASTORE = "datastore";
     public static final String COMPONENT_DRIVER = "driver";
@@ -27,8 +28,22 @@ public class MetricsLabel {
     public static final String COMPONENT_REST_CLIENT = "rest-client";
     public static final String COMPONENT_SUBSCRIBE = "subscribe";
     public static final String COMPONENT_PROCESSOR = "processor";
+    public static final String COMPONENT_CORE = "core";
 
     public static final String COMPONENT_KAPUA = "kapua";
+
+    public static final String CONNECTION = "connection";
+    public static final String SESSION = "session";
+    public static final String ACL = "acl";
+    public static final String BROKER_CONNECTION = "broker_connection";
+    public static final String SESSION_CONTEXT = "session_context";
+    public static final String SESSION_CONTEXT_BY_CLIENT = "session_context_by_client";
+    public static final String ACTIVE_CONNECTION = "active_connection";
+    public static final String DISK_USAGE = "disk_usage";
+    public static final String TOTAL_CONNECTION = "total_connection";
+    public static final String TOTAL_MESSAGE = "total_message";
+    public static final String TOTAL_MESSAGE_ACKNOWLEDGED = "total_message_acknowledged";
+    public static final String TOTAL_MESSAGE_ADDED = "total_message_added";
 
     public static final String MESSAGE_FORMAT_JMS = "jms";
     public static final String MESSAGE_FORMAT_JSON = "Json";
@@ -74,6 +89,7 @@ public class MetricsLabel {
     public static final String GENERIC = "generic";
 
     public static final String COUNT = "count";
+    public static final String GAUGE = "gauge";
     public static final String QUEUE = "queue";
     public static final String LAST = "last";
     public static final String TIME = "time";
