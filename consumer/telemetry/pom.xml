@@ -88,6 +88,10 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.kapua</groupId>
+            <artifactId>kapua-asset-store-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-device-management-job-api</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -101,7 +105,7 @@
             <artifactId>kapua-device-registry-api</artifactId>
             <scope>provided</scope>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.eclipse.kapua</groupId>
             <artifactId>kapua-device-registry-internal</artifactId>
             <scope>provided</scope>
