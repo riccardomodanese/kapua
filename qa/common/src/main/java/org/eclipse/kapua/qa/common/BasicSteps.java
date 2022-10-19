@@ -14,12 +14,14 @@
 package org.eclipse.kapua.qa.common;
 
 import org.apache.shiro.SecurityUtils;
+import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.commons.crypto.setting.CryptoSettingKeys;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
 import org.eclipse.kapua.commons.setting.system.SystemSettingKey;
 import org.eclipse.kapua.commons.util.KapuaDateUtils;
+import org.eclipse.kapua.job.engine.client.settings.JobEngineClientSetting;
 import org.eclipse.kapua.locator.KapuaLocator;
 import org.eclipse.kapua.qa.common.cucumber.CucAccount;
 import org.eclipse.kapua.qa.common.cucumber.CucConfig;
@@ -37,6 +39,7 @@ import org.eclipse.kapua.qa.common.cucumber.CucRolePermission;
 import org.eclipse.kapua.qa.common.cucumber.CucTopic;
 import org.eclipse.kapua.qa.common.cucumber.CucTriggerProperty;
 import org.eclipse.kapua.qa.common.cucumber.CucUser;
+import org.eclipse.kapua.service.certificate.internal.setting.KapuaCertificateSetting;
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreElasticsearchClientSettings;
 import org.eclipse.kapua.service.datastore.internal.setting.DatastoreElasticsearchClientSettingsKey;
 import org.eclipse.kapua.transport.message.jms.JmsTopic;
@@ -313,6 +316,9 @@ public class BasicSteps extends TestBase {
             String dbHost, String dbPort, String dbConnResolver, String dbDriver, String jdbcConnection,
             String jwtKey, String jwtCertificate, String brokerIp, String jobEngineUrl, String jobEngineAuthMode, String additionalOptions) {
         SystemSetting.resetInstance();
+        BrokerSetting.resetInstance();
+        JobEngineClientSetting.resetInstance();
+        KapuaCertificateSetting.resetInstance();
         System.setProperty(SystemSettingKey.DB_SCHEMA.key(), schema);
         System.setProperty(SystemSettingKey.DB_SCHEMA_UPDATE.key(), updateSchema);
         System.setProperty(SystemSettingKey.DB_CONNECTION_HOST.key(), dbHost);

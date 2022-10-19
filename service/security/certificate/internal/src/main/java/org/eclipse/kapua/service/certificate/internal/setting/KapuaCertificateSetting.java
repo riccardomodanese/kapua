@@ -13,9 +13,10 @@
 package org.eclipse.kapua.service.certificate.internal.setting;
 
 import org.eclipse.kapua.commons.setting.AbstractKapuaSetting;
+import org.eclipse.kapua.commons.setting.system.SystemSetting;
 
 /**
- * Authentication setting implementation.
+ * Kapua certificate setting implementation.
  *
  * @since 1.0
  *
@@ -24,21 +25,43 @@ public class KapuaCertificateSetting extends AbstractKapuaSetting<KapuaCertifica
 
     private static final String CERTIFICATE_SETTING_PROPERTIES = "kapua-certificate-setting.properties";
 
-    private static final KapuaCertificateSetting INSTANCE = new KapuaCertificateSetting();
+    private static KapuaCertificateSetting instance;
 
     /**
-     * Construct a new authentication setting reading settings from {@link KapuaCertificateSetting#CERTIFICATE_SETTING_PROPERTIES}
+     * Construct a new Kapua certificate setting reading settings from {@link KapuaCertificateSetting#CERTIFICATE_SETTING_PROPERTIES}
      */
     private KapuaCertificateSetting() {
         super(CERTIFICATE_SETTING_PROPERTIES);
     }
 
     /**
-     * Return the authentication setting instance (singleton)
+     * Return the Kapua certificate setting instance (singleton)
      *
      * @return
      */
     public static KapuaCertificateSetting getInstance() {
-        return INSTANCE;
+       synchronized (SystemSetting.class) {
+            if (instance == null) {
+                instance = new KapuaCertificateSetting();
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * Allow re-setting the global instance
+     * <p>
+     * This method clears out the internal global instance in order to let the next call
+     * to {@link #getInstance()} return a fresh instance.
+     * </p>
+     * <p>
+     * This may be helpful for unit tests which need to change system properties for testing
+     * different behaviors.
+     * </p>
+     */
+    public static void resetInstance() {
+        synchronized (KapuaCertificateSetting.class) {
+            instance = null;
+        }
     }
 }
