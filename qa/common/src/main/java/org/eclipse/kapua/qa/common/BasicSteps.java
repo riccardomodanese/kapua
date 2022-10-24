@@ -16,6 +16,8 @@ package org.eclipse.kapua.qa.common;
 import org.apache.shiro.SecurityUtils;
 import org.eclipse.kapua.broker.core.setting.BrokerSetting;
 import org.eclipse.kapua.commons.crypto.setting.CryptoSettingKeys;
+import org.eclipse.kapua.commons.jpa.DataSource;
+import org.eclipse.kapua.commons.jpa.JdbcConnectionUrlResolvers;
 import org.eclipse.kapua.commons.security.KapuaSecurityUtils;
 import org.eclipse.kapua.commons.security.KapuaSession;
 import org.eclipse.kapua.commons.setting.system.SystemSetting;
@@ -48,6 +50,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
+import com.zaxxer.hikari.HikariConfigMXBean;
+//import com.zaxxer.hikari.HikariDataSource;
+//import com.zaxxer.hikari.HikariPoolMXBean;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.HikariPoolMXBean;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -60,7 +67,12 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import javax.inject.Inject;
-
+//import javax.management.JMX;
+//import javax.management.MBeanServer;
+//import javax.management.MalformedObjectNameException;
+//import javax.management.ObjectName;
+//
+//import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
@@ -407,6 +419,44 @@ public class BasicSteps extends TestBase {
     }
 
     protected void databaseInit() {
+        logger.info("============================================");
+        logger.info("============================================");
+        logger.info("============================================");
+        logger.info("CALLED DATABASE INIT");
+//        String poolNameStr = "HikariPool-1";
+//        try {
+//            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+//            ObjectName poolName = new ObjectName("com.zaxxer.hikari.HikariDataSource=" + poolNameStr + "");
+//            HikariPoolMXBean poolProxy = JMX.newMXBeanProxy(mBeanServer, poolName, HikariPoolMXBean.class);
+//            poolProxy.suspendPool();
+//            poolProxy.softEvictConnections();
+//        } catch (MalformedObjectNameException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+
+        HikariDataSource hikariDataSource = DataSource.getDataSource();
+        HikariPoolMXBean poolBean = hikariDataSource.getHikariPoolMXBean();
+        HikariConfigMXBean configBean = hikariDataSource.getHikariConfigMXBean();
+        if (poolBean!=null) {
+            SystemSetting config = SystemSetting.getInstance();
+            hikariDataSource.setDriverClassName(config.getString(SystemSettingKey.DB_JDBC_DRIVER));
+            hikariDataSource.setJdbcUrl(JdbcConnectionUrlResolvers.resolveJdbcUrl());
+            hikariDataSource.setUsername(config.getString(SystemSettingKey.DB_USERNAME));
+            hikariDataSource.setPassword(config.getString(SystemSettingKey.DB_PASSWORD));
+
+            hikariDataSource.setMaximumPoolSize(config.getInt(SystemSettingKey.DB_POOL_SIZE_MAX, 20));
+            hikariDataSource.setMinimumIdle(config.getInt(SystemSettingKey.DB_POOL_SIZE_MIN, 1));
+            hikariDataSource.setIdleTimeout(config.getInt(SystemSettingKey.DB_POOL_IDLE_TIMEOUT, 180000));
+            hikariDataSource.setKeepaliveTime(config.getInt(SystemSettingKey.DB_POOL_KEEPALIVE_TIME, 30000));
+            hikariDataSource.setMaxLifetime(config.getInt(SystemSettingKey.DB_POOL_MAX_LIFETIME, 1800000));
+            hikariDataSource.setConnectionTestQuery(config.getString(SystemSettingKey.DB_POOL_TEST_QUERY, "SELECT 1"));
+
+            hikariDataSource.setLeakDetectionThreshold(config.getInt(SystemSettingKey.DB_POOL_LEAKDETECTION_THRESHOLD, 0));
+            poolBean.softEvictConnections();
+            configBean.se
+        }
+        logger.info("softEvictConnections");
         database.init();
         // Create KapuaSession using KapuaSecurtiyUtils and kapua-sys user as logged in user.
         // All operations on database are performed using system user.
